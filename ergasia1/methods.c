@@ -39,6 +39,7 @@ int initialize(FILE* file, Map* map){
 	return 1;
 }
 
- 
+
+
 
 

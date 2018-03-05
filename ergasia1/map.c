@@ -23,6 +23,7 @@ void insertIntoMap(Map* map, int id, char* text){
 }
 
 
+
 void printMap(Map* map){
 	printf("Length of map-array is '%d'\n", map->length);
 	for(int i=0; i<map->length; i++){

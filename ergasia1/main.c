@@ -3,6 +3,7 @@
 #include <string.h>
 #include "methods.h"
 #include "map.h"
+#include "trie.h"
 
 int main (int argc,char* argv[]){
 	if(argc!=5){
@@ -47,8 +48,15 @@ int main (int argc,char* argv[]){
 		
 	}
 	
-	printMap(map);
+	//printMap(map);
 	
+	Trie* trie = trie = malloc(sizeof(Trie));
+	initializeTrie(&trie);
+	InsertAllLinesIntoTrie(trie,map);
+	
+	printf("Printing trie Horizontally\n");
+	printTrieHorizontally(trie);
+	//printTrieVertically(trie);	
 	//eisodos apo xrhsth 
 	
 	return 0;
