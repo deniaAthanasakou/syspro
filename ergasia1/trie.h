@@ -2,21 +2,15 @@
 #define _TRIE_H_
 #include <stdbool.h>
 #include "map.h"
+#include "postingList.h"
 
-typedef struct OccurancesInText OccurancesInText;
 typedef struct Trie Trie;
-
-struct OccurancesInText{
-	int textId;
-	int occurances;
-	OccurancesInText* next;
-};
 
 struct Trie{
 	char letter; 
 	Trie* verticalNext;
 	Trie* horizontalNext;
-	OccurancesInText* postingList;
+	postingList* pL;
 };
 
 

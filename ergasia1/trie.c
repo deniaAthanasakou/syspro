@@ -7,7 +7,7 @@ void initializeTrie(Trie** trie){
 	(*trie)->letter= '\0';
 	(*trie)->verticalNext = NULL;
 	(*trie)->horizontalNext = NULL;
-	(*trie)->postingList = NULL;
+	(*trie)->pL = NULL;
 }
 	
 Trie* insertLetterIntoTrie(Trie* trie, char charForInsert){

@@ -54,8 +54,8 @@ int main (int argc,char* argv[]){
 	initializeTrie(&trie);
 	InsertAllLinesIntoTrie(trie,map);
 	
-	printf("Printing trie Horizontally\n");
-	printTrieHorizontally(trie);
+	//printf("Printing trie Horizontally\n");
+	//printTrieHorizontally(trie);
 	//printTrieVertically(trie);	
 	//eisodos apo xrhsth 
 	

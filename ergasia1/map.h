@@ -7,12 +7,15 @@ typedef struct MapNode{
 }MapNode;
 
 typedef struct Map{
-	int length;					//number of elements inside array
+	int length;					//initially is 5
 	MapNode* array; 
+	int position;				//position of first empty element
 }Map;
 
 Map* createMap();
 void insertIntoMap(Map* map, int id, char* text);
 void printMap(Map* map);
+void doubleMap(Map* map);
+void reduceMapLength(Map* map);
 
 #endif

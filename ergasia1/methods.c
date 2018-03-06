@@ -31,6 +31,11 @@ int initialize(FILE* file, Map* map){
 		
 		counter++;		
 	}
+	printf("map->Length %d, map->position %d\n", map->length, map->position);
+	printMap(map);
+	reduceMapLength(map);
+	printf("map->Length %d, map->position %d\n", map->length, map->position);
+	printMap(map);
 
 	if (line){
 		free(line);

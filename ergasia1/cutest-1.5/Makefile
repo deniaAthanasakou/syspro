@@ -1,8 +1,8 @@
 CC = gcc -g
-FILES = AllTests.c CuTest.c CuTestTrie.c ../map.c ../methods.c ../trie.c
-OBJECTS = AllTests.o CuTest.o CuTestTrie.o ../map.o ../methods.o ../trie.o
+FILES = AllTests.c CuTest.c CuTestTrie.c CuTestPostingList.c ../map.c ../methods.c ../trie.c ../postingList.c
+OBJECTS = AllTests.o CuTest.o CuTestTrie.o CuTestPostingList.o ../map.o ../methods.o ../trie.o ../postingList.o
 OUT = test
-HEADERS = CuTest.h CuTestTrie.h ../map.h ../methods.h ../trie.h
+HEADERS = CuTest.h CuTestTrie.h CuTestPostingList.h ../map.h ../methods.h ../trie.h ../postingList.h
 
 all: $(OBJECTS) $(HEADERS)
 	$(CC) -o $(OUT) $(FILES)
@@ -18,7 +18,10 @@ CuTestStack.o: CuTestStack.c
 	$(CC) -c CuTestStack.c
 
 CuTestTrie.o: CuTestTrie.c
-	$(CC) -c CuTestTrie.c	
+	$(CC) -c CuTestTrie.c
+
+CuTestPostingList.o: CuTestPostingList.c
+	$(CC) -c CuTestPostingList.c		
 	
 map.o: ../map.c
 	$(CC) -c ../map.c	
@@ -27,7 +30,10 @@ methods.o: ../methods.c
 	$(CC) -c ../methods.c
 	
 trie.o: ../trie.c
-	$(CC) -c ../trie.c			
+	$(CC) -c ../trie.c	
+
+postingList.o: ../postingList.c
+	$(CC) -c ../postingList.c				
 
 
 clean:
