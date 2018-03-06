@@ -12,7 +12,7 @@ void TestInsert(CuTest *tc){
 	Trie* trie = malloc(sizeof(Trie));
 	initializeTrie(&trie);
 	
-	insertLineTextIntoTrie(trie, line);
+	insertLineTextIntoTrie(trie, line, 0);
 	
 	free(line);
 	line = NULL;

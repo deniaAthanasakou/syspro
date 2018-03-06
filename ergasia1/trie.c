@@ -10,7 +10,7 @@ void initializeTrie(Trie** trie){
 	(*trie)->pL = NULL;
 }
 	
-Trie* insertLetterIntoTrie(Trie* trie, char charForInsert){
+Trie* insertLetterIntoTrie(Trie* trie, char charForInsert, bool setPostingList, int id){
 
 	Trie* trieOfInsert = getSameLetterNode(trie,  charForInsert);
 	if(trieOfInsert == NULL){
@@ -19,6 +19,14 @@ Trie* insertLetterIntoTrie(Trie* trie, char charForInsert){
 	}
 	if (trieOfInsert->letter=='\0'){
 		trieOfInsert->letter = charForInsert;
+	}
+	if(setPostingList){
+		if(trieOfInsert->pL==NULL){
+			trieOfInsert->pL = malloc(sizeof(postingList));
+			createPostingList(trieOfInsert->pL);
+		}
+		insertIntoPostingList(trieOfInsert->pL, id);
+		
 	}
 	return trieOfInsert;
 	
@@ -30,13 +38,15 @@ bool letterExists(Trie* trie, char charForInsert){
 	return false;	
 }
 
-void insertFullWordIntoTrie(Trie* trie, char* word){
+void insertFullWordIntoTrie(Trie* trie, char* word, int id){
 	Trie* nextVertical = trie;
 	Trie* insertedNode = NULL;
 	//printf("word %s\n", word);
 	for(int i=0; i<strlen(word); i++){
-
-		insertedNode = insertLetterIntoTrie(nextVertical, word[i]);
+		bool setPostingList = false;
+		if(i==strlen(word)-1)		//last letter
+			setPostingList = true;
+		insertedNode = insertLetterIntoTrie(nextVertical, word[i], setPostingList, id);
 		if(i!=strlen(word)-1 && insertedNode->verticalNext==NULL){
 			nextVertical = malloc(sizeof(Trie));
 			initializeTrie(&nextVertical);
@@ -63,14 +73,14 @@ Trie* getSameLetterNode(Trie* trie, char charForInsert){
 	return nextHorizontal;	
 }
 
-void insertLineTextIntoTrie(Trie* trie, char* line){
+void insertLineTextIntoTrie(Trie* trie, char* line, int id){
 	char* word;
 	word = strtok(line, " \t");
 	while(word!=NULL){
 		
 		char* wordToInsert = malloc((strlen(word)+1)*sizeof(char));
 		strcpy(wordToInsert,word);
-		insertFullWordIntoTrie(trie, wordToInsert);
+		insertFullWordIntoTrie(trie, wordToInsert, id);
 		
 		free(wordToInsert);
 		wordToInsert = NULL;
@@ -82,7 +92,7 @@ void insertLineTextIntoTrie(Trie* trie, char* line){
 
 void InsertAllLinesIntoTrie(Trie* trie, Map* map){
 	for(int i=0; i<map->length; i++){
-		insertLineTextIntoTrie(trie,map->array[i].text);
+		insertLineTextIntoTrie(trie,map->array[i].text ,map->array[i].id);
 	}
 }
 

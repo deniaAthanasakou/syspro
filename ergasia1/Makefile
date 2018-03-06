@@ -1,8 +1,8 @@
 CC = gcc -g
-FILES = main.c methods.c map.c trie.c postingList.c
-OBJECTS = main.o methods.o map.o trie.o postingList.o
+FILES = main.c methods.c map.c trie.c postingList.c query.c
+OBJECTS = main.o methods.o map.o trie.o postingList.o query.o
 OUT = minisearch
-HEADERS = methods.h map.h trie.h postingList.h
+HEADERS = methods.h map.h trie.h postingList.h query.h
 
 
 all: $(OBJECTS) $(HEADERS)
@@ -23,6 +23,9 @@ trie.o: trie.c
 	
 postingList.o: postingList.c
 	$(CC) -c postingList.c		
+	
+query.o: query.c
+	$(CC) -c query.c		
 
 clean:
 	rm -f $(OBJECTS)s

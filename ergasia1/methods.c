@@ -12,11 +12,17 @@ int initialize(FILE* file, Map* map){
 		printf("Error! Null file was given\n");
 		return 0;
 	}
-	int counter=0;	
+	int counter=1;//0;	
 	while ((read = getline(&line, &len, file)) != -1) {
 		int lineNumber = atoi(strtok(line," \t"));
 		if(lineNumber!=counter){
 			printf("Error in numbering file lines\n");
+			
+			if (line){
+				free(line);
+				line=NULL;
+			}
+			
 			return 0;
 		}
 		
@@ -28,14 +34,13 @@ int initialize(FILE* file, Map* map){
 		char* text = malloc((strlen(remainingLine)+1)* sizeof(char));
 		strcpy(text, remainingLine);
 		insertIntoMap(map, lineNumber, text);
-		
 		counter++;		
 	}
-	printf("map->Length %d, map->position %d\n", map->length, map->position);
-	printMap(map);
+	//printf("map->Length %d, map->position %d\n", map->length, map->position);
+	//printMap(map);
 	reduceMapLength(map);
-	printf("map->Length %d, map->position %d\n", map->length, map->position);
-	printMap(map);
+	//printf("map->Length %d, map->position %d\n", map->length, map->position);
+	//printMap(map);
 
 	if (line){
 		free(line);

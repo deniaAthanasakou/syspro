@@ -4,6 +4,7 @@
 #include "methods.h"
 #include "map.h"
 #include "trie.h"
+#include "query.h"
 
 int main (int argc,char* argv[]){
 	if(argc!=5){
@@ -44,6 +45,7 @@ int main (int argc,char* argv[]){
 		fclose (initFile);
 	}
 	if (init==0){
+		destroyMap(map);
 		exit(1);
 		
 	}
@@ -56,11 +58,54 @@ int main (int argc,char* argv[]){
 	
 	//printf("Printing trie Horizontally\n");
 	//printTrieHorizontally(trie);
-	//printTrieVertically(trie);	
-	//eisodos apo xrhsth 
+	//printTrieVertically(trie);
+		
+	//read user input for queries
+	char *line = NULL;
+	size_t len = 0;
+
+	char* query = NULL;
+	while(1){
+		printf("\nPlease input your query\n");
+		printf("Your choices are:\n/search word1 word2 ... word 10\n/df (word)\n/tf id word\n/exit\n\n");
+		if(getline(&query, &len, stdin) != -1){
+			char* instruction = strtok(query," \t\n");
+			char* remainingLine = strtok(NULL,"\n");
+			//printf("INSTRUCTION %s\n", instruction);
+			//printf("REMAINING LINE %s\n", remainingLine);
+			if(strcmp(instruction,"/search")==0){
+			}
+			else if(strcmp(instruction,"/df")==0){
+			}
+			else if(strcmp(instruction,"/df")==0){
+			}
+			else if(strcmp(instruction,"/exit")==0){
+				break;
+			}
+			else{
+				printf("Error! Wrong query. Please try again.\n"); 
+			}
+		}
+		else
+			break;
+	}
+	printf("End of while\n");
 	
 	destroyMap(map);
 	destroyTrie(trie);
 	
 	return 0;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
