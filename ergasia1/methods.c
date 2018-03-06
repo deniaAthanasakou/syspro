@@ -25,7 +25,7 @@ int initialize(FILE* file, Map* map){
 		printf("'%s'\n", remainingLine);
 		
 		//inserting lines into map
-		char* text = malloc(strlen(remainingLine)* sizeof(char));
+		char* text = malloc((strlen(remainingLine)+1)* sizeof(char));
 		strcpy(text, remainingLine);
 		insertIntoMap(map, lineNumber, text);
 		

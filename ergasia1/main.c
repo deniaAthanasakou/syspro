@@ -59,5 +59,8 @@ int main (int argc,char* argv[]){
 	//printTrieVertically(trie);	
 	//eisodos apo xrhsth 
 	
+	destroyMap(map);
+	destroyTrie(trie);
+	
 	return 0;
 }

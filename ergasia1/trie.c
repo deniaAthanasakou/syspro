@@ -71,7 +71,10 @@ void insertLineTextIntoTrie(Trie* trie, char* line){
 		char* wordToInsert = malloc((strlen(word)+1)*sizeof(char));
 		strcpy(wordToInsert,word);
 		insertFullWordIntoTrie(trie, wordToInsert);
-
+		
+		free(wordToInsert);
+		wordToInsert = NULL;
+		
 		word = strtok(NULL, " \t");
 	}
 }
@@ -105,7 +108,20 @@ void printTrieVertically(Trie* trie){
 }
 
 
+void destroyTrie(Trie* trie){
+	if(trie!=NULL){
+		destroyTrie(trie->verticalNext);
+		destroyTrie(trie->horizontalNext);
+		destroySingleNode(trie);
+	}
+}
 
+
+void destroySingleNode(Trie* trie){
+	destroyPostingList(trie->pL);
+	free(trie);
+	trie=NULL;
+}
 
 
 

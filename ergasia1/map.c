@@ -45,3 +45,14 @@ void printMap(Map* map){
 		printf("id '%d', text '%s'\n", map->array[i].id,map->array[i].text);
 	}
 }
+
+void destroyMap(Map* map){
+	if(map!=NULL){
+		for(int i=0; i<map->position; i++){
+			free(map->array[i].text);
+		}
+		free(map->array);
+		free(map);
+		map=NULL;
+	}
+}

@@ -54,6 +54,7 @@ void TestInsertPostingList(CuTest *tc){
 	CuAssertIntEquals(tc,1,pL->firstNode->next->next->next->occurrences);
 	CuAssertPtrEquals(tc,NULL,pL->firstNode->next->next->next->next);
 	
+	destroyPostingList(pL);
 }
 
 

@@ -17,5 +17,6 @@ void insertIntoMap(Map* map, int id, char* text);
 void printMap(Map* map);
 void doubleMap(Map* map);
 void reduceMapLength(Map* map);
+void destroyMap(Map* map);
 
 #endif

@@ -9,10 +9,13 @@ void TestInsert(CuTest *tc){
 	char* line = malloc((strlen("The brown This")+1)*sizeof(char));
 	strcpy(line,"The brown This");
 	
-	Trie* trie = trie = malloc(sizeof(Trie));
+	Trie* trie = malloc(sizeof(Trie));
 	initializeTrie(&trie);
 	
 	insertLineTextIntoTrie(trie, line);
+	
+	free(line);
+	line = NULL;
 	
 	//The
 	assert(trie->letter=='T');
@@ -41,7 +44,7 @@ void TestInsert(CuTest *tc){
 	assert(trie->verticalNext->verticalNext->horizontalNext->letter=='i');
 	assert(trie->verticalNext->verticalNext->horizontalNext->verticalNext->letter=='s');
 	
-	
+	destroyTrie(trie);
 	
 }
 

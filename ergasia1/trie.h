@@ -25,4 +25,7 @@ void InsertAllLinesIntoTrie(Trie* trie, Map* map);
 void printTrieHorizontally(Trie* trie);
 void printTrieVertically(Trie* trie);
 
+void destroyTrie(Trie* trie);
+void destroySingleNode(Trie* trie);
+
 #endif

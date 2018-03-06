@@ -40,12 +40,16 @@ OccurrencesInText* searchForId(postingList* pL, int id){
 }
 
 void destroyPostingList(postingList* pL){
-	pL->documentFreq = 0;
-	OccurrencesInText* node = pL->firstNode;
-	while(node!=NULL){
-		OccurrencesInText* tempNode = node;
-		node = node->next;
-		free(tempNode);
+	if(pL!=NULL){
+		pL->documentFreq = 0;
+		OccurrencesInText* node = pL->firstNode;
+		while(node!=NULL){
+			OccurrencesInText* tempNode = node;
+			node = node->next;
+			free(tempNode);
+		}
+		free(pL);
+		pL=NULL;
 	}
 }
 
