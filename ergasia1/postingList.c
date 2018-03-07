@@ -20,6 +20,8 @@ void insertIntoPostingList(postingList* pL, int textId){
 }
 
 OccurrencesInText* searchForId(postingList* pL, int id){
+	if(pL==NULL)
+		return NULL;
 	OccurrencesInText* node = pL->firstNode;
 	OccurrencesInText* prevNode = pL->firstNode;
 	while(node!=NULL){
@@ -31,6 +33,7 @@ OccurrencesInText* searchForId(postingList* pL, int id){
 	node = malloc(sizeof(OccurrencesInText));
 	node->textId = -1;
 	node->occurrences = 0;
+	node->next = NULL;
 	if(prevNode!=NULL){
 		prevNode->next = node;
 	}

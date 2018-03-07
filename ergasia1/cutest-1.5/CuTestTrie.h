@@ -4,6 +4,7 @@
 #include "../trie.h"
 
 void TestInsert(CuTest *tc);
+void TestSearchWord(CuTest *tc);
 
 CuSuite* TrieGetSuite();
 

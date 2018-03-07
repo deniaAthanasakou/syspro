@@ -22,6 +22,9 @@ Trie* getSameLetterNode(Trie* trie, char charForInsert);	//goes through trie hor
 void insertLineTextIntoTrie(Trie* trie, char* line, int id);
 void InsertAllLinesIntoTrie(Trie* trie, Map* map);
 
+Trie* horizontalTraversal(Trie* trie, char charForInsert);
+postingList* searchWordInTrie(Trie* trie, char* word);	//for now like bool
+
 void printTrieHorizontally(Trie* trie);
 void printTrieVertically(Trie* trie);
 

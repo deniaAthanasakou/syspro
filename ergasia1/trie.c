@@ -133,9 +133,34 @@ void destroySingleNode(Trie* trie){
 	trie=NULL;
 }
 
+Trie* horizontalTraversal(Trie* trie, char charForInsert){
+	Trie* nextHorizontal = trie;
+	while(nextHorizontal!=NULL){
+		if(letterExists(nextHorizontal,charForInsert)){
+			return nextHorizontal;
+		}
+		nextHorizontal = nextHorizontal->horizontalNext;
+	}
+	return nextHorizontal;	
+}
 
 
-
+postingList* searchWordInTrie(Trie* trie, char* word){
+	Trie* tempTrie = trie;
+	Trie* prevTrie = trie;
+	//printf("searching for word '%s'\n", word);
+	for(int i=0; i<strlen(word); i++){
+		tempTrie = horizontalTraversal(tempTrie, word[i]);
+		if(tempTrie==NULL){
+			//printf("Letter '%c' does not exist in this level, so word '%s' does not exist either\n", word[i], word);
+			return NULL;
+		}
+		prevTrie = tempTrie;
+		tempTrie = tempTrie->verticalNext;
+	}
+	return prevTrie->pL;
+	
+}
 
 
 

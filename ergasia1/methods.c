@@ -49,6 +49,68 @@ int initialize(FILE* file, Map* map){
 	return 1;
 }
 
+arrayWords* stringToArray(char* text){
+	char* pch;
+	char** arrayOfWords; 
+	pch = strtok (text," \t");
+	int noOfWords=0;
+	arrayOfWords = malloc(noOfWords * sizeof(char*));
+	while (pch != NULL)
+	{	
+		noOfWords++;
+		arrayOfWords = (char**)realloc(arrayOfWords, noOfWords * sizeof(char*));		
+		arrayOfWords[noOfWords-1]=malloc((strlen(pch)+1)* sizeof(char));
+		strcpy(arrayOfWords[noOfWords-1],pch);    //add pch into arrayOfWords
+		pch = strtok (NULL, " \t");
+	}
+	
+	arrayWords* arrayW = malloc(sizeof(arrayWords));
+	arrayW->length = noOfWords;
+	arrayW->words = arrayOfWords;
+	
+	return arrayW;
+
+}
+
+void printArrayWords(arrayWords* array_of_words){
+	printf("Printing array of words\n");
+	for(int i=0; i<array_of_words->length; i++){
+		printf("%s\n", array_of_words->words[i]);
+	}
+}
+
+void deleteArrayWords(arrayWords* array_of_words){
+	if(array_of_words!=NULL){
+		for(int i=0;i<array_of_words->length;i++){
+			if( array_of_words->words[i]!=NULL){
+				free(array_of_words->words[i]);
+				array_of_words->words[i] = NULL;
+			}
+		}
+		free(array_of_words->words);
+		free(array_of_words);	
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -52,7 +52,7 @@ int main (int argc,char* argv[]){
 	
 	//printMap(map);
 	
-	Trie* trie = trie = malloc(sizeof(Trie));
+	Trie* trie = malloc(sizeof(Trie));
 	initializeTrie(&trie);
 	InsertAllLinesIntoTrie(trie,map);
 	
@@ -73,21 +73,36 @@ int main (int argc,char* argv[]){
 			char* remainingLine = strtok(NULL,"\n");
 			//printf("INSTRUCTION %s\n", instruction);
 			//printf("REMAINING LINE %s\n", remainingLine);
+			arrayWords* array = stringToArray(remainingLine);
+			//printArrayWords(array);
 			if(strcmp(instruction,"/search")==0){
 			}
 			else if(strcmp(instruction,"/df")==0){
+				documentFrequency(array,trie);
 			}
-			else if(strcmp(instruction,"/df")==0){
+			else if(strcmp(instruction,"/tf")==0){
+				termFrequency(array, trie);
 			}
 			else if(strcmp(instruction,"/exit")==0){
+				if (query){
+					free(query);
+					query=NULL;
+				}
+				deleteArrayWords(array);
 				break;
 			}
 			else{
 				printf("Error! Wrong query. Please try again.\n"); 
 			}
+			deleteArrayWords(array);
 		}
-		else
+		else{
+			if (query){
+				free(query);
+				query=NULL;
+			}
 			break;
+		}
 	}
 	printf("End of while\n");
 	

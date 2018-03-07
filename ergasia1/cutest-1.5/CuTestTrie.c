@@ -44,8 +44,34 @@ void TestInsert(CuTest *tc){
 	assert(trie->verticalNext->verticalNext->horizontalNext->letter=='i');
 	assert(trie->verticalNext->verticalNext->horizontalNext->verticalNext->letter=='s');
 	
+	
 	destroyTrie(trie);
 	
+}
+
+void TestSearchWord(CuTest *tc){
+	char* line = malloc((strlen("The brown This")+1)*sizeof(char));
+	strcpy(line,"The brown This");
+	
+	Trie* trie = malloc(sizeof(Trie));
+	initializeTrie(&trie);
+	
+	insertLineTextIntoTrie(trie, line, 0);
+	
+	free(line);
+	line = NULL;
+	
+
+	CuAssertPtrNotNull(tc,searchWordInTrie(trie, "This"));
+	CuAssertPtrNotNull(tc,searchWordInTrie(trie, "brown"));
+	CuAssertPtrNotNull(tc,searchWordInTrie(trie, "The"));
+	
+	CuAssertPtrEquals(tc,NULL,searchWordInTrie(trie, "hello"));
+	CuAssertPtrEquals(tc,NULL,searchWordInTrie(trie, "That"));
+	CuAssertPtrEquals(tc,NULL,searchWordInTrie(trie, "-what"));
+	
+	
+	destroyTrie(trie);
 }
 
 
@@ -53,6 +79,7 @@ CuSuite* TrieGetSuite() {		//adding TestTrie Functions into suite
     CuSuite* suite = CuSuiteNew();
     
     SUITE_ADD_TEST(suite, TestInsert);
+    SUITE_ADD_TEST(suite, TestSearchWord);
     
     return suite;
 }
