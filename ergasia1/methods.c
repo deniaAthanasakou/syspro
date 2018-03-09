@@ -27,8 +27,8 @@ int initialize(FILE* file, Map* map){
 		}
 		
 		char* remainingLine = strtok(NULL,"\n");
-		printf("%d\n", lineNumber);
-		printf("'%s'\n", remainingLine);
+		//printf("%d\n", lineNumber);
+		//printf("'%s'\n", remainingLine);
 		
 		//inserting lines into map
 		char* text = malloc((strlen(remainingLine)+1)* sizeof(char));
@@ -54,41 +54,64 @@ arrayWords* stringToArray(char* text){
 	char** arrayOfWords; 
 	pch = strtok (text," \t");
 	int noOfWords=0;
-	arrayOfWords = malloc(noOfWords * sizeof(char*));
-	while (pch != NULL)
-	{	
-		noOfWords++;
-		arrayOfWords = (char**)realloc(arrayOfWords, noOfWords * sizeof(char*));		
-		arrayOfWords[noOfWords-1]=malloc((strlen(pch)+1)* sizeof(char));
-		strcpy(arrayOfWords[noOfWords-1],pch);    //add pch into arrayOfWords
-		pch = strtok (NULL, " \t");
-	}
 	
 	arrayWords* arrayW = malloc(sizeof(arrayWords));
-	arrayW->length = noOfWords;
-	arrayW->words = arrayOfWords;
+	createArrayWords(arrayW);
+	
+	while (pch != NULL)
+	{	
+		char* wordForInsert = malloc((strlen(pch)+1)* sizeof(char));
+		strcpy(wordForInsert,pch);   
+		insertArrayWords(arrayW, wordForInsert); //add pch into arrayOfWords
+		
+		pch = strtok (NULL, " \t");
+	}
 	
 	return arrayW;
 
 }
 
+void createArrayWords(arrayWords* array){
+	array->length=10;
+	array->position=0;
+	array->words = malloc(sizeof(char*)*array->length);
+	
+}
+
+void doubleArrayWords(arrayWords* array){
+	array->length*=2;
+	array->words = realloc(array->words,sizeof(char*)*array->length); 
+
+}
+void insertArrayWords(arrayWords* array, char* word){
+	if(array->position==array->length){
+		doubleArrayWords(array);
+	}
+	array->words[array->position] = word;
+	array->position++; 
+}
+
+
+
 void printArrayWords(arrayWords* array_of_words){
 	printf("Printing array of words\n");
-	for(int i=0; i<array_of_words->length; i++){
+	for(int i=0; i<array_of_words->position; i++){
 		printf("%s\n", array_of_words->words[i]);
 	}
 }
 
+
 void deleteArrayWords(arrayWords* array_of_words){
 	if(array_of_words!=NULL){
-		for(int i=0;i<array_of_words->length;i++){
+		for(int i=0;i<array_of_words->position;i++){
 			if( array_of_words->words[i]!=NULL){
 				free(array_of_words->words[i]);
 				array_of_words->words[i] = NULL;
 			}
 		}
 		free(array_of_words->words);
-		free(array_of_words);	
+		free(array_of_words);
+		array_of_words=NULL;	
 	}
 }
 

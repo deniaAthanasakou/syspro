@@ -162,7 +162,52 @@ postingList* searchWordInTrie(Trie* trie, char* word){
 	
 }
 
+arrayWords* getAllWordsOfTrie(Trie* trie){
+	arrayWords* array = malloc(sizeof(arrayWords));
+	createArrayWords(array);
+	while(trie!=NULL){
+		char* word = malloc(sizeof(char));
+		word[0] = '\0';
+		word = recGetWordsFromTrie(trie, trie, word, array);
+		free(word);
+		
+		trie = trie->horizontalNext;
+	}
+	return array;
+}
 
+char* recGetWordsFromTrie(Trie* originalTrie, Trie* trie, char* word, arrayWords* array){
+	if (trie!=NULL){
+		//printf("Letter %c, word '%s'\n", trie->letter, word);
+		int newLength = strlen(word)+1;
+		
+		word = realloc(word, (newLength+1)*sizeof(char));
+		
+		word[newLength -1] = trie->letter;
+		word[newLength] = '\0';
+    	if(trie->pL!=NULL){	
+    		char* wordForInsert = malloc((strlen(word)+1)* sizeof(char));
+			strcpy(wordForInsert,word);  
+			insertArrayWords(array, wordForInsert); //add word into arrayOfWords
+		}
+    }
+    if (trie->verticalNext!=NULL){	
+    	word = recGetWordsFromTrie(originalTrie, trie->verticalNext, word, array);
+    }
+    int newLength = strlen(word)-1;
+	if(newLength>0){
+		word = realloc(word, (newLength+1)*sizeof(char));
+		word[newLength] = '\0';
+	}
+	
+    if(trie->horizontalNext == originalTrie->horizontalNext && trie->horizontalNext!=NULL){
+    	return word;
+    }
+    if (trie->horizontalNext!=NULL){
+    	word = recGetWordsFromTrie(originalTrie, trie->horizontalNext, word, array);
+    }
+    return word;
+}
 
 
 

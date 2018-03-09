@@ -8,10 +8,19 @@ int search(arrayWords* array, Map* map, Trie* trie){
 
 void documentFrequency(arrayWords* array, Trie* trie){
 	int occurrences=0;
-	if(array->length!=0){
-		for(int i=0; i<array->length; i++){
+	int flagForArray=0;
+	
+	arrayWords* myArray = array; 
+	
+	if(myArray->position==0){			//must get every word of trie
+		myArray = getAllWordsOfTrie(trie);
+		flagForArray=1;
+	}
+
+	if(myArray->position!=0){
+		for(int i=0; i<myArray->position; i++){
 			occurrences=0;
-			char* wordToSearch = array->words[i];
+			char* wordToSearch = myArray->words[i];
 			
 			postingList* pL = searchWordInTrie(trie, wordToSearch);
 			if(pL!=NULL){		//word exists
@@ -20,14 +29,13 @@ void documentFrequency(arrayWords* array, Trie* trie){
 			
 			printf("%s %d\n", wordToSearch, occurrences);
 		}
-	}
-	else{
-		//must get every word of trie
+		if(flagForArray==1)
+			deleteArrayWords(myArray);
 	}
 }
 
 void termFrequency(arrayWords* array, Trie* trie){
-	if(array->length!=2){
+	if(array->position!=2){
 		printf("Error! Wrong number of arguments. Please try again.\n");
 		return;
 	}
@@ -37,8 +45,6 @@ void termFrequency(arrayWords* array, Trie* trie){
 		return;
 	}
 	char* wordToSearch = array->words[1];
-	//printf("id = %d\n", id);
-	//printf("word = %s\n", wordToSearch);
 	
 	int occurrences=0;
 	

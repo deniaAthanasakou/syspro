@@ -59,6 +59,8 @@ int main (int argc,char* argv[]){
 	//printf("Printing trie Horizontally\n");
 	//printTrieHorizontally(trie);
 	//printTrieVertically(trie);
+	
+	
 		
 	//read user input for queries
 	char *line = NULL;

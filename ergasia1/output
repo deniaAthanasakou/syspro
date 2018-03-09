@@ -1,0 +1,9 @@
+K is 53
+
+Please input your query
+Your choices are:
+/search word1 word2 ... word 10
+/df (word)
+/tf id word
+/exit
+

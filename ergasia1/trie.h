@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "map.h"
 #include "postingList.h"
+#include "methods.h"
 
 typedef struct Trie Trie;
 
@@ -31,4 +32,6 @@ void printTrieVertically(Trie* trie);
 void destroyTrie(Trie* trie);
 void destroySingleNode(Trie* trie);
 
+arrayWords* getAllWordsOfTrie(Trie* trie);
+char* recGetWordsFromTrie(Trie* originalTrie, Trie* trie, char* word, arrayWords* array);
 #endif
