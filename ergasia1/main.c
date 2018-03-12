@@ -78,6 +78,7 @@ int main (int argc,char* argv[]){
 			arrayWords* array = stringToArray(remainingLine);
 			//printArrayWords(array);
 			if(strcmp(instruction,"/search")==0){
+				search(array, map, trie);
 			}
 			else if(strcmp(instruction,"/df")==0){
 				documentFrequency(array,trie);
