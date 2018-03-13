@@ -34,4 +34,7 @@ void destroySingleNode(Trie* trie);
 
 arrayWords* getAllWordsOfTrie(Trie* trie);
 char* recGetWordsFromTrie(Trie* originalTrie, Trie* trie, char* word, arrayWords* array);
+
+double getScoreWithoutSum(Trie* trie, Map* map, int idf, char* word, int textId; 
+
 #endif

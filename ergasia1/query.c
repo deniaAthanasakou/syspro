@@ -20,28 +20,42 @@ int search(arrayWords* array, Map* map, Trie* trie){
 	int* idArray = malloc(0*sizeof(int));
 	int idArrayLength = 0;
 	int idPosition = 0;
-	for(int i=0; i<elements; i++){
+	
+	DifferentIds *diffIds = malloc(sizeof(DifferentIds));
+	createDifferentIds(diffIds);
+	
+	int allWords = getNoOfAllWords(map);		
+	double avgdl = allWords / map->position;
+	
+	
+	for(int i=0; i<elements; i++){			//for each word
 		int docFreq=0;
-		char* wordToSearch = array->words[i];
+		char* wordToSearch = array->words[i];	
 		
 		postingList* pL = searchWordInTrie(trie, wordToSearch);
 		if(pL!=NULL){		//word exists
 			docFreq = pL->documentFreq;
-		}
-		if(docFreq!=0){
-			idArrayLength+=docFreq;
-			idArray = realloc(idArray,idArrayLength*sizeof(int));
-			while(pL!=NULL){
-				//pL->firstNode = 
-			}
 			
+			getDifferentIds(pL, diffIds);	
 			
 		}
+	
 		
 		
-		IDF[i] = log((double)(map->position-occurrences+0.5)/(double)(occurrences+0.5));
+		IDF[i] = log((double)(map->position - docFreq+0.5)/(double)(docFreq+0.5));
 		//printf("IDF[%d]: %f\n", i, IDF[i]);
 	}
+	/*for each line of text
+		sum=0
+		for each word
+			sum+=get Score
+			
+	Sort sums
+	print top-k sums
+	*/
+	/*na kanw mia domh p tha krataei to counter, to score, to text kai to text id kai meta na th sortarw me vash to score se fthinousa seira*/
+	
+	
 	return 1;
 	
 }

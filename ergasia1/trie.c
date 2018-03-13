@@ -210,7 +210,31 @@ char* recGetWordsFromTrie(Trie* originalTrie, Trie* trie, char* word, arrayWords
 }
 
 
-
+double getScoreWithoutSum(Trie* trie, Map* map, int idf, char* word, int textId, int avgdl){
+	float k1 = 1.2;
+	float b = 0.75;
+	
+	int tf = 0;
+	
+	postingList* pL = searchWordInTrie(trie, word);
+	if(pL!=NULL){		//word exists
+		OccurrencesInText* node = searchForId(pL, textId);
+		if(node!=NULL){
+			tf = node->occurrences;
+		}
+	} 
+	
+	if(tf==0 || idf==0 || map->position==0)
+		return 0;
+	
+		
+	MapNode* node = getMapNode(map, textId);
+	int D = getNoOfWordsOfMapText(node);
+	
+	double result = (idf * tf*(k1+1))/(tf + k1 *(1 - b + b*(D/avgdl)));
+	return result
+	
+}
 
 
 

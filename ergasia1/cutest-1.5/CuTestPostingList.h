@@ -4,6 +4,7 @@
 #include "../postingList.h"
 
 void TestInsertPostingList(CuTest *tc);
+void TestGetDifferentIds(CuTest *tc);
 
 CuSuite* PostingListGetSuite();
 

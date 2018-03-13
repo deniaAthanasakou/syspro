@@ -37,6 +37,48 @@ void reduceMapLength(Map* map){
 	map->length = map->position;
 }
 
+MapNode* getMapNode(Map* map, int id, int first, int last){	
+	if (last <= first)
+        return NULL;
+ 
+    int mid = (first + last)/2;
+ 
+    if(id == map->array[mid]->id)
+        return &(map->array[mid]);
+ 
+    if(id > map->array[mid]->id)
+        return getMapNode(map, id, mid+1, last);
+    return getMapNode(map, id, first, mid-1);
+}
+
+
+int getNoOfWordsOfMapText(MapNode* node){
+	char* word = malloc(sizeof(char)*(strlen(node->text)+1));
+	strcpy(word, node->text); 
+	char* pch;
+	pch = strtok (word," \t");
+	int noOfWords=0;
+	while (pch != NULL)
+	{	
+		noOfWords++;
+		pch = strtok (NULL, " \t");
+	}
+	if(word!=NULL)
+		free(word);
+	return noOfWords;
+}
+
+
+int getNoOfAllWords(Map* map){
+	int sum=0;
+	for(int i=0; i<map->position; i++){
+		sum+=getNoOfWordsOfMapText(&(map->array[i]));
+	}
+	return sum;
+}
+
+
+
 
 
 void printMap(Map* map){

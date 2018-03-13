@@ -42,6 +42,19 @@ OccurrencesInText* searchForId(postingList* pL, int id){
 	return node;		
 }
 
+
+void getDifferentIds(postingList* pL, DifferentIds* diffIds){
+	OccurrencesInText* tempNode = pL->firstNode;
+	while(tempNode!=NULL){
+		insertionSortDifferentIds(diffIds, tempNode->textId);
+		tempNode = tempNode->next;
+	}
+}
+
+
+
+
+
 void destroyPostingList(postingList* pL){
 	if(pL!=NULL){
 		pL->documentFreq = 0;
@@ -55,4 +68,27 @@ void destroyPostingList(postingList* pL){
 		pL=NULL;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

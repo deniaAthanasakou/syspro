@@ -11,7 +11,7 @@ void createDifferentIds(DifferentIds *diffIds);
 void destroyDifferentIds(DifferentIds *diffIds);
 void doubleDifferentIds(DifferentIds *diffIds);
 void insertionSortDifferentIds(DifferentIds *diffIds, int newId);
-void binarySearchForDifferentIds(int* ids, int first, int last);
+int binarySearchForDifferentIds(int* ids, int item,int first, int last, int realLastElement);
 void printDifferentIds(DifferentIds* diffIds);
 
 #endif

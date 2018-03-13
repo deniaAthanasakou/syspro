@@ -1,6 +1,7 @@
 #ifndef _POSTING_LIST_H_
 #define _POSTING_LIST_H_
 #include <stdbool.h>
+#include "documentIdsHandler.h"
 
 typedef struct OccurrencesInText OccurrencesInText;
 
@@ -19,4 +20,6 @@ void createPostingList(postingList* pL);
 void insertIntoPostingList(postingList* pL, int textId);
 OccurrencesInText* searchForId(postingList* pL,int id);
 void destroyPostingList(postingList* pL);
+
+void getDifferentIds(postingList* pL, DifferentIds* diffIds);
 #endif

@@ -69,7 +69,7 @@ int main (int argc,char* argv[]){
 	char* query = NULL;
 	while(1){
 		printf("\nPlease input your query\n");
-		printf("Your choices are:\n/search word1 word2 ... word 10\n/df (word)\n/tf id word\n/exit\n\n");
+		printf("Your choices are:\n\n/search word1 word2 ... word 10\n/df (word)\n/tf id word\n/exit\n\n");
 		if(getline(&query, &len, stdin) != -1){
 			char* instruction = strtok(query," \t\n");
 			char* remainingLine = strtok(NULL,"\n");
