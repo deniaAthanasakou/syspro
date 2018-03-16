@@ -4,6 +4,8 @@
 #include <math.h>
 #include "query.h"
 #include "documentIdsHandler.h"
+#include "printForSearch.h"
+#include "idf.h"
 
 int search(arrayWords* array, Map* map, ContainsTrie* containsTrie){
 	if(array->position<1){
@@ -16,17 +18,15 @@ int search(arrayWords* array, Map* map, ContainsTrie* containsTrie){
 		elements = 10;
 	}
 	int printCounter=0;
-	double IDF[elements];
-	int* idArray = malloc(0*sizeof(int));
-	int idArrayLength = 0;
-	int idPosition = 0;
-	
+
 	DifferentIds *diffIds = malloc(sizeof(DifferentIds));
 	createDifferentIds(diffIds);
 	
-	int allWords = getNoOfAllWords(map);		
-	double avgdl = allWords / map->position;
+	IdfForWords* idfForWords = malloc(sizeof(IdfForWords));
+	initializeIdfForWords(idfForWords, elements);
 	
+	int allWords = getNoOfAllWords(map);		
+	double avgdl = (double)allWords / map->position;
 	
 	for(int i=0; i<elements; i++){			//for each word
 		int docFreq=0;
@@ -39,11 +39,29 @@ int search(arrayWords* array, Map* map, ContainsTrie* containsTrie){
 			getDifferentIds(pL, diffIds);	
 			
 		}
+
+		double idf = log((double)(map->position - docFreq+0.5)/(double)(docFreq+0.5));
+		insertionSortIdfForWords(idfForWords, idf,  wordToSearch);
+	}
 	
-		
-		
-		IDF[i] = log((double)(map->position - docFreq+0.5)/(double)(docFreq+0.5));
-		//printf("IDF[%d]: %f\n", i, IDF[i]);
+	PrintForSearch* pfs = malloc(sizeof(PrintForSearch));
+	initializePrintForSearch(pfs);
+	
+	for(int i=0; i<diffIds->position; i++){		//for each different document
+		double score = 0.0;
+		MapNode* node = getMapNode(map, diffIds->ids[i], 0, diffIds->position);
+		char* line = node->text;
+		arrayWords* arrayOfWords = stringToArray(line);
+		for(int j=0; j<arrayOfWords->position; j++){	//for each word of document
+
+			IdfForWordNode* idfNode = binarySearchIdfForWord(idfForWords->array,arrayOfWords->words[i], 0,idfForWords->position-1, idfForWords->position-1);
+			if(idfNode==NULL)				//if word is not in query, continue
+				continue;
+			score+=getScoreWithoutSum(containsTrie->firstNode, map, idfNode->idf, arrayOfWords->words[i], diffIds->ids[i], avgdl);
+			
+		}
+		deleteArrayWords(arrayOfWords);
+		insertionSortPrintForSearch(pfs,  diffIds->ids[i], score, line);
 	}
 	/*for each line of text
 		sum=0
@@ -55,6 +73,10 @@ int search(arrayWords* array, Map* map, ContainsTrie* containsTrie){
 	*/
 	/*na kanw mia domh p tha krataei to counter, to score, to text kai to text id kai meta na th sortarw me vash to score se fthinousa seira*/
 	
+	deleteIdfForWords(idfForWords);
+	deletePrintForSearch(pfs);
+	
+	destroyDifferentIds(diffIds);
 	
 	return 1;
 	

@@ -12,12 +12,18 @@ int initialize(FILE* file, Map* map){
 		printf("Error! Null file was given\n");
 		return 0;
 	}
-	int counter=1;//0;	
+	int counter=0;	
 	while ((read = getline(&line, &len, file)) != -1) {
-		int lineNumber = atoi(strtok(line," \t"));
+		if(!strcmp(line, "\n")){	
+			counter++;
+			continue;
+		}
+		char* tempLine = strtok(line," \t");
+
+		int lineNumber = atoi(tempLine);
+		
 		if(lineNumber!=counter){
 			printf("Error in numbering file lines\n");
-			
 			if (line){
 				free(line);
 				line=NULL;

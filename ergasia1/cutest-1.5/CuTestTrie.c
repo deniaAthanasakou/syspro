@@ -9,9 +9,11 @@ void TestInsert(CuTest *tc){
 	char* line = malloc((strlen("The brown This")+1)*sizeof(char));
 	strcpy(line,"The brown This");
 	
-	ContainsTrie* containsTrie = malloc(sizeof(containsTrie));
+	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
+
 	initializeContainsTrie(&containsTrie);
 	Trie* trie = containsTrie->firstNode;
+	
 	
 	insertLineTextIntoTrie(containsTrie, trie, line, 0);
 	
@@ -54,7 +56,7 @@ void TestSearchWord(CuTest *tc){
 	char* line = malloc((strlen("The brown This")+1)*sizeof(char));
 	strcpy(line,"The brown This");
 	
-	ContainsTrie* containsTrie = malloc(sizeof(containsTrie));
+	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
 	initializeContainsTrie(&containsTrie);
 	Trie* trie = containsTrie->firstNode;
 	

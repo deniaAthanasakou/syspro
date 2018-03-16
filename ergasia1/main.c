@@ -51,7 +51,7 @@ int main (int argc,char* argv[]){
 	}
 	
 	//printMap(map);
-	ContainsTrie* containsTrie = malloc(sizeof(containsTrie));
+	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
 	initializeContainsTrie(&containsTrie);
 	InsertAllLinesIntoTrie(containsTrie,map);
 	
