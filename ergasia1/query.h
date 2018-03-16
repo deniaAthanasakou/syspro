@@ -5,7 +5,7 @@
 #include "trie.h"
 
 
-int search(arrayWords* array, Map* map, Trie* trie);
+int search(arrayWords* array, Map* map, ContainsTrie* containsTrie);
 void documentFrequency(arrayWords* array, Trie* trie);
 void termFrequency(arrayWords* array, Trie* trie);
 

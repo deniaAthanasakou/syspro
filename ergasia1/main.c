@@ -51,14 +51,13 @@ int main (int argc,char* argv[]){
 	}
 	
 	//printMap(map);
-	
-	Trie* trie = malloc(sizeof(Trie));
-	initializeTrie(&trie);
-	InsertAllLinesIntoTrie(trie,map);
+	ContainsTrie* containsTrie = malloc(sizeof(containsTrie));
+	initializeContainsTrie(&containsTrie);
+	InsertAllLinesIntoTrie(containsTrie,map);
 	
 	//printf("Printing trie Horizontally\n");
-	//printTrieHorizontally(trie);
-	//printTrieVertically(trie);
+	//printTrieHorizontally(containsTrie->firstNode);
+	//printTrieVertically(containsTrie->firstNode);
 	
 	
 		
@@ -78,13 +77,13 @@ int main (int argc,char* argv[]){
 			arrayWords* array = stringToArray(remainingLine);
 			//printArrayWords(array);
 			if(strcmp(instruction,"/search")==0){
-				search(array, map, trie);
+				search(array, map, containsTrie);
 			}
 			else if(strcmp(instruction,"/df")==0){
-				documentFrequency(array,trie);
+				documentFrequency(array,containsTrie->firstNode);
 			}
 			else if(strcmp(instruction,"/tf")==0){
-				termFrequency(array, trie);
+				termFrequency(array, containsTrie->firstNode);
 			}
 			else if(strcmp(instruction,"/exit")==0){
 				if (query){
@@ -110,7 +109,7 @@ int main (int argc,char* argv[]){
 	printf("End of while\n");
 	
 	destroyMap(map);
-	destroyTrie(trie);
+	destroyContainsTrie(containsTrie);
 	
 	return 0;
 	

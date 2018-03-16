@@ -5,7 +5,7 @@
 #include "query.h"
 #include "documentIdsHandler.h"
 
-int search(arrayWords* array, Map* map, Trie* trie){
+int search(arrayWords* array, Map* map, ContainsTrie* containsTrie){
 	if(array->position<1){
 		printf("Error! No word was given. Please try again.\n");
 		return 0;
@@ -32,7 +32,7 @@ int search(arrayWords* array, Map* map, Trie* trie){
 		int docFreq=0;
 		char* wordToSearch = array->words[i];	
 		
-		postingList* pL = searchWordInTrie(trie, wordToSearch);
+		postingList* pL = searchWordInTrie(containsTrie->firstNode, wordToSearch);
 		if(pL!=NULL){		//word exists
 			docFreq = pL->documentFreq;
 			

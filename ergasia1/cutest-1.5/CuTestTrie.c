@@ -9,10 +9,11 @@ void TestInsert(CuTest *tc){
 	char* line = malloc((strlen("The brown This")+1)*sizeof(char));
 	strcpy(line,"The brown This");
 	
-	Trie* trie = malloc(sizeof(Trie));
-	initializeTrie(&trie);
+	ContainsTrie* containsTrie = malloc(sizeof(containsTrie));
+	initializeContainsTrie(&containsTrie);
+	Trie* trie = containsTrie->firstNode;
 	
-	insertLineTextIntoTrie(trie, line, 0);
+	insertLineTextIntoTrie(containsTrie, trie, line, 0);
 	
 	free(line);
 	line = NULL;
@@ -45,7 +46,7 @@ void TestInsert(CuTest *tc){
 	assert(trie->verticalNext->verticalNext->horizontalNext->verticalNext->letter=='s');
 	
 	
-	destroyTrie(trie);
+	destroyContainsTrie(containsTrie);
 	
 }
 
@@ -53,10 +54,11 @@ void TestSearchWord(CuTest *tc){
 	char* line = malloc((strlen("The brown This")+1)*sizeof(char));
 	strcpy(line,"The brown This");
 	
-	Trie* trie = malloc(sizeof(Trie));
-	initializeTrie(&trie);
+	ContainsTrie* containsTrie = malloc(sizeof(containsTrie));
+	initializeContainsTrie(&containsTrie);
+	Trie* trie = containsTrie->firstNode;
 	
-	insertLineTextIntoTrie(trie, line, 0);
+	insertLineTextIntoTrie(containsTrie, trie, line, 0);
 	
 	free(line);
 	line = NULL;
@@ -71,7 +73,7 @@ void TestSearchWord(CuTest *tc){
 	CuAssertPtrEquals(tc,NULL,searchWordInTrie(trie, "-what"));
 	
 	
-	destroyTrie(trie);
+	destroyContainsTrie(containsTrie);
 }
 
 

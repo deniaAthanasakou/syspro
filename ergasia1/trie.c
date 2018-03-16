@@ -3,6 +3,13 @@
 #include <string.h>
 #include "trie.h"
 
+void initializeContainsTrie(ContainsTrie** containsTrie){
+	(*containsTrie)->noOfTrieWords=0;
+	(*containsTrie)->firstNode = malloc(sizeof(Trie));
+	initializeTrie(&((*containsTrie)->firstNode));
+}
+
+
 void initializeTrie(Trie** trie){
 	(*trie)->letter= '\0';
 	(*trie)->verticalNext = NULL;
@@ -10,7 +17,7 @@ void initializeTrie(Trie** trie){
 	(*trie)->pL = NULL;
 }
 	
-Trie* insertLetterIntoTrie(Trie* trie, char charForInsert, bool setPostingList, int id){
+Trie* insertLetterIntoTrie(ContainsTrie* containsTrie, Trie* trie, char charForInsert, bool setPostingList, int id){
 
 	Trie* trieOfInsert = getSameLetterNode(trie,  charForInsert);
 	if(trieOfInsert == NULL){
@@ -21,7 +28,8 @@ Trie* insertLetterIntoTrie(Trie* trie, char charForInsert, bool setPostingList, 
 		trieOfInsert->letter = charForInsert;
 	}
 	if(setPostingList){
-		if(trieOfInsert->pL==NULL){
+		if(trieOfInsert->pL==NULL){	//new word will be inseted
+			containsTrie->noOfTrieWords++;
 			trieOfInsert->pL = malloc(sizeof(postingList));
 			createPostingList(trieOfInsert->pL);
 		}
@@ -38,15 +46,16 @@ bool letterExists(Trie* trie, char charForInsert){
 	return false;	
 }
 
-void insertFullWordIntoTrie(Trie* trie, char* word, int id){
+void insertFullWordIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* word, int id){
 	Trie* nextVertical = trie;
 	Trie* insertedNode = NULL;
 	//printf("word %s\n", word);
 	for(int i=0; i<strlen(word); i++){
 		bool setPostingList = false;
-		if(i==strlen(word)-1)		//last letter
+		if(i==strlen(word)-1){		//last letter
 			setPostingList = true;
-		insertedNode = insertLetterIntoTrie(nextVertical, word[i], setPostingList, id);
+		}
+		insertedNode = insertLetterIntoTrie(containsTrie, nextVertical, word[i], setPostingList, id);
 		if(i!=strlen(word)-1 && insertedNode->verticalNext==NULL){
 			nextVertical = malloc(sizeof(Trie));
 			initializeTrie(&nextVertical);
@@ -73,14 +82,14 @@ Trie* getSameLetterNode(Trie* trie, char charForInsert){
 	return nextHorizontal;	
 }
 
-void insertLineTextIntoTrie(Trie* trie, char* line, int id){
+void insertLineTextIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* line, int id){
 	char* word;
 	word = strtok(line, " \t");
 	while(word!=NULL){
 		
 		char* wordToInsert = malloc((strlen(word)+1)*sizeof(char));
 		strcpy(wordToInsert,word);
-		insertFullWordIntoTrie(trie, wordToInsert, id);
+		insertFullWordIntoTrie(containsTrie, trie, wordToInsert, id);
 		
 		free(wordToInsert);
 		wordToInsert = NULL;
@@ -90,9 +99,9 @@ void insertLineTextIntoTrie(Trie* trie, char* line, int id){
 }
 
 
-void InsertAllLinesIntoTrie(Trie* trie, Map* map){
+void InsertAllLinesIntoTrie(ContainsTrie* containsTrie, Map* map){
 	for(int i=0; i<map->length; i++){
-		insertLineTextIntoTrie(trie,map->array[i].text ,map->array[i].id);
+		insertLineTextIntoTrie(containsTrie, containsTrie->firstNode, map->array[i].text ,map->array[i].id);
 	}
 }
 
@@ -115,6 +124,13 @@ void printTrieVertically(Trie* trie){
 	}
 	printf("%c",trie->letter);
 	printTrieVertically(trie->verticalNext);	
+}
+
+void destroyContainsTrie(ContainsTrie* containsTrie){
+	if(containsTrie!=NULL){
+		destroyTrie(containsTrie->firstNode);
+		free(containsTrie);
+	}
 }
 
 
@@ -228,11 +244,11 @@ double getScoreWithoutSum(Trie* trie, Map* map, int idf, char* word, int textId,
 		return 0;
 	
 		
-	MapNode* node = getMapNode(map, textId);
-	int D = getNoOfWordsOfMapText(node);
+	MapNode* node = getMapNode(map, textId, 0, map->position-1);
+	int D = node->noOfWords;
 	
 	double result = (idf * tf*(k1+1))/(tf + k1 *(1 - b + b*(D/avgdl)));
-	return result
+	return result;
 	
 }
 

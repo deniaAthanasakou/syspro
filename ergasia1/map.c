@@ -8,6 +8,7 @@ Map* createMap(){
 	Map* map = malloc(sizeof(Map));
 	map->length = 5;
 	map->position = 0;
+	map->noOfWordsFull = -1;
 	map->array = malloc(map->length*sizeof(MapNode));
 	return map;
 }
@@ -15,7 +16,7 @@ void insertIntoMap(Map* map, int id, char* text){
 	MapNode node;
 	node.id = id;
 	node.text = text;
-	
+	node.noOfWords = getNoOfWordsOfMapText(&node);
 	
 	if(map->position+1==map->length){
 		doubleMap(map);
@@ -43,10 +44,10 @@ MapNode* getMapNode(Map* map, int id, int first, int last){
  
     int mid = (first + last)/2;
  
-    if(id == map->array[mid]->id)
+    if(id == map->array[mid].id)
         return &(map->array[mid]);
  
-    if(id > map->array[mid]->id)
+    if(id > map->array[mid].id)
         return getMapNode(map, id, mid+1, last);
     return getMapNode(map, id, first, mid-1);
 }
@@ -70,15 +71,16 @@ int getNoOfWordsOfMapText(MapNode* node){
 
 
 int getNoOfAllWords(Map* map){
+	if(map->noOfWordsFull!=-1)
+		return map->noOfWordsFull;
+		
 	int sum=0;
 	for(int i=0; i<map->position; i++){
-		sum+=getNoOfWordsOfMapText(&(map->array[i]));
+		sum+=map->array[i].noOfWords;
 	}
+	map->noOfWordsFull = sum;
 	return sum;
 }
-
-
-
 
 
 void printMap(Map* map){
