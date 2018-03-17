@@ -230,33 +230,30 @@ char* recGetWordsFromTrie(Trie* originalTrie, Trie* trie, char* word, arrayWords
 }
 
 
-double getScoreWithoutSum(Trie* trie, Map* map, double idf, char* word, int textId, int avgdl){
-	float k1 = 1.2;
-	float b = 0.75;
+double getScoreWithoutSum(Trie* trie, Map* map, double idf, char* word, int textId, double avgdl){
+	double k1 = 1.2;
+	double b = 0.75;
 	
-	int tf = 0;
+	double tf = 0.0;
 	
 	postingList* pL = searchWordInTrie(trie, word);
 	if(pL!=NULL){		//word exists
-		OccurrencesInText* node = searchForId(pL, textId);
+		OccurrencesInText* node = getNodeById(pL, textId);
 		if(node!=NULL){
-			tf = node->occurrences;
+			tf = (double)node->occurrences;
 		}
 	} 
-	/*printf("tf = '%d'\n", tf);
-	printf("idf = '%f'\n", idf);
-	printf("map->position = '%d'\n", map->position);*/
 	
 	if(tf==0 || idf==0 || map->position==0){
 		//printf(" return 0\n");
 		return 0;
 	}
 	
-		
-	MapNode* node = getMapNode(map, textId, 0, map->position-1);
-	int D = node->noOfWords;
+	double D = (double)map->array[textId].noOfWords;
 	
-	double result = (idf * tf*(k1+1))/(tf + k1 *(1 - b + b*(D/avgdl)));
+	double result = (idf *tf*(k1+1.0))/(tf + k1 *(1.0 - b + (b*D/avgdl)));
+
+	//double result = idf * ((tf*(k1+1))/(tf + k1*(1-b + (b*(D/avgdl)))));
 	return result;
 	
 }

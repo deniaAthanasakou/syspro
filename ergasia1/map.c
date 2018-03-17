@@ -87,7 +87,7 @@ void reduceMapLength(Map* map){
 	map->array = (MapNode*)realloc(map->array, map->position*sizeof(MapNode));
 	map->length = map->position;
 }
-
+/*
 MapNode* getMapNode(Map* map, int id, int first, int last){	
 	if (last <= first){
 		if(id == map->array[first].id)		//item already exists
@@ -107,7 +107,7 @@ MapNode* getMapNode(Map* map, int id, int first, int last){
         return getMapNode(map, id, mid+1, last);
     return getMapNode(map, id, first, mid-1);
 }
-
+*/
 
 int getNoOfWordsOfMapText(MapNode* node){
 	char* word = malloc(sizeof(char)*(strlen(node->text)+1));

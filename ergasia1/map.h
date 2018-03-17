@@ -24,7 +24,7 @@ void doubleMap(Map* map);
 void reduceMapLength(Map* map);
 int getNoOfWordsOfMapText(MapNode* node);
 int getNoOfAllWords(Map* map);
-MapNode* getMapNode(Map* map, int id, int first, int last);
+//MapNode* getMapNode(Map* map, int id, int first, int last);
 void destroyMap(Map* map);
 
 #endif

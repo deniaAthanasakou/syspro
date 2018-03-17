@@ -21,7 +21,6 @@ void doublePrintForSearch(PrintForSearch* pfs);
 void insertionSortPrintForSearch(PrintForSearch* pfs, int textId, double score, char* text);
 int binaryPrintForSearch(PrintForSearchNode* array, double score, int first, int last, int realLastElement);
 
-
 void deletePrintForSearch(PrintForSearch* pfs);
 void printPrintForSearchElements(PrintForSearch* pfs);
 

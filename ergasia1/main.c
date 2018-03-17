@@ -28,8 +28,6 @@ int main (int argc,char* argv[]){
 		printf("Error! Invalid value for K.\n");
 		exit(1);
 	}
-	printf("K is %d\n",KResults);
-	
 	
 	
 	Map* map = createMap();
@@ -68,25 +66,22 @@ int main (int argc,char* argv[]){
 
 	char* query = NULL;
 	while(1){
-		printf("\nPlease input your query\n");
-		printf("Your choices are:\n\n/search word1 word2 ... word 10\n/df (word)\n/tf id word\n/exit\n\n");
+		//printf("\nPlease input your query\n");
+		//printf("Your choices are:\n\n/search word1 word2 ... word 10\n/df (word)\n/tf id word\n/exit\n\n");
 		if(getline(&query, &len, stdin) != -1){
 			char* instruction = strtok(query," \t\n");
 			char* remainingLine = strtok(NULL,"\n");
-			//printf("INSTRUCTION %s\n", instruction);
-			//printf("REMAINING LINE %s\n", remainingLine);
 			arrayWords* array = stringToArray(remainingLine);
-			//printArrayWords(array);
-			if(strcmp(instruction,"/search")==0){
+			if(strcmp(instruction,"/search")==0 || strcmp(instruction,"\\search")==0){
 				search(array, map, containsTrie, KResults);
 			}
-			else if(strcmp(instruction,"/df")==0){
+			else if(strcmp(instruction,"/df")==0 || strcmp(instruction,"\\df")==0){
 				documentFrequency(array,containsTrie->firstNode);
 			}
-			else if(strcmp(instruction,"/tf")==0){
+			else if(strcmp(instruction,"/tf")==0 || strcmp(instruction,"\\tf")==0){
 				termFrequency(array, containsTrie->firstNode);
 			}
-			else if(strcmp(instruction,"/exit")==0){
+			else if(strcmp(instruction,"/exit")==0 || strcmp(instruction,"\\exit")==0){
 				if (query){
 					free(query);
 					query=NULL;
@@ -95,7 +90,7 @@ int main (int argc,char* argv[]){
 				break;
 			}
 			else{
-				printf("Error! Wrong query. Please try again.\n"); 
+				//printf("Error! Wrong query. Please try again.\n"); 
 			}
 			deleteArrayWords(array);
 		}
@@ -107,8 +102,7 @@ int main (int argc,char* argv[]){
 			break;
 		}
 	}
-	printf("End of while\n");
-	
+		//printMap(map);
 	destroyMap(map);
 	destroyContainsTrie(containsTrie);
 	

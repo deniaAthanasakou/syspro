@@ -19,6 +19,9 @@ typedef struct postingList{
 void createPostingList(postingList* pL);
 void insertIntoPostingList(postingList* pL, int textId);
 OccurrencesInText* searchForId(postingList* pL,int id);
+OccurrencesInText* getNodeById(postingList* pL,int id);
+
+void printPostingList(postingList* pL);
 void destroyPostingList(postingList* pL);
 
 void getDifferentIds(postingList* pL, DifferentIds* diffIds);
