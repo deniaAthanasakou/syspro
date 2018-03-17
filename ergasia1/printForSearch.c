@@ -32,16 +32,15 @@ int binaryPrintForSearch(PrintForSearchNode* array, double score, int first, int
 	if(realLastElement==-1)	//there are no elements in array
 		return 0;
 	if (last <= first){
-		if(score == array[first].score)		//item already exists
-			return -1;	
+		/*if(score == array[first].score)		//item already exists
+			return -1;	*/
         return (score >array[first].score)?  (first + 1): first;
     }
  
     int mid = (first + last)/2;
  
     if(score == array[mid].score)		//item already exists
-    	return -1;
-        // mid+1;
+         mid+1;
  
     if(score > array[mid].score)
         return binaryPrintForSearch(array, score, mid+1, last, realLastElement);
@@ -52,7 +51,6 @@ void insertionSortPrintForSearch(PrintForSearch* pfs, int textId, double score, 
 	if(pfs->position==pfs->length){	//double array
 		doublePrintForSearch(pfs);
 	}
-	
 	
 
 	// find location where selected sould be inseretd
@@ -80,9 +78,25 @@ void deletePrintForSearch(PrintForSearch* pfs){
 	free(pfs);
 	pfs = NULL;
 }
+
 void printPrintForSearchElements(PrintForSearch* pfs){
 	printf("Printing PrintForSearch\n");
 	for(int i=0; i<pfs->position; i++){
-		printf("TEXT ID '%d', SCORE '%f', TEXT '%s'\n", pfs->array[i].textId, pfs->array[i].score, pfs->array[i].text);
+		printf("TEXT ID '%d', SCORE '%f'\n", pfs->array[i].textId, pfs->array[i].score);
+		//printf("TEXT ID '%d', SCORE '%f', TEXT '%s'\n", pfs->array[i].textId, pfs->array[i].score, pfs->array[i].text);
 	}
 }
+
+void printKResultsDESC(PrintForSearch* pfs, int topK){
+	
+	int upToHere=0;
+	if(	pfs->position-1 - topK>=0)
+		upToHere = pfs->position - topK;
+	
+	for(int i=pfs->position-1; i>=upToHere; i--){
+		//printf("TEXT ID '%d', SCORE '%f'\n", pfs->array[i].textId, pfs->array[i].score);
+		printf("TEXT ID '%d', SCORE '%f', TEXT '%s'\n\n\n", pfs->array[i].textId, pfs->array[i].score, pfs->array[i].text);
+	}
+}
+
+

@@ -21,12 +21,12 @@ IdfForWordNode* binarySearchIdfForWord(IdfForWordNode* array, char* word, int fi
 	if(realLast==-1)	//there are no elements in array
 		return NULL;
 	if (last <= first){
-		if(strcmp(word, array[first].word)==0)		//item already exists
+		if(strcmp(word, array[first].word)==0){		//item already exists
 			return &array[first];	
+		}
         else 
         	return NULL;
     }
- 
     int mid = (first + last)/2;
  
     if(strcmp(word, array[mid].word)==0)		//item found

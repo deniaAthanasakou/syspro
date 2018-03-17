@@ -7,7 +7,8 @@
 #include "printForSearch.h"
 #include "idf.h"
 
-int search(arrayWords* array, Map* map, ContainsTrie* containsTrie){
+int search(arrayWords* array, Map* map, ContainsTrie* containsTrie, int topK){
+
 	if(array->position<1){
 		printf("Error! No word was given. Please try again.\n");
 		return 0;
@@ -49,29 +50,26 @@ int search(arrayWords* array, Map* map, ContainsTrie* containsTrie){
 	
 	for(int i=0; i<diffIds->position; i++){		//for each different document
 		double score = 0.0;
-		MapNode* node = getMapNode(map, diffIds->ids[i], 0, diffIds->position);
-		char* line = node->text;
+		MapNode* node = getMapNode(map, diffIds->ids[i], 0, map->position-1);
+		char* line = malloc((strlen(node->text)+1)*sizeof(char));
+		strcpy(line, node->text);
 		arrayWords* arrayOfWords = stringToArray(line);
+		if(line)
+			free(line);
 		for(int j=0; j<arrayOfWords->position; j++){	//for each word of document
-
-			IdfForWordNode* idfNode = binarySearchIdfForWord(idfForWords->array,arrayOfWords->words[i], 0,idfForWords->position-1, idfForWords->position-1);
-			if(idfNode==NULL)				//if word is not in query, continue
+			
+			IdfForWordNode* idfNode = binarySearchIdfForWord(idfForWords->array, arrayOfWords->words[j], 0,idfForWords->position-1, idfForWords->position-1);
+			if(idfNode==NULL){				//if word is not in query, continue
 				continue;
-			score+=getScoreWithoutSum(containsTrie->firstNode, map, idfNode->idf, arrayOfWords->words[i], diffIds->ids[i], avgdl);
+			}
+			score+=getScoreWithoutSum(containsTrie->firstNode, map, idfNode->idf, arrayOfWords->words[j], diffIds->ids[i], avgdl);
 			
 		}
 		deleteArrayWords(arrayOfWords);
-		insertionSortPrintForSearch(pfs,  diffIds->ids[i], score, line);
+		insertionSortPrintForSearch(pfs,  diffIds->ids[i], score, node->text);
 	}
-	/*for each line of text
-		sum=0
-		for each word
-			sum+=get Score
-			
-	Sort sums
-	print top-k sums
-	*/
-	/*na kanw mia domh p tha krataei to counter, to score, to text kai to text id kai meta na th sortarw me vash to score se fthinousa seira*/
+	
+	printKResultsDESC(pfs, topK);
 	
 	deleteIdfForWords(idfForWords);
 	deletePrintForSearch(pfs);
@@ -81,23 +79,6 @@ int search(arrayWords* array, Map* map, ContainsTrie* containsTrie){
 	return 1;
 	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

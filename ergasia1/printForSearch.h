@@ -25,5 +25,7 @@ int binaryPrintForSearch(PrintForSearchNode* array, double score, int first, int
 void deletePrintForSearch(PrintForSearch* pfs);
 void printPrintForSearchElements(PrintForSearch* pfs);
 
+void printKResultsDESC(PrintForSearch* pfs, int topK);
+
 
 #endif

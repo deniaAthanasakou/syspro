@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "methods.h"
+#include "arrayWords.h"
 #include "map.h"
 #include "trie.h"
 #include "query.h"
 
 int main (int argc,char* argv[]){
-	if(argc!=5){
+	if(argc<3 || argc>5 || argc==4){
 		printf("Error! Wrong Number of Arguments.\n");
 		exit(1);
 	}
@@ -41,16 +41,17 @@ int main (int argc,char* argv[]){
 	int init = 0;
 	if (initFile!=NULL)
 	{
-		init = initialize(initFile, map);
+		init = getMapFromFile(initFile, map);
 		fclose (initFile);
 	}
 	if (init==0){
+		printf("Error! Map was not initialized from file.\n");
 		destroyMap(map);
 		exit(1);
 		
 	}
 	
-	//printMap(map);
+	
 	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
 	initializeContainsTrie(&containsTrie);
 	InsertAllLinesIntoTrie(containsTrie,map);
@@ -58,7 +59,7 @@ int main (int argc,char* argv[]){
 	//printf("Printing trie Horizontally\n");
 	//printTrieHorizontally(containsTrie->firstNode);
 	//printTrieVertically(containsTrie->firstNode);
-	
+	//printMap(map);
 	
 		
 	//read user input for queries
@@ -77,7 +78,7 @@ int main (int argc,char* argv[]){
 			arrayWords* array = stringToArray(remainingLine);
 			//printArrayWords(array);
 			if(strcmp(instruction,"/search")==0){
-				search(array, map, containsTrie);
+				search(array, map, containsTrie, KResults);
 			}
 			else if(strcmp(instruction,"/df")==0){
 				documentFrequency(array,containsTrie->firstNode);

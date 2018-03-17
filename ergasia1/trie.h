@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include "map.h"
 #include "postingList.h"
-#include "methods.h"
+#include "arrayWords.h"
 
 typedef struct Trie Trie;
 
@@ -42,6 +42,6 @@ void destroySingleNode(Trie* trie);
 arrayWords* getAllWordsOfTrie(Trie* trie);
 char* recGetWordsFromTrie(Trie* originalTrie, Trie* trie, char* word, arrayWords* array);
 
-double getScoreWithoutSum(Trie* trie, Map* map, int idf, char* word, int textId, int avgdl); 
+double getScoreWithoutSum(Trie* trie, Map* map, double idf, char* word, int textId, int avgdl); 
 
 #endif

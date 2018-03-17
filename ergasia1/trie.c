@@ -83,8 +83,10 @@ Trie* getSameLetterNode(Trie* trie, char charForInsert){
 }
 
 void insertLineTextIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* line, int id){
+	char* tempLine = malloc((strlen(line)+1)*sizeof(char));
+	strcpy(tempLine, line);
 	char* word;
-	word = strtok(line, " \t");
+	word = strtok(tempLine, " \t");
 	while(word!=NULL){
 		
 		char* wordToInsert = malloc((strlen(word)+1)*sizeof(char));
@@ -96,6 +98,8 @@ void insertLineTextIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* line, 
 		
 		word = strtok(NULL, " \t");
 	}
+	if(tempLine)
+		free(tempLine);
 }
 
 
@@ -226,7 +230,7 @@ char* recGetWordsFromTrie(Trie* originalTrie, Trie* trie, char* word, arrayWords
 }
 
 
-double getScoreWithoutSum(Trie* trie, Map* map, int idf, char* word, int textId, int avgdl){
+double getScoreWithoutSum(Trie* trie, Map* map, double idf, char* word, int textId, int avgdl){
 	float k1 = 1.2;
 	float b = 0.75;
 	
@@ -239,9 +243,14 @@ double getScoreWithoutSum(Trie* trie, Map* map, int idf, char* word, int textId,
 			tf = node->occurrences;
 		}
 	} 
+	/*printf("tf = '%d'\n", tf);
+	printf("idf = '%f'\n", idf);
+	printf("map->position = '%d'\n", map->position);*/
 	
-	if(tf==0 || idf==0 || map->position==0)
+	if(tf==0 || idf==0 || map->position==0){
+		//printf(" return 0\n");
 		return 0;
+	}
 	
 		
 	MapNode* node = getMapNode(map, textId, 0, map->position-1);

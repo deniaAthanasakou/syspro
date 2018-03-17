@@ -14,7 +14,10 @@ typedef struct Map{
 	int noOfWordsFull;
 }Map;
 
+
+
 Map* createMap();
+int getMapFromFile(FILE* file, Map* map);
 void insertIntoMap(Map* map, int id, char* text);
 void printMap(Map* map);
 void doubleMap(Map* map);

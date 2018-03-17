@@ -1,8 +1,8 @@
 CC = gcc -g
-FILES = main.c methods.c map.c trie.c postingList.c query.c documentIdsHandler.c printForSearch.c idf.c
-OBJECTS = main.o methods.o map.o trie.o postingList.o query.o documentIdsHandler.o printForSearch.o idf.o
+FILES = main.c arrayWords.c map.c trie.c postingList.c query.c documentIdsHandler.c printForSearch.c idf.c
+OBJECTS = main.o arrayWords.o map.o trie.o postingList.o query.o documentIdsHandler.o printForSearch.o idf.o
 OUT = minisearch
-HEADERS = methods.h map.h trie.h postingList.h query.h documentIdsHandler.h printForSearch.h idf.h
+HEADERS = arrayWords.h map.h trie.h postingList.h query.h documentIdsHandler.h printForSearch.h idf.h
 
 
 all: $(OBJECTS) $(HEADERS)
@@ -12,8 +12,8 @@ all: $(OBJECTS) $(HEADERS)
 main.o: main.c
 	$(CC) -c main.c
 
-methods.o: methods.c
-	$(CC) -c methods.c
+arrayWords.o: arrayWords.c
+	$(CC) -c arrayWords.c
 	
 map.o: map.c
 	$(CC) -c map.c	
