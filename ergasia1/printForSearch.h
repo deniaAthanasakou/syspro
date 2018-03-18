@@ -9,11 +9,11 @@ typedef struct PrintForSearchNode{
 }PrintForSearchNode;
 
 typedef struct PrintForSearch{
-	int length;	//initially 10
-	int position;
+	int length;					//initially 10
+	int position;				//position of first empty element
 	PrintForSearchNode* array;
-	arrayWords* queryWords;
-	int screenColumns;
+	arrayWords* queryWords;		//words that should be checked for underlining
+	int screenColumns;			//full screen width
 	int spacesBeforeText;
 }PrintForSearch;
 

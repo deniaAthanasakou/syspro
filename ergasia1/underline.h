@@ -7,10 +7,10 @@ typedef struct UnderlineNode{
 	int endingPoint;
 }UnderlineNode;
 
-typedef struct Underline{
-	int length; //initially 5
-	int position;
-	UnderlineNode* array;
+typedef struct Underline{		//contains array of [startingPoint, endingPoint] sets
+	int length; 				//initially 5
+	int position;				//position of first null element
+	UnderlineNode* array;		
 }Underline;
 
 

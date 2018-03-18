@@ -7,11 +7,11 @@ typedef struct MapNode{
 	int noOfWords;
 }MapNode;
 
-typedef struct Map{
+typedef struct Map{		
 	int length;					//initially is 5
 	MapNode* array; 
 	int position;				//position of first empty element
-	int noOfWordsFull;
+	int noOfWordsFull;			// number of words that all map nodes contains
 }Map;
 
 
@@ -24,7 +24,6 @@ void doubleMap(Map* map);
 void reduceMapLength(Map* map);
 int getNoOfWordsOfMapText(MapNode* node);
 int getNoOfAllWords(Map* map);
-//MapNode* getMapNode(Map* map, int id, int first, int last);
 void destroyMap(Map* map);
 
 #endif

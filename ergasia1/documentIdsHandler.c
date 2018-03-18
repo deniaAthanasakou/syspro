@@ -31,7 +31,7 @@ void insertionSortDifferentIds(DifferentIds *diffIds, int newId){
 		doubleDifferentIds(diffIds);
 	}
 
-	// find location where selected sould be inseretd
+	// find location where element sould be inseretd
 	int loc = binarySearchForDifferentIds(diffIds->ids, newId, 0, diffIds->position-1, diffIds->position-1);
 	if(loc==-1)		//item already exists in array
 		return;		
@@ -65,7 +65,6 @@ int binarySearchForDifferentIds(int* ids, int item, int first, int last, int rea
  
     if(item == ids[mid])		//item already exists
     	return -1;
-        // mid+1;
  
     if(item > ids[mid])
         return binarySearchForDifferentIds(ids, item, mid+1, last, realLastElement);
@@ -73,9 +72,9 @@ int binarySearchForDifferentIds(int* ids, int item, int first, int last, int rea
 }
 
 void printDifferentIds(DifferentIds* diffIds){
-	printf("Printing different ids pos %d\n", diffIds->position);
+	printf("Printing different ids\n");
 	for(int i=0; i<diffIds->position; i++){
-		//printf("%d\n", diffIds->ids[i]);
+		printf("%d\n", diffIds->ids[i]);
 	}
 }
 

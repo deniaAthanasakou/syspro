@@ -17,7 +17,7 @@ int main (int argc,char* argv[]){
 		if(!strcmp(argv[i],"-i"))
 			fileName=argv[i+1];							//argument before initialize file should be -i
 		else if(!strcmp(argv[i],"-k"))
-			KResults=atoi(argv[i+1]);						//argument before query file should be -q
+			KResults=atoi(argv[i+1]);						//argument before top-K results should be -k
 	}
 	
 	if(fileName==NULL){
@@ -39,7 +39,7 @@ int main (int argc,char* argv[]){
 	int init = 0;
 	if (initFile!=NULL)
 	{
-		init = getMapFromFile(initFile, map);
+		init = getMapFromFile(initFile, map);		//initialize map
 		fclose (initFile);
 	}
 	if (init==0){
@@ -49,16 +49,9 @@ int main (int argc,char* argv[]){
 		
 	}
 	
-	
 	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
 	initializeContainsTrie(&containsTrie);
-	InsertAllLinesIntoTrie(containsTrie,map);
-	
-	//printf("Printing trie Horizontally\n");
-	//printTrieHorizontally(containsTrie->firstNode);
-	//printTrieVertically(containsTrie->firstNode);
-	//printMap(map);
-	
+	InsertAllLinesIntoTrie(containsTrie,map);					//initialize trie
 		
 	//read user input for queries
 	char *line = NULL;
@@ -66,8 +59,7 @@ int main (int argc,char* argv[]){
 
 	char* query = NULL;
 	while(1){
-		//printf("\nPlease input your query\n");
-		//printf("Your choices are:\n\n/search word1 word2 ... word 10\n/df (word)\n/tf id word\n/exit\n\n");
+	
 		if(getline(&query, &len, stdin) != -1){
 			char* instruction = strtok(query," \t\n");
 			char* remainingLine = strtok(NULL,"\n");
@@ -89,9 +81,6 @@ int main (int argc,char* argv[]){
 				deleteArrayWords(array);
 				break;
 			}
-			else{
-				//printf("Error! Wrong query. Please try again.\n"); 
-			}
 			deleteArrayWords(array);
 		}
 		else{
@@ -102,7 +91,6 @@ int main (int argc,char* argv[]){
 			break;
 		}
 	}
-		//printMap(map);
 	destroyMap(map);
 	destroyContainsTrie(containsTrie);
 	

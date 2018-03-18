@@ -21,7 +21,7 @@ IdfForWordNode* binarySearchIdfForWord(IdfForWordNode* array, char* word, int fi
 	if(realLast==-1)	//there are no elements in array
 		return NULL;
 	if (last <= first){
-		if(strcmp(word, array[first].word)==0){		//item already exists
+		if(strcmp(word, array[first].word)==0){		//item found
 			return &array[first];	
 		}
         else 
@@ -50,7 +50,6 @@ int binaryIdfForWord(IdfForWordNode* array, char* word, int first, int last, int
  
     if(strcmp(word, array[mid].word)==0)		//item already exists
     	return -1;
-        // mid+1;
  
     if(strcmp(word, array[mid].word)>0)
         return binaryIdfForWord(array, word, mid+1, last, realLast);

@@ -1,9 +1,9 @@
 #ifndef _DOCUMENT_IDS_HANDLER_H_
 #define _DOCUMENT_IDS_HANDLER_H_
 
-typedef struct DifferentIds{
-	int length;				//length of array of strings (initially 10)
-	int* ids;				//array of strings
+typedef struct DifferentIds{	//struct that contains array of different text Ids
+	int length;				//length of array of ids (initially 10)
+	int* ids;				//array of ids
 	int position;			//position of first null element
 }DifferentIds;
 

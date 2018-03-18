@@ -1,5 +1,8 @@
-tf small 	OK
-tf big 		OK
+tf small 		OK		valgring		OK
+tf big 			OK		valgring		OK
 
-df small 	OK
-df big	 	OK
+df small 		OK		valgring		OK
+df big	 		OK		valgring		OK
+
+search small 	OK		valgring		OK
+search big	 	OK		valgring		OK

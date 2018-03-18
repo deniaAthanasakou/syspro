@@ -3,7 +3,7 @@
 #include "map.h"
 #include <stdbool.h>
 
-typedef struct arrayWords{
+typedef struct arrayWords{	//struct that contains array of strings
 	int length;				//length of array of strings (initially 10)
 	char** words;			//array of strings
 	int position;			//position of first null element

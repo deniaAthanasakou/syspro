@@ -32,8 +32,6 @@ int getMapFromFile(FILE* file, Map* map){
 		}
 		
 		char* remainingLine = strtok(NULL,"\n");
-		//printf("%d\n", lineNumber);
-		//printf("'%s'\n", remainingLine);
 		
 		//inserting lines into map
 		char* text = malloc((strlen(remainingLine)+1)* sizeof(char));
@@ -41,11 +39,7 @@ int getMapFromFile(FILE* file, Map* map){
 		insertIntoMap(map, lineNumber, text);
 		counter++;		
 	}
-	//printf("map->Length %d, map->position %d\n", map->length, map->position);
-	//printMap(map);
 	reduceMapLength(map);
-	//printf("map->Length %d, map->position %d\n", map->length, map->position);
-	//printMap(map);
 
 	if (line){
 		free(line);
@@ -77,7 +71,6 @@ void insertIntoMap(Map* map, int id, char* text){
 }
 
 void doubleMap(Map* map){
-	int oldLength = map->length;
 	map->length*=2;
 	map->array = (MapNode*)realloc(map->array, map->length*sizeof(MapNode));
 	
@@ -87,29 +80,9 @@ void reduceMapLength(Map* map){
 	map->array = (MapNode*)realloc(map->array, map->position*sizeof(MapNode));
 	map->length = map->position;
 }
-/*
-MapNode* getMapNode(Map* map, int id, int first, int last){	
-	if (last <= first){
-		if(id == map->array[first].id)		//item already exists
-			return &(map->array[first]);
-        else{
-        	printf("NULL first %d, last %d\n", first, last);
-        	return NULL;
-        }
-    }
- 
-    int mid = (first + last)/2;
- 
-    if(id == map->array[mid].id)
-        return &(map->array[mid]);
- 
-    if(id > map->array[mid].id)
-        return getMapNode(map, id, mid+1, last);
-    return getMapNode(map, id, first, mid-1);
-}
-*/
 
-int getNoOfWordsOfMapText(MapNode* node){
+
+int getNoOfWordsOfMapText(MapNode* node){		//returns the number of words that node->text contains
 	char* word = malloc(sizeof(char)*(strlen(node->text)+1));
 	strcpy(word, node->text); 
 	char* pch;
@@ -140,7 +113,7 @@ int getNoOfAllWords(Map* map){
 
 
 void printMap(Map* map){
-	printf("Length of map-array is '%d'\n", map->length);
+	printf("Printing map:\n");
 	for(int i=0; i<map->position; i++){
 		printf("id '%d', text '%s'\n", map->array[i].id,map->array[i].text);
 	}

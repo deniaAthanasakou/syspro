@@ -11,9 +11,9 @@ struct OccurrencesInText{	//listNode
 	OccurrencesInText* next;
 };
 
-typedef struct postingList{
+typedef struct postingList{	
 	int documentFreq;		//size
-	OccurrencesInText* firstNode;
+	OccurrencesInText* firstNode;	
 }postingList;
 
 void createPostingList(postingList* pL);

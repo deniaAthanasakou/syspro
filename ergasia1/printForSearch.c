@@ -11,7 +11,7 @@ void initializePrintForSearch(PrintForSearch* pfs, arrayWords* array){
 	pfs->position = 0;
 	pfs->array = malloc(pfs->length * sizeof(PrintForSearchNode));
 	pfs->queryWords = array;
-	pfs->screenColumns = 120;
+	pfs->screenColumns = 136;
 	pfs->spacesBeforeText = 22;
 	for(int i=0; i<pfs->length ; i++){
 		initializePrintForSearchNode(&(pfs->array[i]));
@@ -38,8 +38,6 @@ int binaryPrintForSearch(PrintForSearchNode* array, double score, int first, int
 	if(realLastElement==-1)	//there are no elements in array
 		return 0;
 	if (last <= first){
-		/*if(score == array[first].score)		//item already exists
-			return -1;	*/
  	     return (score >array[first].score)?  (first + 1): first;
     }
  
@@ -58,8 +56,7 @@ void insertionSortPrintForSearch(PrintForSearch* pfs, int textId, double score, 
 		doublePrintForSearch(pfs);
 	}
 	
-
-	// find location where selected sould be inseretd
+	// find location where element sould be inseretd
 	int loc = binaryPrintForSearch(pfs->array, score, 0, pfs->position-1, pfs->position-1);	
 
 	int j = pfs->position-1;	//position of last element
@@ -87,8 +84,7 @@ void printPrintForSearchElements(PrintForSearch* pfs){
 	printf("query words are:\n");
 	printArrayWords(pfs->queryWords);
 	for(int i=0; i<pfs->position; i++){
-		printf("TEXT ID '%d', SCORE '%f'\n", pfs->array[i].textId, pfs->array[i].score);
-		//printf("TEXT ID '%d', SCORE '%f', TEXT '%s'\n", pfs->array[i].textId, pfs->array[i].score, pfs->array[i].text);
+		printf("TEXT ID '%d', SCORE '%f', TEXT '%s'\n", pfs->array[i].textId, pfs->array[i].score, pfs->array[i].text);
 	}
 }
 
@@ -101,33 +97,28 @@ void printKResultsDESC(PrintForSearch* pfs, int topK){
 	int counter=1;
 	
 	struct winsize w;
-	int result = ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+	int result = ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);	
 
 	if(result!=-1)
-		pfs->screenColumns = w.ws_col;
-	//printf("pfs->screenColumns %d\n", pfs->screenColumns);
-	
-	
-	
+		pfs->screenColumns = w.ws_col;				// get terminal width
 	
 	for(int i=pfs->position-1; i>=upToHere; i--){	//for each document
-		printf("%4d.(%4d)[%8.4lf] ", counter,pfs->array[i].textId, pfs->array[i].score);//print statistics
+		printf("%4d.(%4d)[%8.4lf] ", counter,pfs->array[i].textId, pfs->array[i].score);	//print statistics
 		
 		int counterLine = 0;
 		int textStarter = 0;
 		int j = textStarter;
 		int lengthOfTextRead = 0;
 		
-		//print text up to range and then continue 
 		char* wordToSearch = malloc(0);
 		int wordToSearchLength = 0;
-		int startingPoint = 0;
-		int endingPoint = 0;
+		int startingPoint = 0;			//used for underlining words
+		int endingPoint = 0;			//used for underlining words
 		
 		while(lengthOfTextRead < strlen(pfs->array[i].text)){		//have yet not found eof
 			if(counterLine!=0){
 				for(int k=0; k<pfs->spacesBeforeText; k++){
-					printf(" " );
+					printf(" " );									//must print spaces to make up for loss of counter, text id and score
 				}
 			}
 			
@@ -135,54 +126,42 @@ void printKResultsDESC(PrintForSearch* pfs, int topK){
 			initializeUnderline(underline);
 			
 			
-			
-			
-			
-			
-			
-			
 			for(j=0; j<pfs->screenColumns - pfs->spacesBeforeText ; j++){					//print characters up to screenColumns
-				if( pfs->array[i].text[j + lengthOfTextRead] == '\0')
+				if( pfs->array[i].text[j + lengthOfTextRead] == '\0')						//if eof was found then break
 					break;
-				
-				
-				
-				char c = pfs->array[i].text[j + lengthOfTextRead];
+
+				char c = pfs->array[i].text[j + lengthOfTextRead];							//get current character
 
 				int tempWordLength = 0;
 				int tempCharacter = c;
-				while(tempCharacter!=' ' & tempCharacter != '\t'){
+				while(tempCharacter!=' ' & tempCharacter != '\t'){							//get length of current word
 					if(tempCharacter == '\0')
 						break;
 					tempWordLength++;
 					tempCharacter = pfs->array[i].text[j + lengthOfTextRead +tempWordLength];
 				}
-				if(j + tempWordLength-1 >= pfs->screenColumns - pfs->spacesBeforeText){
+				if(j + tempWordLength-1 >= pfs->screenColumns - pfs->spacesBeforeText){			//check if word will be able to fit entirely into line. if not break
 					lengthOfTextRead--;
 					break;
 				} 
 				
 				
-				printf("%c", c );
+				printf("%c", c );											
 				
-				if(c == ' ' || c == '\t'){
+				if(c == ' ' || c == '\t'){														//if space was found, wordToSearch must be checked for underlining
 					
 					if(wordToSearchLength!=0){
 						endingPoint = startingPoint + wordToSearchLength -1;
-						
-						
-						
+
 						wordToSearchLength++;
 						wordToSearch = realloc(wordToSearch,wordToSearchLength*sizeof(char));
 						wordToSearch[wordToSearchLength-1] = '\0'; 
 						
-						if(checkifWordExists(pfs->queryWords, wordToSearch)){
-							//printf("%s found starting %d ending %d\n", wordToSearch, startingPoint, endingPoint);
-							insertIntoUnderline(underline,startingPoint,endingPoint);
+						if(checkifWordExists(pfs->queryWords, wordToSearch)){					//if wordToSearch must be underlined
+							insertIntoUnderline(underline,startingPoint,endingPoint);			//insert starting and ending points into struct underline
 						}
-						
-						
-						wordToSearchLength = 0;
+
+						wordToSearchLength = 0;													//reinitialize wordToSearch and length
 						free(wordToSearch);
 						wordToSearch = malloc(0);
 					}
@@ -190,7 +169,7 @@ void printKResultsDESC(PrintForSearch* pfs, int topK){
 					startingPoint = j + 1;
 					
 				}
-				else{
+				else{																			//if character was not space, insert character into wordToSearch
 					wordToSearchLength++;
 					wordToSearch = realloc(wordToSearch,wordToSearchLength*sizeof(char));
 					wordToSearch[wordToSearchLength-1] = c; 
@@ -211,30 +190,27 @@ void printKResultsDESC(PrintForSearch* pfs, int topK){
 					free(wordToSearch);
 					wordToSearch = malloc(0);
 					startingPoint = j + 1;
-				}
-				
-				
+				}	
 			}
-			printf("\n");
+			printf("\n");																//print new line so that words can be underlined
 			
 	
 			
 			
-			for(int k=0; k<pfs->spacesBeforeText; k++){
+			for(int k=0; k<pfs->spacesBeforeText; k++){									//must print spaces to make up for loss of counter, text id and score
 				printf(" " );
 			}
 			for(int k=0; k<pfs->screenColumns - pfs->spacesBeforeText; k++){				//print ^ to underline word of query
-				int endPoint = getEndingPointFromStartingPoint(underline, k);
+				int endPoint = getEndingPointFromStartingPoint(underline, k);				//get endingPoint from function
 				while(k<=endPoint){
 					printf("^");
 					k++;
 				}
 				printf(" ");
-	
-				
+
 			}
 			deleteUnderline(underline);
-			printf("\n");
+			printf("\n");																//print new line so that the rest of the text can be printed		
 			
 			textStarter= textStarter + pfs->screenColumns;
 			lengthOfTextRead += j;

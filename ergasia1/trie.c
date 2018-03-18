@@ -27,7 +27,7 @@ Trie* insertLetterIntoTrie(ContainsTrie* containsTrie, Trie* trie, char charForI
 	if (trieOfInsert->letter=='\0'){
 		trieOfInsert->letter = charForInsert;
 	}
-	if(setPostingList){
+	if(setPostingList){						//last letter of word was inserted
 		if(trieOfInsert->pL==NULL){	//new word will be inseted
 			containsTrie->noOfTrieWords++;
 			trieOfInsert->pL = malloc(sizeof(postingList));
@@ -49,7 +49,6 @@ bool letterExists(Trie* trie, char charForInsert){
 void insertFullWordIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* word, int id){
 	Trie* nextVertical = trie;
 	Trie* insertedNode = NULL;
-	//printf("word %s\n", word);
 	for(int i=0; i<strlen(word); i++){
 		bool setPostingList = false;
 		if(i==strlen(word)-1){		//last letter
@@ -60,13 +59,12 @@ void insertFullWordIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* word, 
 			nextVertical = malloc(sizeof(Trie));
 			initializeTrie(&nextVertical);
 			insertedNode->verticalNext = nextVertical;
-			//printf("next node ptr %p,inserted->next %p, nextVertical %p\n",trie->verticalNext,insertedNode->verticalNext, nextVertical);
 		}
 		nextVertical  = insertedNode->verticalNext;
 	}
 }
 
-Trie* getSameLetterNode(Trie* trie, char charForInsert){
+Trie* getSameLetterNode(Trie* trie, char charForInsert){		//goes through trie horrizontally and if charForInsert is not found returns first Null node 
 	Trie* nextHorizontal = trie;
 	while(nextHorizontal!=NULL && nextHorizontal->letter!='\0'){
 		if(letterExists(nextHorizontal,charForInsert)){
@@ -91,7 +89,7 @@ void insertLineTextIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* line, 
 		
 		char* wordToInsert = malloc((strlen(word)+1)*sizeof(char));
 		strcpy(wordToInsert,word);
-		insertFullWordIntoTrie(containsTrie, trie, wordToInsert, id);
+		insertFullWordIntoTrie(containsTrie, trie, wordToInsert, id);		//insert word
 		
 		free(wordToInsert);
 		wordToInsert = NULL;
@@ -110,25 +108,6 @@ void InsertAllLinesIntoTrie(ContainsTrie* containsTrie, Map* map){
 }
 
 
-
-void printTrieHorizontally(Trie* trie){
-	if(trie==NULL){
-		printf("NULL TRIE\n");
-		return;
-	}
-	printf("'%c'\n",trie->letter);
-	printTrieHorizontally(trie->horizontalNext);	
-	//printTrieVertically(trie);	
-}
-
-void printTrieVertically(Trie* trie){
-	if(trie==NULL){
-		printf("\nNULL TRIE\n");
-		return;
-	}
-	printf("%c",trie->letter);
-	printTrieVertically(trie->verticalNext);	
-}
 
 void destroyContainsTrie(ContainsTrie* containsTrie){
 	if(containsTrie!=NULL){
@@ -168,11 +147,9 @@ Trie* horizontalTraversal(Trie* trie, char charForInsert){
 postingList* searchWordInTrie(Trie* trie, char* word){
 	Trie* tempTrie = trie;
 	Trie* prevTrie = trie;
-	//printf("searching for word '%s'\n", word);
 	for(int i=0; i<strlen(word); i++){
 		tempTrie = horizontalTraversal(tempTrie, word[i]);
 		if(tempTrie==NULL){
-			//printf("Letter '%c' does not exist in this level, so word '%s' does not exist either\n", word[i], word);
 			return NULL;
 		}
 		prevTrie = tempTrie;
@@ -196,9 +173,8 @@ arrayWords* getAllWordsOfTrie(Trie* trie){
 	return array;
 }
 
-char* recGetWordsFromTrie(Trie* originalTrie, Trie* trie, char* word, arrayWords* array){
+char* recGetWordsFromTrie(Trie* originalTrie, Trie* trie, char* word, arrayWords* array){	//returns word that exists in trie
 	if (trie!=NULL){
-		//printf("Letter %c, word '%s'\n", trie->letter, word);
 		int newLength = strlen(word)+1;
 		
 		word = realloc(word, (newLength+1)*sizeof(char));
@@ -236,7 +212,7 @@ double getScoreWithoutSum(Trie* trie, Map* map, double idf, char* word, int text
 	
 	double tf = 0.0;
 	
-	postingList* pL = searchWordInTrie(trie, word);
+	postingList* pL = searchWordInTrie(trie, word);		//get posting list of word
 	if(pL!=NULL){		//word exists
 		OccurrencesInText* node = getNodeById(pL, textId);
 		if(node!=NULL){
@@ -245,7 +221,6 @@ double getScoreWithoutSum(Trie* trie, Map* map, double idf, char* word, int text
 	} 
 	
 	if(tf==0 || idf==0 || map->position==0){
-		//printf(" return 0\n");
 		return 0;
 	}
 	
@@ -253,7 +228,6 @@ double getScoreWithoutSum(Trie* trie, Map* map, double idf, char* word, int text
 	
 	double result = (idf *tf*(k1+1.0))/(tf + k1 *(1.0 - b + (b*D/avgdl)));
 
-	//double result = idf * ((tf*(k1+1))/(tf + k1*(1-b + (b*(D/avgdl)))));
 	return result;
 	
 }

@@ -4,7 +4,7 @@
 #include "arrayWords.h"
 
 
-arrayWords* stringToArray(char* text){
+arrayWords* stringToArray(char* text){		//converts a string into an array
 	char* pch;
 	char** arrayOfWords; 
 	pch = strtok (text," \t");

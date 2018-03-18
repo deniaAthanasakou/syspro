@@ -20,7 +20,7 @@ void insertIntoPostingList(postingList* pL, int textId){
 	node->occurrences++;
 }
 
-OccurrencesInText* searchForId(postingList* pL, int id){
+OccurrencesInText* searchForId(postingList* pL, int id){		//is used by function insertIntoPostingList, so that node with same id will not be added twice
 	if(pL==NULL)
 		return NULL;
 	OccurrencesInText* node = pL->firstNode;
@@ -60,10 +60,6 @@ OccurrencesInText* getNodeById(postingList* pL,int id){
 void getDifferentIds(postingList* pL, DifferentIds* diffIds){
 	OccurrencesInText* tempNode = pL->firstNode;
 	while(tempNode!=NULL){
-		if(tempNode->textId<0){
-			printf(" tempNode->textId %d, occ %d, pL->docFreq = %d\n", tempNode->textId, tempNode->occurrences, pL->documentFreq);
-			printf("next ptr %p\n", tempNode->next);
-		}
 		insertionSortDifferentIds(diffIds, tempNode->textId);
 		tempNode = tempNode->next;
 	}
@@ -77,10 +73,9 @@ void printPostingList(postingList* pL){
 	int counter=0;
 	while(tempNode!=NULL){
 		counter++;
-		//printf(" %d|", tempNode->textId);
+		printf("id: %d, occurrences %d\n", tempNode->textId, tempNode->occurrences);
 		tempNode = tempNode->next;
 	}
-	printf("\ncounter %d\n", counter);
 }
 
 void destroyPostingList(postingList* pL){

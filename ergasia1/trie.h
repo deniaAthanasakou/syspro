@@ -30,10 +30,7 @@ void insertLineTextIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* line, 
 void InsertAllLinesIntoTrie(ContainsTrie* containsTrie, Map* map);
 
 Trie* horizontalTraversal(Trie* trie, char charForInsert);
-postingList* searchWordInTrie(Trie* trie, char* word);	//for now like bool
-
-void printTrieHorizontally(Trie* trie);
-void printTrieVertically(Trie* trie);
+postingList* searchWordInTrie(Trie* trie, char* word);	
 
 void destroyContainsTrie(ContainsTrie* containsTrie);
 void destroyTrie(Trie* trie);

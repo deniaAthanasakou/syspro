@@ -32,7 +32,6 @@ void insertIntoUnderline(Underline* underline, int startingPoint, int endingPoin
 	if(underline->position == underline->length){
 		doubleUnderline(underline);
 	}
-	//printf("underline->position = %d\n", underline->position);
 	underline->array[underline->position].startingPoint = startingPoint;
 	underline->array[underline->position].endingPoint = endingPoint;
 	underline->position++;
@@ -40,7 +39,7 @@ void insertIntoUnderline(Underline* underline, int startingPoint, int endingPoin
 
 int getEndingPointFromStartingPoint(Underline* underline, int startingPoint){
 	for(int i=0; i<underline->position; i++){
-		if(underline->array[i].startingPoint == startingPoint)
+		if(underline->array[i].startingPoint == startingPoint)	//if startingPoint was found
 			return underline->array[i].endingPoint;
 	}
 	return -1;				//not found

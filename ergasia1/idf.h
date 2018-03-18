@@ -6,16 +6,15 @@ typedef struct IdfForWordNode{
 	char* word;
 }IdfForWordNode;
 
-typedef struct IdfForWords{
-	int length;	//initially 10
-	int position;
+typedef struct IdfForWords{		//struct that contains array of [word, idf] sets
+	int length;					//initially 10
+	int position;				//position of first null element
 	IdfForWordNode* array;
 }IdfForWords;
 
 
 void initializeIdfForWords(IdfForWords* idfForWords, int length);
 void initializeIdfForWordNode(IdfForWordNode* node);
-
 
 IdfForWordNode* binarySearchIdfForWord(IdfForWordNode* array, char* word, int first, int last, int realLast); 	//returns NULL if not found
 int binaryIdfForWord(IdfForWordNode* array, char* word, int first, int last, int realLast);
