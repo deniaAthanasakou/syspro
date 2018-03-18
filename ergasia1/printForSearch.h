@@ -1,5 +1,6 @@
 #ifndef _PRINT_FOR_SEARCH_H_
 #define _PRINT_FOR_SEARCH_H_
+#include "arrayWords.h"
 
 typedef struct PrintForSearchNode{
 	int textId;
@@ -11,10 +12,13 @@ typedef struct PrintForSearch{
 	int length;	//initially 10
 	int position;
 	PrintForSearchNode* array;
+	arrayWords* queryWords;
+	int screenColumns;
+	int spacesBeforeText;
 }PrintForSearch;
 
 
-void initializePrintForSearch(PrintForSearch* pfs);
+void initializePrintForSearch(PrintForSearch* pfs, arrayWords* array);
 void initializePrintForSearchNode(PrintForSearchNode* node);
 void doublePrintForSearch(PrintForSearch* pfs);
 

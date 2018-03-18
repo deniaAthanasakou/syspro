@@ -46,6 +46,13 @@ void insertArrayWords(arrayWords* array, char* word){
 	array->position++; 
 }
 
+bool checkifWordExists(arrayWords* array, char* word){
+	for(int i=0; i<array->position; i++){
+		if(!strcmp(array->words[i], word))
+			return true;
+	}
+	return false;
+}
 
 
 void printArrayWords(arrayWords* array_of_words){

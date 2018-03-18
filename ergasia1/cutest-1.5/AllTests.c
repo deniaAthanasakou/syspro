@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "CuTest.h"
 #include "CuTestTrie.h"
+#include "CuTestIoctl.h"
 #include "CuTestPostingList.h"
 
 CuSuite* CuGetSuite();
@@ -25,6 +26,12 @@ void RunAllTests(void)
 	CuSuiteAddSuite(suite, postingListSuite);
 	free(postingListSuite);
 	postingListSuite=NULL;
+
+	//ioctl
+	CuSuite* IoctlSuite =  IoctlGetSuite();
+	CuSuiteAddSuite(suite, IoctlSuite);
+	free(IoctlSuite);
+	IoctlSuite=NULL;
 
 	CuSuiteRun(suite);
 	CuSuiteSummary(suite, output);

@@ -1,8 +1,8 @@
 CC = gcc -g
-FILES = AllTests.c CuTest.c CuTestTrie.c CuTestPostingList.c ../map.c ../methods.c ../trie.c ../postingList.c ../documentIdsHandler.c
-OBJECTS = AllTests.o CuTest.o CuTestTrie.o CuTestPostingList.o ../map.o ../methods.o ../trie.o ../postingList.o ../documentIdsHandler.o
+FILES = AllTests.c CuTest.c CuTestTrie.c CuTestPostingList.c CuTestIoctl.c ../map.c ../arrayWords.c ../trie.c ../postingList.c ../documentIdsHandler.c
+OBJECTS = AllTests.o CuTest.o CuTestTrie.o CuTestPostingList.o CuTestIoctl.o map.o arrayWords.o trie.o postingList.o documentIdsHandler.o
 OUT = test
-HEADERS = CuTest.h CuTestTrie.h CuTestPostingList.h ../map.h ../methods.h ../trie.h ../postingList.h ../documentIdsHandler.h
+HEADERS = CuTest.h CuTestTrie.h CuTestPostingList.h CuTestIoctl.h ../map.h ../arrayWords.h ../trie.h ../postingList.h ../documentIdsHandler.h
 
 all: $(OBJECTS) $(HEADERS)
 	$(CC) -o $(OUT) $(FILES)
@@ -23,11 +23,14 @@ CuTestTrie.o: CuTestTrie.c
 CuTestPostingList.o: CuTestPostingList.c
 	$(CC) -c CuTestPostingList.c		
 	
+CuTestIoctl.o: CuTestIoctl.c
+	$(CC) -c CuTestIoctl.c	
+	
 map.o: ../map.c
 	$(CC) -c ../map.c	
 
-methods.o: ../methods.c
-	$(CC) -c ../methods.c
+arrayWords.o: ../arrayWords.c
+	$(CC) -c ../arrayWords.c
 	
 trie.o: ../trie.c
 	$(CC) -c ../trie.c	

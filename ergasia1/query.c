@@ -45,7 +45,7 @@ int search(arrayWords* array, Map* map, ContainsTrie* containsTrie, int topK){
 	}
 	//printf("elements %d\n", elements);
 	PrintForSearch* pfs = malloc(sizeof(PrintForSearch));
-	initializePrintForSearch(pfs);
+	initializePrintForSearch(pfs, array);
 	//printf("documents %d\n", diffIds->position);
 	
 	for(int i=0; i<diffIds->position; i++){		//for each different document
@@ -61,12 +61,13 @@ int search(arrayWords* array, Map* map, ContainsTrie* containsTrie, int topK){
 		
 		
 		//printf("element %d, i %d, pos %d\n",diffIds->ids[i], i, diffIds->position);
-		char* line = malloc(sizeof(char)*(strlen( map->array[ diffIds->ids[i]].text)+1));
-		strcpy(line,map->array[ diffIds->ids[i]].text);
+		char* line = map->array[ diffIds->ids[i]].text;
+		//strcpy(line,map->array[ diffIds->ids[i]].text);
 		insertionSortPrintForSearch(pfs,  diffIds->ids[i], score, line);
 		
 	}
 	//printf("before desc\n");
+	//printPrintForSearchElements(pfs);
 	printKResultsDESC(pfs, topK);
 	//printf("after desc\n");
 	
