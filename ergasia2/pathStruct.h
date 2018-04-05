@@ -14,8 +14,8 @@ PathStruct* createPathStruct();
 int initializeFromFile(FILE* file, PathStruct* paths);
 void insertIntoPathStruct(PathStruct* paths, char* path);
 void printPathStruct(PathStruct* paths);
-void doubleArray(PathStruct* paths);
-void reduceArrayLength(PathStruct* paths);
+void doublePathArray(PathStruct* paths);
+void reducePathArrayLength(PathStruct* paths);
 void destroyPathStruct(PathStruct* paths);
 
 #endif

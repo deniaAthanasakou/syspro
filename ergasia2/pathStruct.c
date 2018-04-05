@@ -31,7 +31,7 @@ int initializeFromFile(FILE* file, PathStruct* paths){
 		strcpy(text, tempLine);
 		insertIntoPathStruct(paths, text);
 	}
-	reduceArrayLength(paths);
+	reducePathArrayLength(paths);
 
 	if (line){
 		free(line);
@@ -41,11 +41,11 @@ int initializeFromFile(FILE* file, PathStruct* paths){
 }
  
 void insertIntoPathStruct(PathStruct* paths, char* path){
-	
 	if(paths->position==paths->length){
-		doubleArray(paths);
+		doublePathArray(paths);
 	}
-	paths->arrayOfPaths[paths->position] = path;
+	paths->arrayOfPaths[paths->position] = malloc((strlen(path)+1)*sizeof(char));
+	strcpy(paths->arrayOfPaths[paths->position], path);
 	paths->position++;
 }
  
@@ -56,22 +56,28 @@ void printPathStruct(PathStruct* paths){
 	}
 }
  
-void doubleArray(PathStruct* paths){
+void doublePathArray(PathStruct* paths){
 	paths->length*=2;
 	paths->arrayOfPaths = (char**)realloc(paths->arrayOfPaths, paths->length*sizeof(char*));
 }
  
-void reduceArrayLength(PathStruct* paths){
+void reducePathArrayLength(PathStruct* paths){
 	paths->arrayOfPaths = (char**)realloc(paths->arrayOfPaths, paths->position*sizeof(char*));
 	paths->length = paths->position;
 }
  
 void destroyPathStruct(PathStruct* paths){
 	if(paths!=NULL){
+		printf("position %d\n", paths->position);
 		for(int i=0; i<paths->position; i++){
+			printf("path i %d\n", i);
 			free(paths->arrayOfPaths[i]);
+			printf("after\n");
 		}
-		free(paths->arrayOfPaths);
+		printf("before paths->arrayOfPaths\n");
+		if(paths->position>0)
+			free(paths->arrayOfPaths);
+		printf("after paths->arrayOfPaths\n");
 		free(paths);
 	}
 }

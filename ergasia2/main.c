@@ -60,7 +60,8 @@ int main (int argc,char* argv[]){
 			return 1;
 		}
 		if (childpid == 0){
-			printf("I am the child process\n");
+			printf("I am the child process with ID: %lu \n", (long)getpid());
+			//do job for child
 			break;
 		}
 		else{
