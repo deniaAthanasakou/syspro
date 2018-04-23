@@ -60,7 +60,7 @@ int main (int argc,char* argv[]){
 	int counterForExtraDirs = 0;
 	printf("dirsPerWorker = %d, numOfExtraDirs = %d\n",dirsPerWorker,numOfExtraDirs);
 	
-	pid_t childpid;
+	pid_t childpid, mainId = getpid();
 	int status = 0;
 	int counterForPaths = 0;
 	for(int i=0; i<numWorkers; i++){
@@ -100,6 +100,52 @@ int main (int argc,char* argv[]){
 		}
 
 	}
+	
+	pid_t currentId = getpid();
+	if(mainId==currentId){
+		//read user input for queries
+		/*char *line = NULL;
+		size_t len = 0;
+
+		char* query = NULL;
+		while(1){
+	
+			if(getline(&query, &len, stdin) != -1){
+				char* instruction = strtok(query," \t\n");
+				char* remainingLine = strtok(NULL,"\n");
+				//arrayWords* array = stringToArray(remainingLine);
+				if(strcmp(instruction,"/search")==0 || strcmp(instruction,"\\search")==0){
+					printf("instruction is search\n");
+				}
+				else if(strcmp(instruction,"/maxcount")==0 || strcmp(instruction,"\\maxcount")==0){
+					printf("instruction is maxcount\n");
+				}
+				else if(strcmp(instruction,"/mincount")==0 || strcmp(instruction,"\\mincount")==0){
+					printf("instruction is mincount\n");
+				}
+				else if(strcmp(instruction,"/wc")==0 || strcmp(instruction,"\\wc")==0){
+					printf("instruction is wc\n");
+				}
+				else if(strcmp(instruction,"/exit")==0 || strcmp(instruction,"\\exit")==0){
+					if (query){
+						free(query);
+						query=NULL;
+					}
+					//deleteArrayWords(array);
+					break;
+				}
+				//deleteArrayWords(array);
+			}
+			else{
+				if (query){
+					free(query);
+					query=NULL;
+				}
+				break;
+			}
+		}*/
+	}
+	
 	
 	while (wait(&status) > 0);
 	//printProcessStruct(procStr);
