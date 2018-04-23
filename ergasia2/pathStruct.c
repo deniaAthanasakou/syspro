@@ -7,7 +7,11 @@ PathStruct* createPathStruct(){
 	PathStruct* paths = malloc(sizeof(PathStruct));
 	paths->length = 5;
 	paths->position = 0;
+	paths->lastNotRead = 0;
 	paths->arrayOfPaths = malloc(paths->length*sizeof(char*));
+	for(int i=0; i<paths->length; i++){
+		paths->arrayOfPaths[i] = NULL;
+	}
 	return paths;
 }
  
@@ -30,6 +34,8 @@ int initializeFromFile(FILE* file, PathStruct* paths){
 		char* text = malloc((strlen(tempLine)+1)* sizeof(char));
 		strcpy(text, tempLine);
 		insertIntoPathStruct(paths, text);
+		free(text);
+		text=NULL;
 	}
 	reducePathArrayLength(paths);
 
@@ -42,42 +48,60 @@ int initializeFromFile(FILE* file, PathStruct* paths){
  
 void insertIntoPathStruct(PathStruct* paths, char* path){
 	if(paths->position==paths->length){
+	//	printf("doubled");
 		doublePathArray(paths);
 	}
+	//printf("path pos = %d\n", paths->position);
 	paths->arrayOfPaths[paths->position] = malloc((strlen(path)+1)*sizeof(char));
 	strcpy(paths->arrayOfPaths[paths->position], path);
+	//printf("path word = %s\n", paths->arrayOfPaths[paths->position]);
 	paths->position++;
+	paths->lastNotRead++;
+	//printf("path pos = %d\n", paths->position);
 }
  
 void printPathStruct(PathStruct* paths){
-	printf("Printing paths: length = %d\n", paths->length);
-	for(int i=0; i<paths->length; i++){
+	printf("Printing paths: pos = %d\n", paths->position);
+	for(int i=0; i<paths->position; i++){
 		printf("path: '%s'\n",paths->arrayOfPaths[i]);
 	}
+
 }
  
 void doublePathArray(PathStruct* paths){
+	int oldLength = paths->length;
 	paths->length*=2;
 	paths->arrayOfPaths = (char**)realloc(paths->arrayOfPaths, paths->length*sizeof(char*));
+	for(int i=oldLength; i<paths->length; i++){
+		paths->arrayOfPaths[i] = NULL;
+	}
 }
  
-void reducePathArrayLength(PathStruct* paths){
+void reducePathArrayLength(PathStruct* paths){				//den th xrhsimopoiw 
 	paths->arrayOfPaths = (char**)realloc(paths->arrayOfPaths, paths->position*sizeof(char*));
 	paths->length = paths->position;
+}
+
+char* getLastPath(PathStruct* paths){		//like pop in lifo
+	char* path = paths->arrayOfPaths[paths->lastNotRead -1];
+	
+	paths->lastNotRead--;
+	
+	return path;
 }
  
 void destroyPathStruct(PathStruct* paths){
 	if(paths!=NULL){
-		printf("position %d\n", paths->position);
+		//printf("position %d\n", paths->position);
 		for(int i=0; i<paths->position; i++){
-			printf("path i %d\n", i);
+			//printf("path i %d\n", i);
 			free(paths->arrayOfPaths[i]);
-			printf("after\n");
+		//	printf("after\n");
 		}
-		printf("before paths->arrayOfPaths\n");
+		//printf("before paths->arrayOfPaths\n");
 		if(paths->position>0)
 			free(paths->arrayOfPaths);
-		printf("after paths->arrayOfPaths\n");
+		//printf("after paths->arrayOfPaths\n");
 		free(paths);
 	}
 }

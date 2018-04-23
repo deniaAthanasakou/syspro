@@ -6,28 +6,25 @@
 
 
 void TestInsertIdIntoProcessStruct(CuTest *tc){
-	ProcessStruct* pStruct = createProcessStruct();
+	ProcessStruct* pStruct = createProcessStruct(6);
 	
 	insertIdIntoProcessStruct(pStruct, 0);
-	CuAssertIntEquals(tc,5,pStruct->length);
+	CuAssertIntEquals(tc,6,pStruct->length);
 	CuAssertIntEquals(tc,1,pStruct->position);
 	CuAssertIntEquals(tc,0,pStruct->processes[0].pid);
 	
 	insertIdIntoProcessStruct(pStruct, 2);
-	CuAssertIntEquals(tc,5,pStruct->length);
 	CuAssertIntEquals(tc,2,pStruct->position);
 	CuAssertIntEquals(tc,0,pStruct->processes[0].pid);
 	CuAssertIntEquals(tc,2,pStruct->processes[1].pid);
 	
 	insertIdIntoProcessStruct(pStruct, 3);
-	CuAssertIntEquals(tc,5,pStruct->length);
 	CuAssertIntEquals(tc,3,pStruct->position);
 	CuAssertIntEquals(tc,0,pStruct->processes[0].pid);
 	CuAssertIntEquals(tc,2,pStruct->processes[1].pid);
 	CuAssertIntEquals(tc,3,pStruct->processes[2].pid);
 	
 	insertIdIntoProcessStruct(pStruct, 1);
-	CuAssertIntEquals(tc,5,pStruct->length);
 	CuAssertIntEquals(tc,4,pStruct->position);
 	CuAssertIntEquals(tc,0,pStruct->processes[0].pid);
 	CuAssertIntEquals(tc,1,pStruct->processes[1].pid);
@@ -35,7 +32,6 @@ void TestInsertIdIntoProcessStruct(CuTest *tc){
 	CuAssertIntEquals(tc,3,pStruct->processes[3].pid);
 	
 	insertIdIntoProcessStruct(pStruct, 3);
-	CuAssertIntEquals(tc,5,pStruct->length);
 	CuAssertIntEquals(tc,4,pStruct->position);
 	CuAssertIntEquals(tc,0,pStruct->processes[0].pid);
 	CuAssertIntEquals(tc,1,pStruct->processes[1].pid);
@@ -43,7 +39,6 @@ void TestInsertIdIntoProcessStruct(CuTest *tc){
 	CuAssertIntEquals(tc,3,pStruct->processes[3].pid);
 	
 	insertIdIntoProcessStruct(pStruct, 4);
-	CuAssertIntEquals(tc,5,pStruct->length);
 	CuAssertIntEquals(tc,5,pStruct->position);
 	CuAssertIntEquals(tc,0,pStruct->processes[0].pid);
 	CuAssertIntEquals(tc,1,pStruct->processes[1].pid);
@@ -52,7 +47,6 @@ void TestInsertIdIntoProcessStruct(CuTest *tc){
 	CuAssertIntEquals(tc,4,pStruct->processes[4].pid);
 	
 	insertIdIntoProcessStruct(pStruct, -1);
-	CuAssertIntEquals(tc,10,pStruct->length);
 	CuAssertIntEquals(tc,6,pStruct->position);
 	CuAssertIntEquals(tc,-1,pStruct->processes[0].pid);
 	CuAssertIntEquals(tc,0,pStruct->processes[1].pid);
@@ -61,7 +55,6 @@ void TestInsertIdIntoProcessStruct(CuTest *tc){
 	CuAssertIntEquals(tc,3,pStruct->processes[4].pid);
 	CuAssertIntEquals(tc,4,pStruct->processes[5].pid);
 	
-	reduceProcessArrayLength(pStruct);
 	CuAssertIntEquals(tc,6,pStruct->length);
 	CuAssertIntEquals(tc,6,pStruct->position);
 	
@@ -70,7 +63,7 @@ void TestInsertIdIntoProcessStruct(CuTest *tc){
 }
 
 void TestInsertPathIntoProcessStruct(CuTest *tc){
-	ProcessStruct* pStruct = createProcessStruct();
+	ProcessStruct* pStruct = createProcessStruct(6);
 	
 	insertIdIntoProcessStruct(pStruct, 0);
 	insertIdIntoProcessStruct(pStruct, 2);
@@ -84,8 +77,7 @@ void TestInsertPathIntoProcessStruct(CuTest *tc){
 	CuAssertIntEquals(tc,5,pStruct->processes[0].paths->length);
 	CuAssertIntEquals(tc,2,pStruct->processes[0].paths->position);
 	CuAssertStrEquals(tc,"world",pStruct->processes[0].paths->arrayOfPaths[1]);
-	
-	
+
 	insertIdIntoProcessStruct(pStruct, 3);
 	insertIdIntoProcessStruct(pStruct, 1);
 	insertIdIntoProcessStruct(pStruct, 3);
@@ -100,9 +92,10 @@ void TestInsertPathIntoProcessStruct(CuTest *tc){
 	CuAssertIntEquals(tc,5,pStruct->processes[1].paths->length);
 	CuAssertIntEquals(tc,1,pStruct->processes[1].paths->position);
 	CuAssertStrEquals(tc,"cat",pStruct->processes[1].paths->arrayOfPaths[0]);
+
 	
-	//insertIdIntoProcessStruct(pStruct, -1);
-	/*CuAssertIntEquals(tc,10,pStruct->length);
+	insertIdIntoProcessStruct(pStruct, -1);
+	CuAssertIntEquals(tc,6,pStruct->length);
 	CuAssertIntEquals(tc,6,pStruct->position);
 	CuAssertIntEquals(tc,-1,pStruct->processes[0].pid);
 	CuAssertIntEquals(tc,0,pStruct->processes[1].pid);
@@ -124,10 +117,11 @@ void TestInsertPathIntoProcessStruct(CuTest *tc){
 	CuAssertIntEquals(tc,1,pStruct->processes[2].paths->position);
 	CuAssertStrEquals(tc,"cat",pStruct->processes[2].paths->arrayOfPaths[0]);
 	
-	reduceProcessArrayLength(pStruct);
 	CuAssertIntEquals(tc,6,pStruct->length);
 	CuAssertIntEquals(tc,6,pStruct->position);
-	*/
+	
+	//printProcessStruct(pStruct);
+
 	destroyProcessStruct(pStruct);
 }
 

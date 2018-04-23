@@ -4,9 +4,9 @@
 #include "process.h"
 
 
-ProcessStruct* createProcessStruct(){
+ProcessStruct* createProcessStruct(int numOfProcesses){
 	ProcessStruct* procStr = malloc(sizeof(ProcessStruct));
-	procStr->length = 5;
+	procStr->length = numOfProcesses;
 	procStr->position = 0;
 	procStr->processes = malloc(procStr->length*sizeof(ProcessNode));
 	for(int i=0; i<procStr->length; i++){
@@ -42,10 +42,15 @@ ProcessNode* binarySearchIdfForInsertProcessPath(ProcessNode* array, int id, int
 
 void insertPathIntoProcessStruct(ProcessStruct* procStr, pid_t id, char* path){
 	// find location where path sould be inserted
+	//printf("id = %d\n", id);
 	ProcessNode* node = binarySearchIdfForInsertProcessPath(procStr->processes, id, 0, procStr->position-1, procStr->position-1);
-	if(node==NULL)		//id does not exist in array
+	if(node==NULL){		//id does not exist in array
+	//	printf("null node\n");
 		return;		
+	}
+	//printf("id2 = %d\n", node->pid);
 	if(node->paths == NULL){
+		//printf("paths were null word is %s\n", path);
 		node->paths = createPathStruct();
 	}
 	insertIntoPathStruct(node->paths, path);
@@ -75,31 +80,54 @@ void insertIdIntoProcessStruct(ProcessStruct* procStr, pid_t id){
 	int loc = binarySearchForInsertProcessId(procStr->processes, id, 0, procStr->position-1, procStr->position-1);
 	if(loc==-1)		//item already exists in array
 		return;		
-
-	if(procStr->position==procStr->length){
-		doubleProcessArray(procStr);
-	}
 	
 	int j = procStr->position-1;	//position of last element
 	// Move all elements after location to create space
-	while (j >= loc)
+	/*while (j >= loc)
 	{
 	    procStr->processes[j+1] =  procStr->processes[j];
 	    j--;
 	}
 	procStr->processes[j+1].pid = id;
+	procStr->processes[j+1].paths = NULL;
+	
+	*/
+	
+	int lastElement = procStr->position;
+	ProcessNode* itemForInsert = malloc(sizeof(ProcessNode));
+	itemForInsert->pid = id;
+	itemForInsert->paths = NULL;
+	
+	
+	int fullMoveSize=0;
+	int startingPoint = loc;	
+	if( j>=loc){
+	
+		fullMoveSize = (lastElement -loc)*sizeof(procStr->processes[lastElement - 1]);
+		memmove(&(procStr->processes[startingPoint+1]), &(procStr->processes[startingPoint]), fullMoveSize);
+		memmove(&(procStr->processes[loc]), itemForInsert, sizeof(*itemForInsert));
+	}
+	else{
+		memmove(&(procStr->processes[lastElement]), itemForInsert, sizeof(*itemForInsert));
+	}	
+	
+	free(itemForInsert);
+	
 	procStr->position++;
+	
+	
+	
 }
 
 void printProcessStruct(ProcessStruct* procStr){
-	printf("Printing processes: length = %d\n", procStr->length);
-	for(int i=0; i<procStr->length; i++){
+	printf("Printing processes: pos = %d\n", procStr->position);
+	for(int i=0; i<procStr->position; i++){
 		printf("pid: '%d'\n",procStr->processes[i].pid);
-		if(procStr->processes[i].paths->position!=0)
+		if(procStr->processes[i].paths!=NULL)
 			printPathStruct(procStr->processes[i].paths);
 	}
 }
-
+/*
 void doubleProcessArray(ProcessStruct* procStr){
 	int oldLength = procStr->length;
 	procStr->length*=2;
@@ -113,11 +141,11 @@ void reduceProcessArrayLength(ProcessStruct* procStr){
 	procStr->processes = (ProcessNode*)realloc(procStr->processes, procStr->position*sizeof(ProcessNode));
 	procStr->length = procStr->position;
 }
-
+*/
 void destroyProcessStruct(ProcessStruct* procStr){
 	if(procStr!=NULL){
-		for(int i=0; i<procStr->position; i++){
-		printf("i %d\n", i);
+		for(int i=0; i<procStr->length; i++){
+			//printf("i %d\n", i);
 			destroyPathStruct(procStr->processes[i].paths);
 		}
 		free(procStr->processes);

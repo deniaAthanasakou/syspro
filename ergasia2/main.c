@@ -3,7 +3,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include "pathStruct.h"
+#include "process.h"
 
 int main (int argc,char* argv[]){
 	if(argc<3 || argc>5 || argc==4){
@@ -14,9 +16,9 @@ int main (int argc,char* argv[]){
 	int numWorkers=5;		//default
 	for(int i=0; i<argc; i++){
 		if(!strcmp(argv[i],"-d"))
-			fileName=argv[i+1];							//argument before initialize file should be -i
+			fileName=argv[i+1];							//argument before initialize file should be -d
 		else if(!strcmp(argv[i],"-w"))
-			numWorkers=atoi(argv[i+1]);						//argument before top-K results should be -k
+			numWorkers=atoi(argv[i+1]);						//argument before top-K results should be -w
 	}
 	
 	if(fileName==NULL){
@@ -51,26 +53,59 @@ int main (int argc,char* argv[]){
 	}
 	printf("after initialization NumWorkers = %d\n", numWorkers);
 	
-	pid_t childpid;
-	for(int i=0; i<numWorkers; i++){
+	ProcessStruct* procStr = createProcessStruct(numWorkers);
 	
+	int dirsPerWorker = pathStruct->length / numWorkers;
+	int numOfExtraDirs = pathStruct->length % numWorkers;
+	int counterForExtraDirs = 0;
+	printf("dirsPerWorker = %d, numOfExtraDirs = %d\n",dirsPerWorker,numOfExtraDirs);
+	
+	pid_t childpid;
+	int status = 0;
+	int counterForPaths = 0;
+	for(int i=0; i<numWorkers; i++){
+		//process
+		
 		childpid = fork();
-		if (childpid == -1){
+		if (childpid == -1){		//error
 			perror("Failed to fork");
-			return 1;
+			exit(1);
 		}
-		if (childpid == 0){
-			printf("I am the child process with ID: %lu \n", (long)getpid());
+		else if (childpid == 0){			//child
+			printf("I am the child process with ID: %ld\n", (long)getpid());
 			//do job for child
+			//printf("counterForExtraDirs %d\n",counterForExtraDirs);
+			printf("counterForpaths %d\n",counterForPaths);
+			/*int id = getpid();
+			insertIdIntoProcessStruct(procStr, id);	
+			*/
+			int dirs = dirsPerWorker;
+			if(counterForExtraDirs<numOfExtraDirs){
+				dirs++;
+			}
+			for(int j=0; j<dirs; j++){
+				//char* path = getLastPath(pathStruct);
+				printf("path %s\n",pathStruct->arrayOfPaths[counterForPaths]);
+				//insertPathIntoProcessStruct(procStr, id, path);
+				counterForPaths++;
+			}
+			counterForExtraDirs++;
+			printf("done\n");
+			printProcessStruct(procStr);
 			break;
 		}
-		else{
-			printf("I am the parent process with ID: %lu \n", (long)getpid());
+		else{						//parent
+			counterForPaths+=dirsPerWorker;
+			printf("I am the parent process with ID: %ld\n", (long)getpid());
+			//printProcessStruct(procStr);
 		}
+
 	}
 	
-	
-	destroyPathStruct(pathStruct);
+	while (wait(&status) > 0);
+	//printProcessStruct(procStr);
+	//destroyProcessStruct(procStr);
+	//destroyPathStruct(pathStruct);
 	return 0;
 	
 	

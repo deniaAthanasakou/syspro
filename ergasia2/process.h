@@ -8,14 +8,14 @@ typedef struct ProcessNode{
 }ProcessNode;
 
 typedef struct ProcessStruct{		
-	int length;					//initially is 5
+	int length;					//is given
 	ProcessNode* processes; 
 	int position;				//position of first empty element
 }ProcessStruct;
 
 
 
-ProcessStruct* createProcessStruct();
+ProcessStruct* createProcessStruct(int numOfProcesses);
 void initializeProcessNode(ProcessNode* node);
 
 ProcessNode* binarySearchIdfForInsertProcessPath(ProcessNode* array, int id, int first, int last, int realLast);
@@ -25,8 +25,8 @@ int binarySearchForInsertProcessId(ProcessNode* array, int id, int first, int la
 void insertIdIntoProcessStruct(ProcessStruct* procStr, pid_t id);
 
 void printProcessStruct(ProcessStruct* procStr);
-void doubleProcessArray(ProcessStruct* procStr);
-void reduceProcessArrayLength(ProcessStruct* procStr);
+//void doubleProcessArray(ProcessStruct* procStr);
+//void reduceProcessArrayLength(ProcessStruct* procStr);
 void destroyProcessStruct(ProcessStruct* procStr);
 
 #endif
