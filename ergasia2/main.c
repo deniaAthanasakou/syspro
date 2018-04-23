@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
+
 #include "pathStruct.h"
 #include "process.h"
 
@@ -60,9 +62,14 @@ int main (int argc,char* argv[]){
 	int counterForExtraDirs = 0;
 	printf("dirsPerWorker = %d, numOfExtraDirs = %d\n",dirsPerWorker,numOfExtraDirs);
 	
-	pid_t childpid;
+	pid_t childpid,*ids;
 	int status = 0;
 	int counterForPaths = 0;
+	
+	
+	ids = malloc(sizeof(pid_t)*numWorkers);
+	int mainId = getpid();
+	
 	for(int i=0; i<numWorkers; i++){
 		//process
 		
@@ -74,24 +81,7 @@ int main (int argc,char* argv[]){
 		else if (childpid == 0){			//child
 			printf("I am the child process with ID: %ld\n", (long)getpid());
 			//do job for child
-			//printf("counterForExtraDirs %d\n",counterForExtraDirs);
-			printf("counterForpaths %d\n",counterForPaths);
-			/*int id = getpid();
-			insertIdIntoProcessStruct(procStr, id);	
-			*/
-			int dirs = dirsPerWorker;
-			if(counterForExtraDirs<numOfExtraDirs){
-				dirs++;
-			}
-			for(int j=0; j<dirs; j++){
-				//char* path = getLastPath(pathStruct);
-				printf("path %s\n",pathStruct->arrayOfPaths[counterForPaths]);
-				//insertPathIntoProcessStruct(procStr, id, path);
-				counterForPaths++;
-			}
-			counterForExtraDirs++;
-			printf("done\n");
-			printProcessStruct(procStr);
+			ids[i] = getpid();
 			break;
 		}
 		else{						//parent
@@ -102,7 +92,29 @@ int main (int argc,char* argv[]){
 
 	}
 	
-	while (wait(&status) > 0);
+	int currentId = getpid();
+	
+	if(currentId == mainId){		//we are inside jobExecutor
+		
+		int i=0;
+		while (ids[i] = waitpid(-1, NULL, 0)) {
+   			if (errno == ECHILD) 
+    	  		break;	
+   			i++;	
+		}
+		printf("printing ids\n");
+		for(int j=0; j<numWorkers; j++){
+			printf("Id is %ld\n", (long)ids[j]);
+			
+			insertIdIntoProcessStruct(procStr, ids[j]);
+		}
+		
+		
+	}
+	else{		//inside child
+		printProcessStruct(procStr);
+	}
+	
 	//printProcessStruct(procStr);
 	//destroyProcessStruct(procStr);
 	//destroyPathStruct(pathStruct);
