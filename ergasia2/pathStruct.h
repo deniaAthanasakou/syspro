@@ -6,7 +6,7 @@ typedef struct PathStruct{
 	int length;					//initially is 5
 	char** arrayOfPaths; 		//array of strings
 	int position;				//position of first empty element
-	int lastNotRead;			//position of last element that has not been read (for fifo)
+	int lastNotRead;			//position of last element that has not been read (for fifo)		//na to vgalw
 }PathStruct;
 
 
@@ -18,5 +18,5 @@ void printPathStruct(PathStruct* paths);
 void doublePathArray(PathStruct* paths);
 void reducePathArrayLength(PathStruct* paths);
 void destroyPathStruct(PathStruct* paths);
-char* getLastPath(PathStruct* paths);	//like pop in lifo
+char* getLastPath(PathStruct* paths);	//like pop in lifo											//na to vgalw
 #endif
