@@ -3,6 +3,8 @@
 #include "CuTest.h"
 #include "CuTestProcess.h"
 #include "CuTestPathStruct.h"
+#include "CuTestTrie.h"
+#include "CuTestPostingList.h"
 
 CuSuite* CuGetSuite();
 CuSuite* CuStringGetSuite();
@@ -25,6 +27,18 @@ void RunAllTests(void)
 	CuSuiteAddSuite(suite, pathStructSuite);
 	free(pathStructSuite);
 	pathStructSuite=NULL;
+	
+	//trie	
+	CuSuite* trieSuite =  TrieGetSuite();
+	CuSuiteAddSuite(suite, trieSuite);
+	free(trieSuite);
+	trieSuite=NULL;
+	
+	//postingList	
+	CuSuite* postingListSuite =  PostingListGetSuite();
+	CuSuiteAddSuite(suite, postingListSuite);
+	free(postingListSuite);
+	postingListSuite=NULL;
 	
 
 	CuSuiteRun(suite);

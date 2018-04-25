@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include "pathStruct.h"
 #include "process.h"
+#include "trie.h"
 
 int main (int argc,char* argv[]){
 	if(argc<3 || argc>5 || argc==4){
@@ -55,6 +56,11 @@ int main (int argc,char* argv[]){
 	
 	ProcessStruct* procStr = createProcessStruct(numWorkers);
 	
+	
+	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
+	initializeContainsTrie(&containsTrie);
+	
+	
 	int dirsPerWorker = pathStruct->length / numWorkers;
 	int numOfExtraDirs = pathStruct->length % numWorkers;
 	int counterForExtraDirs = 0;
@@ -82,8 +88,19 @@ int main (int argc,char* argv[]){
 			if(i<numOfExtraDirs){
 				dirs++;
 			}
-			for(int j=0; j<dirs; j++){
+			for(int j=0; j<dirs; j++){			//for each directory
 				printf("path %s\n",pathStruct->arrayOfPaths[counterForPaths]);
+				//must get filenames
+				//for each filename
+					//open file
+					//for each word
+						//insert word and path into trie
+				
+				if(createTrieFromDir(containsTrie, pathStruct->arrayOfPaths[counterForPaths])==0)
+					exit(1);
+				
+				
+				
 				counterForPaths++;
 			}
 			counterForExtraDirs++;

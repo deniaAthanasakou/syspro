@@ -20,7 +20,7 @@ int initializeFromFile(FILE* file, PathStruct* paths){
 	size_t len = 0;
 	int read;
 	if (file == NULL){
-		printf("Error! Null file was given\n");
+		printf("Error! Null file was given.\n");
 		return 0;
 	}
 	while ((read = getline(&line, &len, file)) != -1) {
