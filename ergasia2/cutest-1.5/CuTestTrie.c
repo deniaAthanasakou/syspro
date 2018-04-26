@@ -102,11 +102,19 @@ void TestCreateTrieFromFile(CuTest *tc){
 	postingList* pL = trie->verticalNext->verticalNext->verticalNext->verticalNext->pL;
 	//check postingList
 	CuAssertIntEquals(tc, 1, pL->listSize);
-	CuAssertIntEquals(tc, 1, pL->firstNode->occurrences);
-	CuAssertIntEquals(tc, 0, pL->firstNode->line);
-	CuAssertIntEquals(tc, 0, pL->firstNode->wordOffset);
+	CuAssertIntEquals(tc, 2, pL->firstNode->occurrences);
 	CuAssertStrEquals(tc, "inputForTrie", pL->firstNode->filePath);
 	CuAssertPtrEquals(tc,NULL,pL->firstNode->next);
+	
+	List* l = pL->firstNode->info;
+	//checking list
+	CuAssertIntEquals(tc, 0, l->firstNode->lineOfText);
+	CuAssertIntEquals(tc, 0, l->firstNode->wordOffset);
+	CuAssertIntEquals(tc, 5, l->firstNode->next->lineOfText);
+	CuAssertIntEquals(tc, 2, l->firstNode->next->wordOffset);
+	CuAssertIntEquals(tc, 2, l->listSize);
+	CuAssertPtrEquals(tc, NULL, l->firstNode->next->next);
+	
 	
 	
 	//world
@@ -127,10 +135,15 @@ void TestCreateTrieFromFile(CuTest *tc){
 	//check postingList
 	CuAssertIntEquals(tc, 1, pL->listSize);
 	CuAssertIntEquals(tc, 1, pL->firstNode->occurrences);
-	CuAssertIntEquals(tc, 0, pL->firstNode->line);
-	CuAssertIntEquals(tc, 6, pL->firstNode->wordOffset);
 	CuAssertStrEquals(tc, "inputForTrie", pL->firstNode->filePath);
 	CuAssertPtrEquals(tc,NULL,pL->firstNode->next);
+	
+	l = pL->firstNode->info;
+	//checking list
+	CuAssertIntEquals(tc, 0, l->firstNode->lineOfText);
+	CuAssertIntEquals(tc, 6, l->firstNode->wordOffset);
+	CuAssertIntEquals(tc, 1, l->listSize);
+	CuAssertPtrEquals(tc, NULL, l->firstNode->next);
 	
 	//this
 	assert(trie->horizontalNext->horizontalNext->letter=='t');
@@ -148,14 +161,21 @@ void TestCreateTrieFromFile(CuTest *tc){
 	//check postingList
 	CuAssertIntEquals(tc, 1, pL->listSize);
 	CuAssertIntEquals(tc, 1, pL->firstNode->occurrences);
-	CuAssertIntEquals(tc, 1, pL->firstNode->line);
-	CuAssertIntEquals(tc, 0, pL->firstNode->wordOffset);
 	CuAssertStrEquals(tc, "inputForTrie", pL->firstNode->filePath);
 	CuAssertPtrEquals(tc,NULL,pL->firstNode->next);
+	
+	l = pL->firstNode->info;
+	//checking list
+	CuAssertIntEquals(tc, 1, l->firstNode->lineOfText);
+	CuAssertIntEquals(tc, 5, l->firstNode->wordOffset);
+	CuAssertIntEquals(tc, 1, l->listSize);
+	CuAssertPtrEquals(tc, NULL, l->firstNode->next);
 	
 	//is
 	assert(trie->horizontalNext->horizontalNext->horizontalNext->letter=='i');
 	assert(trie->horizontalNext->horizontalNext->horizontalNext->verticalNext->letter=='s');
+	
+	
 	
 	//check for nexts
 	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->horizontalNext->horizontalNext->verticalNext->horizontalNext);
@@ -165,11 +185,15 @@ void TestCreateTrieFromFile(CuTest *tc){
 	//check postingList
 	CuAssertIntEquals(tc, 1, pL->listSize);
 	CuAssertIntEquals(tc, 1, pL->firstNode->occurrences);
-	CuAssertIntEquals(tc, 1, pL->firstNode->line);
-	CuAssertIntEquals(tc, 5, pL->firstNode->wordOffset);				//extra space was not counted
 	CuAssertStrEquals(tc, "inputForTrie", pL->firstNode->filePath);
 	CuAssertPtrEquals(tc,NULL,pL->firstNode->next);
 	
+	l = pL->firstNode->info;
+	//checking list
+	CuAssertIntEquals(tc, 1, l->firstNode->lineOfText);
+	CuAssertIntEquals(tc, 13, l->firstNode->wordOffset);
+	CuAssertIntEquals(tc, 1, l->listSize);
+	CuAssertPtrEquals(tc, NULL, l->firstNode->next);
 	
 	//dog
 	assert(trie->horizontalNext->horizontalNext->horizontalNext->horizontalNext->letter=='d');
@@ -185,11 +209,18 @@ void TestCreateTrieFromFile(CuTest *tc){
 	pL = trie->horizontalNext->horizontalNext->horizontalNext->horizontalNext->verticalNext->verticalNext->pL;
 	//check postingList
 	CuAssertIntEquals(tc, 1, pL->listSize);
-	CuAssertIntEquals(tc, 1, pL->firstNode->occurrences);
-	CuAssertIntEquals(tc, 3, pL->firstNode->line);
-	CuAssertIntEquals(tc, 0, pL->firstNode->wordOffset);
+	CuAssertIntEquals(tc, 2, pL->firstNode->occurrences);
 	CuAssertStrEquals(tc, "inputForTrie", pL->firstNode->filePath);
 	CuAssertPtrEquals(tc,NULL,pL->firstNode->next);
+	
+	l = pL->firstNode->info;
+	//checking list
+	CuAssertIntEquals(tc, 1, l->firstNode->lineOfText);
+	CuAssertIntEquals(tc, 18, l->firstNode->wordOffset);
+	CuAssertIntEquals(tc, 4, l->firstNode->next->lineOfText);
+	CuAssertIntEquals(tc, 3, l->firstNode->next->wordOffset);
+	CuAssertIntEquals(tc, 2, l->listSize);
+	CuAssertPtrEquals(tc, NULL, l->firstNode->next->next);
 	
 	
 	destroyContainsTrie(containsTrie);

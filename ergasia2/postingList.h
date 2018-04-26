@@ -1,6 +1,7 @@
 #ifndef _POSTING_LIST_H_
 #define _POSTING_LIST_H_
 #include <stdbool.h>
+#include "list.h"
 
 
 typedef struct postingListNode postingListNode;
@@ -8,8 +9,7 @@ typedef struct postingListNode postingListNode;
 struct postingListNode{	//listNode
 	char* filePath;
 	int occurrences;			//isws dn xreiazetai
-	int line;				//grammh sthn opoia uparxei h leksh
-	int wordOffset;
+	List* info;				//lines and offsets of word existance
 	postingListNode* next;
 };
 

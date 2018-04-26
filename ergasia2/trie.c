@@ -182,24 +182,81 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 			continue;
 		}
 		
-		char* tempWord = strtok(line," \t");
+		int multipleSpacesFlag = 0;
+		int lengthOfWord = 0;
+		int maxLength = 10;
+		//int bytesBeforeNextWord = -1;
 		int bytesBeforeWord = 0;
-		while(tempWord!=NULL){
-			if(tempWord[strlen(tempWord)-1]=='\n'){
-				tempWord[strlen(tempWord)-1]='\0';
-			}
-			printf("////////////////////////tempWord %s\n", tempWord);
-			
-			//inserting word into trie
-			char* text = malloc((strlen(tempWord)+1)* sizeof(char));
-			strcpy(text, tempWord);
-			insertFullWordIntoTrie(containsTrie, containsTrie->firstNode, tempWord, fullPath, lineCounter, bytesBeforeWord);
-			free(text);
-			text=NULL;
+		int spaces = 0;
+		int numOfSpacesAtBeggining = 0;
+		
+		int thisLineStartedWithWhitespace = 0;
+		
+		char* word = malloc(maxLength);
+		for(int i=0; i<strlen(line); i++){
 
-			bytesBeforeWord+=strlen(tempWord) +1;	//1 is for space or tab			maybe i need to change it
-			tempWord = strtok(NULL," \t");
+			if(line[i] == ' ' || line[i] == '\n' || line[i] == '\t'){		//whitespace
+				if(i==0){				//count spaces from beggining
+					numOfSpacesAtBeggining++;
+					int j = i;
+					while(line[j+1] == ' ' || line[j+1] == '\n' || line[j+1] == '\t'){
+						//multipleSpacesFlag = 1;
+						j++;
+						numOfSpacesAtBeggining++;
+
+					}
+				}
+				else{
+					spaces = 1; //first space
+					while(line[i+1] == ' ' || line[i+1] == '\n' || line[i+1] == '\t'){
+						multipleSpacesFlag = 1;
+						i++;
+						spaces++;
+
+					}
+				
+					if(multipleSpacesFlag)
+						i--;			//move backwards so that next for can show next character
+				
+				}
+
+				if(lengthOfWord!=0){
+					word = realloc(word, lengthOfWord +1 *sizeof(char));
+					word[lengthOfWord] = '\0';
+
+					if(numOfSpacesAtBeggining>0)
+						bytesBeforeWord = numOfSpacesAtBeggining;
+						
+						
+					numOfSpacesAtBeggining=0;
+					
+					insertFullWordIntoTrie(containsTrie, containsTrie->firstNode, word, fullPath, lineCounter, bytesBeforeWord);
+					bytesBeforeWord += lengthOfWord + spaces;
+					
+					spaces = 0;
+					
+					free(word);
+					word = NULL;
+					lengthOfWord=0;
+					
+				}
+				
+				multipleSpacesFlag = 0;
+				
+			}
+			else{				//character
+				if(word == NULL){
+					word = malloc(maxLength);
+					lengthOfWord=0;
+				}
+				if(lengthOfWord == maxLength-1){
+					maxLength*=2;
+					word = realloc(word, maxLength *sizeof(char));
+				}
+				word[lengthOfWord] = line[i];
+				lengthOfWord++;
 			
+			}
 			
 		}
 	}
@@ -214,10 +271,12 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 
 
 int createTrieFromDir(ContainsTrie* containsTrie, char* pathofDir){
-
+	if (pathofDir[0] == '/') 
+   	 		memmove(pathofDir, pathofDir+1, strlen(pathofDir));
+		
+	printf("pathofDir--------------------------------------------------------------------------- %s\n", pathofDir);
 	DIR *dir;
 	struct dirent *ent;
-	printf("pathofDir %s\n", pathofDir);
 	dir = opendir(pathofDir);
 	int noErrors = 1;
 	if (dir != NULL) {
@@ -229,6 +288,7 @@ int createTrieFromDir(ContainsTrie* containsTrie, char* pathofDir){
 		//correct file name
 		//create path with pathofDir/filename	
 		char* fileName = ent->d_name;
+		
 		char* fullPath = malloc(sizeof(char)*(strlen(pathofDir)+strlen(fileName)+2));
 		strcpy(fullPath, pathofDir);
 		strcat(fullPath, "/");

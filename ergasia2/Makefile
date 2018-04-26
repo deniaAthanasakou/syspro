@@ -1,8 +1,8 @@
 CC = gcc -g
-FILES = main.c pathStruct.c process.c trie.c postingList.c
-OBJECTS = main.o pathStruct.o process.o trie.o postingList.o
+FILES = main.c pathStruct.c process.c trie.c postingList.c list.c
+OBJECTS = main.o pathStruct.o process.o trie.o postingList.o list.o
 OUT = jobExecutor
-HEADERS = pathStruct.h process.h trie.h postingList.h
+HEADERS = pathStruct.h process.h trie.h postingList.h list.h
 
 
 all: $(OBJECTS) $(HEADERS)
@@ -24,6 +24,9 @@ trie.o: trie.c
 postingList.o: postingList.c
 	$(CC) -c postingList.c			
 		
+list.o: list.c
+	$(CC) -c list.c	
+			
 clean:
 	rm -f $(OBJECTS)
 

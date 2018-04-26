@@ -54,7 +54,7 @@ int main (int argc,char* argv[]){
 	}
 	printf("after initialization NumWorkers = %d\n", numWorkers);
 	
-	ProcessStruct* procStr = createProcessStruct(numWorkers);
+	//ProcessStruct* procStr = createProcessStruct(numWorkers);
 	
 	
 	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
@@ -168,6 +168,7 @@ int main (int argc,char* argv[]){
 	//printProcessStruct(procStr);
 	//destroyProcessStruct(procStr);
 	//destroyPathStruct(pathStruct);
+	//destroyContainsTrie(containsTrie)
 	return 0;
 	
 	
