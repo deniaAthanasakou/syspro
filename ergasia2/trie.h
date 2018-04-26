@@ -20,8 +20,8 @@ typedef struct ContainsTrie{
 
 void initializeContainsTrie(ContainsTrie** containsTrie);
 void initializeTrie(Trie** trie);
-Trie* insertLetterIntoTrie(ContainsTrie* containsTrie, Trie* trie, char charForInsert, bool setPostingList, char* path);		//returns node where element was inserted
-void insertFullWordIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* word, char* path);
+Trie* insertLetterIntoTrie(ContainsTrie* containsTrie, Trie* trie, char charForInsert, bool setPostingList, char* path,  int lineOfWord, int wordOffset);		//returns node where element was inserted
+void insertFullWordIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* word, char* path, int lineOfWord, int wordOffset);
 bool letterExists(Trie* trie, char charForInsert);
 Trie* getSameLetterNode(Trie* trie, char charForInsert);	//goes through trie horrizontally and if charForInsert is not found returns first Null node 
 //void insertLineTextIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* line, int id);

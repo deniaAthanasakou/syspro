@@ -13,9 +13,9 @@ void TestInsert(CuTest *tc){
 	Trie* trie = containsTrie->firstNode;
 	
 	
-	insertFullWordIntoTrie(containsTrie, trie, "The" , "a");
-	insertFullWordIntoTrie(containsTrie, trie, "brown" , "a");
-	insertFullWordIntoTrie(containsTrie, trie, "This" , "a");
+	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 0, 0);
+	insertFullWordIntoTrie(containsTrie, trie, "brown" , "a", 0, 0);
+	insertFullWordIntoTrie(containsTrie, trie, "This" , "a", 0, 0);
 	
 	
 	//The
@@ -50,15 +50,15 @@ void TestInsert(CuTest *tc){
 	
 }
 
-void TestSearchPath(CuTest *tc){
+void TestSearchWord(CuTest *tc){
 	
 	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
 	initializeContainsTrie(&containsTrie);
 	Trie* trie = containsTrie->firstNode;
 	
-	insertFullWordIntoTrie(containsTrie, trie, "The" , "a");
-	insertFullWordIntoTrie(containsTrie, trie, "brown" , "a");
-	insertFullWordIntoTrie(containsTrie, trie, "This" , "a");
+	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 0, 0);
+	insertFullWordIntoTrie(containsTrie, trie, "brown" , "a", 0, 0);
+	insertFullWordIntoTrie(containsTrie, trie, "This" , "a", 0, 0);
 
 
 	//CuAssertPtrNotNull(tc,searchPathInTrie(trie, "This"));
@@ -73,12 +73,136 @@ void TestSearchPath(CuTest *tc){
 	destroyContainsTrie(containsTrie);
 }
 
+void TestCreateTrieFromFile(CuTest *tc){
+	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
+
+	initializeContainsTrie(&containsTrie);
+	Trie* trie = containsTrie->firstNode;
+	
+	CuAssertIntEquals(tc, 0, createTrieFromFile(containsTrie, "wrongInput"));
+	
+	CuAssertIntEquals(tc, 1, createTrieFromFile(containsTrie, "inputForTrie"));
+	
+	CuAssertIntEquals(tc,5,containsTrie->noOfTrieWords);
+	
+	//hello
+	assert(trie->letter=='h');
+	assert(trie->verticalNext->letter=='e');
+	assert(trie->verticalNext->verticalNext->letter=='l');
+	assert(trie->verticalNext->verticalNext->verticalNext->letter=='l');
+	assert(trie->verticalNext->verticalNext->verticalNext->verticalNext->letter=='o');
+	
+	//check for nexts
+	CuAssertPtrEquals(tc,NULL,trie->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->verticalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->verticalNext->verticalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->verticalNext->verticalNext->verticalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->verticalNext->verticalNext->verticalNext->verticalNext->verticalNext);
+	
+	postingList* pL = trie->verticalNext->verticalNext->verticalNext->verticalNext->pL;
+	//check postingList
+	CuAssertIntEquals(tc, 1, pL->listSize);
+	CuAssertIntEquals(tc, 1, pL->firstNode->occurrences);
+	CuAssertIntEquals(tc, 0, pL->firstNode->line);
+	CuAssertIntEquals(tc, 0, pL->firstNode->wordOffset);
+	CuAssertStrEquals(tc, "inputForTrie", pL->firstNode->filePath);
+	CuAssertPtrEquals(tc,NULL,pL->firstNode->next);
+	
+	
+	//world
+	assert(trie->horizontalNext->letter=='w');
+	assert(trie->horizontalNext->verticalNext->letter=='o');
+	assert(trie->horizontalNext->verticalNext->verticalNext->letter=='r');
+	assert(trie->horizontalNext->verticalNext->verticalNext->verticalNext->letter=='l');
+	assert(trie->horizontalNext->verticalNext->verticalNext->verticalNext->verticalNext->letter=='d');
+	
+	//check for nexts
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->verticalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->verticalNext->verticalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->verticalNext->verticalNext->verticalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->verticalNext->verticalNext->verticalNext->verticalNext->verticalNext);
+	
+	pL = trie->horizontalNext->verticalNext->verticalNext->verticalNext->verticalNext->pL;
+	//check postingList
+	CuAssertIntEquals(tc, 1, pL->listSize);
+	CuAssertIntEquals(tc, 1, pL->firstNode->occurrences);
+	CuAssertIntEquals(tc, 0, pL->firstNode->line);
+	CuAssertIntEquals(tc, 6, pL->firstNode->wordOffset);
+	CuAssertStrEquals(tc, "inputForTrie", pL->firstNode->filePath);
+	CuAssertPtrEquals(tc,NULL,pL->firstNode->next);
+	
+	//this
+	assert(trie->horizontalNext->horizontalNext->letter=='t');
+	assert(trie->horizontalNext->horizontalNext->verticalNext->letter=='h');
+	assert(trie->horizontalNext->horizontalNext->verticalNext->verticalNext->letter=='i');
+	assert(trie->horizontalNext->horizontalNext->verticalNext->verticalNext->verticalNext->letter=='s');
+	
+	//check for nexts
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->horizontalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->horizontalNext->verticalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->horizontalNext->verticalNext->verticalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->horizontalNext->verticalNext->verticalNext->verticalNext->verticalNext);
+	
+	pL = trie->horizontalNext->horizontalNext->verticalNext->verticalNext->verticalNext->pL;
+	//check postingList
+	CuAssertIntEquals(tc, 1, pL->listSize);
+	CuAssertIntEquals(tc, 1, pL->firstNode->occurrences);
+	CuAssertIntEquals(tc, 1, pL->firstNode->line);
+	CuAssertIntEquals(tc, 0, pL->firstNode->wordOffset);
+	CuAssertStrEquals(tc, "inputForTrie", pL->firstNode->filePath);
+	CuAssertPtrEquals(tc,NULL,pL->firstNode->next);
+	
+	//is
+	assert(trie->horizontalNext->horizontalNext->horizontalNext->letter=='i');
+	assert(trie->horizontalNext->horizontalNext->horizontalNext->verticalNext->letter=='s');
+	
+	//check for nexts
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->horizontalNext->horizontalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->horizontalNext->horizontalNext->verticalNext->verticalNext);
+	
+	pL = trie->horizontalNext->horizontalNext->horizontalNext->verticalNext->pL;
+	//check postingList
+	CuAssertIntEquals(tc, 1, pL->listSize);
+	CuAssertIntEquals(tc, 1, pL->firstNode->occurrences);
+	CuAssertIntEquals(tc, 1, pL->firstNode->line);
+	CuAssertIntEquals(tc, 5, pL->firstNode->wordOffset);				//extra space was not counted
+	CuAssertStrEquals(tc, "inputForTrie", pL->firstNode->filePath);
+	CuAssertPtrEquals(tc,NULL,pL->firstNode->next);
+	
+	
+	//dog
+	assert(trie->horizontalNext->horizontalNext->horizontalNext->horizontalNext->letter=='d');
+	assert(trie->horizontalNext->horizontalNext->horizontalNext->horizontalNext->verticalNext->letter=='o');
+	assert(trie->horizontalNext->horizontalNext->horizontalNext->horizontalNext->verticalNext->verticalNext->letter=='g');
+	
+	//check for nexts
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->horizontalNext->horizontalNext->horizontalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->horizontalNext->horizontalNext->horizontalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->horizontalNext->horizontalNext->horizontalNext->verticalNext->verticalNext->horizontalNext);
+	CuAssertPtrEquals(tc,NULL,trie->horizontalNext->horizontalNext->horizontalNext->horizontalNext->verticalNext->verticalNext->verticalNext);
+
+	pL = trie->horizontalNext->horizontalNext->horizontalNext->horizontalNext->verticalNext->verticalNext->pL;
+	//check postingList
+	CuAssertIntEquals(tc, 1, pL->listSize);
+	CuAssertIntEquals(tc, 1, pL->firstNode->occurrences);
+	CuAssertIntEquals(tc, 3, pL->firstNode->line);
+	CuAssertIntEquals(tc, 0, pL->firstNode->wordOffset);
+	CuAssertStrEquals(tc, "inputForTrie", pL->firstNode->filePath);
+	CuAssertPtrEquals(tc,NULL,pL->firstNode->next);
+	
+	
+	destroyContainsTrie(containsTrie);
+
+}
+
 
 CuSuite* TrieGetSuite() {		//adding TestTrie Functions into suite
     CuSuite* suite = CuSuiteNew();
     
     SUITE_ADD_TEST(suite, TestInsert);
-    SUITE_ADD_TEST(suite, TestSearchPath);
+    SUITE_ADD_TEST(suite, TestSearchWord);
+    SUITE_ADD_TEST(suite, TestCreateTrieFromFile);
     
     return suite;
 }

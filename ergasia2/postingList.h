@@ -9,6 +9,7 @@ struct postingListNode{	//listNode
 	char* filePath;
 	int occurrences;			//isws dn xreiazetai
 	int line;				//grammh sthn opoia uparxei h leksh
+	int wordOffset;
 	postingListNode* next;
 };
 
@@ -18,7 +19,7 @@ typedef struct postingList{
 }postingList;
 
 void createPostingList(postingList* pL);
-void insertIntoPostingList(postingList* pL, char* path);
+void insertIntoPostingList(postingList* pL, char* path,  int lineOfWord, int wordOffset);
 postingListNode* searchForPath(postingList* pL,char* path);
 //OccurrencesInText* getNodeById(postingList* pL,int id);
 

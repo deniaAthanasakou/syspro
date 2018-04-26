@@ -18,7 +18,7 @@ void initializeTrie(Trie** trie){
 	(*trie)->pL = NULL;
 }
 	
-Trie* insertLetterIntoTrie(ContainsTrie* containsTrie, Trie* trie, char charForInsert, bool setPostingList, char* path){
+Trie* insertLetterIntoTrie(ContainsTrie* containsTrie, Trie* trie, char charForInsert, bool setPostingList, char* path, int lineOfWord, int wordOffset){
 
 	Trie* trieOfInsert = getSameLetterNode(trie,  charForInsert);
 	if(trieOfInsert == NULL){
@@ -34,9 +34,10 @@ Trie* insertLetterIntoTrie(ContainsTrie* containsTrie, Trie* trie, char charForI
 			trieOfInsert->pL = malloc(sizeof(postingList));
 			createPostingList(trieOfInsert->pL);
 		}
-		insertIntoPostingList(trieOfInsert->pL, path);
+		insertIntoPostingList(trieOfInsert->pL, path, lineOfWord, wordOffset);
 		
 	}
+	
 	return trieOfInsert;
 	
 }
@@ -47,7 +48,7 @@ bool letterExists(Trie* trie, char charForInsert){
 	return false;	
 }
 
-void insertFullWordIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* word, char* path){
+void insertFullWordIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* word, char* path, int lineOfWord, int wordOffset){
 	Trie* nextVertical = trie;
 	Trie* insertedNode = NULL;
 	for(int i=0; i<strlen(word); i++){
@@ -55,7 +56,7 @@ void insertFullWordIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* word, 
 		if(i==strlen(word)-1){		//last letter
 			setPostingList = true;
 		}
-		insertedNode = insertLetterIntoTrie(containsTrie, nextVertical, word[i], setPostingList, path);
+		insertedNode = insertLetterIntoTrie(containsTrie, nextVertical, word[i], setPostingList, path, lineOfWord, wordOffset);
 		if(i!=strlen(word)-1 && insertedNode->verticalNext==NULL){
 			nextVertical = malloc(sizeof(Trie));
 			initializeTrie(&nextVertical);
@@ -159,89 +160,7 @@ postingList* searchWordInTrie(Trie* trie, char* word){
 	return prevTrie->pL;
 	
 }
-/*
-arrayWords* getAllWordsOfTrie(Trie* trie){
-	arrayWords* array = malloc(sizeof(arrayWords));
-	createArrayWords(array);
-	while(trie!=NULL){
-		char* word = malloc(sizeof(char));
-		word[0] = '\0';
-		word = recGetWordsFromTrie(trie, trie, word, array);
-		free(word);
-		
-		trie = trie->horizontalNext;
-	}
-	return array;
-}
 
-char* recGetWordsFromTrie(Trie* originalTrie, Trie* trie, char* word, arrayWords* array){	//returns word that exists in trie
-	if (trie!=NULL){
-		int newLength = strlen(word)+1;
-		
-		word = realloc(word, (newLength+1)*sizeof(char));
-		
-		word[newLength -1] = trie->letter;
-		word[newLength] = '\0';
-    	if(trie->pL!=NULL){	
-    		char* wordForInsert = malloc((strlen(word)+1)* sizeof(char));
-			strcpy(wordForInsert,word);  
-			insertArrayWords(array, wordForInsert); //add word into arrayOfWords
-		}
-    }
-    if (trie->verticalNext!=NULL){	
-    	word = recGetWordsFromTrie(originalTrie, trie->verticalNext, word, array);
-    }
-    int newLength = strlen(word)-1;
-	if(newLength>0){
-		word = realloc(word, (newLength+1)*sizeof(char));
-		word[newLength] = '\0';
-	}
-	
-    if(trie->horizontalNext == originalTrie->horizontalNext && trie->horizontalNext!=NULL){
-    	return word;
-    }
-    if (trie->horizontalNext!=NULL){
-    	word = recGetWordsFromTrie(originalTrie, trie->horizontalNext, word, array);
-    }
-    return word;
-}
-
-
-double getScoreWithoutSum(Trie* trie, Map* map, double idf, char* word, int textId, double avgdl){
-	double k1 = 1.2;
-	double b = 0.75;
-	
-	double tf = 0.0;
-	
-	postingList* pL = searchWordInTrie(trie, word);		//get posting list of word
-	if(pL!=NULL){		//word exists
-		OccurrencesInText* node = getNodeById(pL, textId);
-		if(node!=NULL){
-			tf = (double)node->occurrences;
-		}
-	} 
-	
-	if(tf==0 || idf==0 || map->position==0){
-		return 0;
-	}
-	
-	double D = (double)map->array[textId].noOfWords;
-	
-	double result = (idf *tf*(k1+1.0))/(tf + k1 *(1.0 - b + (b*D/avgdl)));
-
-	return result;
-	
-}
-
-
-
-
-
-
-
-
-
-*/
 
 int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 
@@ -254,12 +173,17 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 		return 0;
 	}
 	
+	int lineCounter = -1;
+	
+	
 	while ((read = getline(&line, &len, file)) != -1) {
+	 	lineCounter++;
 		if(!strcmp(line, "\n")){	
 			continue;
 		}
 		
 		char* tempWord = strtok(line," \t");
+		int bytesBeforeWord = 0;
 		while(tempWord!=NULL){
 			if(tempWord[strlen(tempWord)-1]=='\n'){
 				tempWord[strlen(tempWord)-1]='\0';
@@ -269,11 +193,14 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 			//inserting word into trie
 			char* text = malloc((strlen(tempWord)+1)* sizeof(char));
 			strcpy(text, tempWord);
-			insertFullWordIntoTrie(containsTrie, containsTrie->firstNode, tempWord, fullPath);
+			insertFullWordIntoTrie(containsTrie, containsTrie->firstNode, tempWord, fullPath, lineCounter, bytesBeforeWord);
 			free(text);
 			text=NULL;
 
+			bytesBeforeWord+=strlen(tempWord) +1;	//1 is for space or tab			maybe i need to change it
 			tempWord = strtok(NULL," \t");
+			
+			
 		}
 	}
 

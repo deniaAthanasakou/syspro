@@ -8,7 +8,7 @@ void createPostingList(postingList* pL){
 	pL->firstNode = NULL;
 }
 
-void insertIntoPostingList(postingList* pL, char* path){
+void insertIntoPostingList(postingList* pL, char* path,  int lineOfWord, int wordOffset){
 	postingListNode* node = searchForPath(pL, path);
 	if(node==NULL)
 		return;
@@ -19,6 +19,8 @@ void insertIntoPostingList(postingList* pL, char* path){
 		pL->listSize++;
 	}
 	node->occurrences++;
+	node->line = lineOfWord;
+	node->wordOffset = wordOffset;
 }
 
 postingListNode* searchForPath(postingList* pL, char* path){		//is used by function insertIntoPostingList, so that node with same id will not be added twice
@@ -35,7 +37,8 @@ postingListNode* searchForPath(postingList* pL, char* path){		//is used by funct
 	node = malloc(sizeof(postingListNode));
 	node->filePath = NULL;
 	node->occurrences = 0;
-	node->line = 0;
+	node->line = -1;
+	node->wordOffset = -1;
 	node->next = NULL;
 	if(prevNode!=NULL){
 		prevNode->next = node;
@@ -75,7 +78,7 @@ void printPostingList(postingList* pL){
 	int counter=0;
 	while(tempNode!=NULL){
 		counter++;
-		printf("path: %s, occurrences %d line %d\n", tempNode->filePath, tempNode->occurrences, tempNode->line);
+		printf("path: %s, occurrences %d line %d offset %d\n", tempNode->filePath, tempNode->occurrences, tempNode->line, tempNode->wordOffset);
 		tempNode = tempNode->next;
 	}
 }
