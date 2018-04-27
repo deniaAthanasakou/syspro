@@ -21,73 +21,51 @@ void TestMaxCount(CuTest *tc){
 	insertFullWordIntoTrie(containsTrie, trie, "brown" , "a", 5, 3);
 	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 6, 3);
 	
-	arrayWords* array= malloc(sizeof(arrayWords));		//error
-	createArrayWords(array);
-	
-	char* word = malloc(sizeof(char)*(strlen("brown")+1));
-	strcpy(word,"brown");
-	insertArrayWords(array, word);
-	word = malloc(sizeof(char)*(strlen("red")+1));
-	strcpy(word,"red");
-	insertArrayWords(array, word);
-	
-	FileInfoMinMax* info = maxCount(array, trie);	
+	char* line = malloc((strlen("brown red")+1)*sizeof(char));
+	strcpy(line, "brown red");
+	FileInfoMinMax* info = maxCount(line, trie);	
 	CuAssertPtrEquals(tc,NULL,info);
-	deleteArrayWords(array);
 	
-	array = malloc(sizeof(arrayWords));					//correct
-	createArrayWords(array);
-	word = malloc(sizeof(char)*(strlen("brown")+1));
-	strcpy(word,"brown");
-	insertArrayWords(array, word);
-	
-	info = maxCount(array, trie);	
+	free(line);
+	line=NULL;
+
+	line = malloc((strlen("brown")+1)*sizeof(char));
+	strcpy(line, "brown");
+	info = maxCount(line, trie);
 	CuAssertStrEquals(tc,"max",info->type);
 	CuAssertStrEquals(tc,"d",info->fileName);
 	CuAssertIntEquals(tc,3,info->minOrMax);
-	deleteArrayWords(array);
 	free(info);
+	free(line);
+	line=NULL;
+
 	
-	
-	array = malloc(sizeof(arrayWords));					//correct
-	createArrayWords(array);
-	word = malloc(sizeof(char)*(strlen("This")+1));
-	strcpy(word,"This");
-	insertArrayWords(array, word);
-	
-	info = maxCount(array, trie);	
+	line = malloc((strlen("This")+1)*sizeof(char));
+	strcpy(line, "This");
+	info = maxCount(line, trie);
 	CuAssertStrEquals(tc,"max",info->type);
 	CuAssertStrEquals(tc,"c",info->fileName);
 	CuAssertIntEquals(tc,1,info->minOrMax);
-	deleteArrayWords(array);
 	free(info);
+	free(line);
+	line=NULL;
 	
-	array = malloc(sizeof(arrayWords));					//word not found
-	createArrayWords(array);
-	word = malloc(sizeof(char)*(strlen("oups")+1));
-	strcpy(word,"oups");
-	insertArrayWords(array, word);
-	
-	info = maxCount(array, trie);	
+	line = malloc((strlen("oups")+1)*sizeof(char));
+	strcpy(line, "oups");
+	info = maxCount(line, trie);
 	CuAssertPtrEquals(tc,NULL,info);
-	deleteArrayWords(array);
+	free(line);
+	line=NULL;
 	
-	
-	array = malloc(sizeof(arrayWords));					//correct	//get alphabetically smaller
-	createArrayWords(array);
-	word = malloc(sizeof(char)*(strlen("The")+1));
-	strcpy(word,"The");
-	insertArrayWords(array, word);
-	
-	info = maxCount(array, trie);	
+	line = malloc((strlen("The")+1)*sizeof(char));
+	strcpy(line, "The");
+	info = maxCount(line, trie);
 	CuAssertStrEquals(tc,"max",info->type);
 	CuAssertStrEquals(tc,"a",info->fileName);
 	CuAssertIntEquals(tc,2,info->minOrMax);
-	deleteArrayWords(array);
 	free(info);
-	
-	
-	
+	free(line);
+	line=NULL;
 	
 	destroyContainsTrie(containsTrie);
 
@@ -111,74 +89,52 @@ void TestMinCount(CuTest *tc){
 	insertFullWordIntoTrie(containsTrie, trie, "brown" , "a", 5, 3);
 	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 6, 3);
 	
-	arrayWords* array= malloc(sizeof(arrayWords));		//error
-	createArrayWords(array);
-	
-	char* word = malloc(sizeof(char)*(strlen("brown")+1));
-	strcpy(word,"brown");
-	insertArrayWords(array, word);
-	word = malloc(sizeof(char)*(strlen("red")+1));
-	strcpy(word,"red");
-	insertArrayWords(array, word);
-	
-	FileInfoMinMax* info = minCount(array, trie);	
+	char* word = malloc(sizeof(char)*(strlen("brown red")+1));
+	strcpy(word,"brown red");
+	FileInfoMinMax* info = minCount(word, trie);	
 	CuAssertPtrEquals(tc,NULL,info);
-	deleteArrayWords(array);
+	free(word);
+	word = NULL;
 	
-	array = malloc(sizeof(arrayWords));					//correct
-	createArrayWords(array);
 	word = malloc(sizeof(char)*(strlen("brown")+1));
 	strcpy(word,"brown");
-	insertArrayWords(array, word);
-	
-	info = minCount(array, trie);	
+	info = minCount(word, trie);	
 	CuAssertStrEquals(tc,"min",info->type);
 	CuAssertStrEquals(tc,"a",info->fileName);
 	CuAssertIntEquals(tc,1,info->minOrMax);
-	deleteArrayWords(array);
 	free(info);
+	free(word);
+	word = NULL;
+	free(word);
+	word = NULL;
 	
-	
-	array = malloc(sizeof(arrayWords));					//correct
-	createArrayWords(array);
 	word = malloc(sizeof(char)*(strlen("This")+1));
 	strcpy(word,"This");
-	insertArrayWords(array, word);
-	
-	info = minCount(array, trie);	
+	info = minCount(word, trie);		
 	CuAssertStrEquals(tc,"min",info->type);
 	CuAssertStrEquals(tc,"c",info->fileName);
 	CuAssertIntEquals(tc,1,info->minOrMax);
-	deleteArrayWords(array);
 	free(info);
+	free(word);
+	word = NULL;
 	
-	array = malloc(sizeof(arrayWords));					//word not found
-	createArrayWords(array);
 	word = malloc(sizeof(char)*(strlen("oups")+1));
 	strcpy(word,"oups");
-	insertArrayWords(array, word);
-	
-	info = minCount(array, trie);	
+	info = minCount(word, trie);
 	CuAssertPtrEquals(tc,NULL,info);
-	deleteArrayWords(array);
+	free(word);
+	word = NULL;
 	
-	array = malloc(sizeof(arrayWords));					//correct	//get alphabetically smaller
-	createArrayWords(array);
 	word = malloc(sizeof(char)*(strlen("The")+1));
 	strcpy(word,"The");
-	insertArrayWords(array, word);
-	
-	info = maxCount(array, trie);	
-	CuAssertStrEquals(tc,"max",info->type);
+	info = minCount(word, trie);
+	CuAssertStrEquals(tc,"min",info->type);
 	CuAssertStrEquals(tc,"a",info->fileName);
 	CuAssertIntEquals(tc,2,info->minOrMax);
-	deleteArrayWords(array);
 	free(info);
-	
-	
-	
-	
-	
+	free(word);
+	word = NULL;
+
 	destroyContainsTrie(containsTrie);
 
 }

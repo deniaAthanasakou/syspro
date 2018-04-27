@@ -9,9 +9,12 @@
 
 
 
-FileInfoMinMax* maxCount(arrayWords* array, Trie* trie){
+FileInfoMinMax* maxCount(char* text, Trie* trie){
+	
+	arrayWords* array = stringToArray(text);
 	if(array->position!=1){
 		printf("Error! Only 1 word should be given.\n");
+		deleteArrayWords(array);
 		return NULL;
 	}
 	
@@ -22,6 +25,7 @@ FileInfoMinMax* maxCount(arrayWords* array, Trie* trie){
 	postingList* pL = searchWordInTrie(trie, wordToSearch);
 	if(pL==NULL){			//word does not exist
 		printf("Word '%s' does not exist.\n", wordToSearch);
+		deleteArrayWords(array);
 		return NULL;
 	}
 		
@@ -48,12 +52,18 @@ FileInfoMinMax* maxCount(arrayWords* array, Trie* trie){
 	
 	
 	printf("%s %s %d\n", info->type, info->fileName, info->minOrMax);
+	deleteArrayWords(array);
 	return info;
+	
+	//actually must write in pipe 1 integer and 1 string: info->fileName, info->minOrMax
 }
 
-FileInfoMinMax* minCount(arrayWords* array, Trie* trie){
+FileInfoMinMax* minCount(char* text, Trie* trie){
+
+	arrayWords* array = stringToArray(text);
 	if(array->position!=1){
 		printf("Error! Only 1 word should be given.\n");
+		deleteArrayWords(array);
 		return NULL;
 	}
 	
@@ -64,6 +74,7 @@ FileInfoMinMax* minCount(arrayWords* array, Trie* trie){
 	postingList* pL = searchWordInTrie(trie, wordToSearch);
 	if(pL==NULL){			//word does not exist
 		printf("Word '%s' does not exist.\n", wordToSearch);
+		deleteArrayWords(array);
 		return NULL;
 	}
 		
@@ -90,7 +101,9 @@ FileInfoMinMax* minCount(arrayWords* array, Trie* trie){
 	}
 	
 	printf("%s %s %d\n", info->type, info->fileName, info->minOrMax);
+	deleteArrayWords(array);
 	return info;
+	//actually must write in pipe 1 integer and 1 string: info->fileName, info->minOrMax
 }
 
 BytesWordsLinesNode* wc(ContainsTrie* containsTrie){
@@ -103,12 +116,14 @@ BytesWordsLinesNode* wc(ContainsTrie* containsTrie){
 	
 	BytesWordsLinesStruct* info = containsTrie->info;	
 	for(int i=0; i<info->position; i++){
-		summedUpInfo->bytes+=  info->array[i].bytes;
-		summedUpInfo->words+=  info->array[i].words;
-		summedUpInfo->lines+=  info->array[i].lines;
+		summedUpInfo->bytes+= info->array[i].bytes;
+		summedUpInfo->words+= info->array[i].words;
+		summedUpInfo->lines+= info->array[i].lines;
 	}
 	
 	return summedUpInfo;
+	
+	//actually must write in pipe 3 integers: summedUpInfo->bytes, summedUpInfo->words, summedUpInfo->lines
 }
 
 

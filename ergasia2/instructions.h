@@ -12,8 +12,8 @@ typedef struct FileInfoMinMax{
 
 
 
-FileInfoMinMax* maxCount(arrayWords* array, Trie* trie);
-FileInfoMinMax* minCount(arrayWords* array, Trie* trie);
+FileInfoMinMax* maxCount(char* text, Trie* trie);
+FileInfoMinMax* minCount(char* text, Trie* trie);
 
 BytesWordsLinesNode* wc(ContainsTrie* trie);
 
