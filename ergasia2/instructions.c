@@ -5,13 +5,69 @@
 
 #include "instructions.h"
 
-//#define INT_MAX 2147483647	
+void search(char* text, ContainsTrie* containsTrie){
+	arrayWords* array = stringToArray(text, 1);
+	Trie* trie = containsTrie->firstNode;
+	
+	arrayWords* arrayOfFilenames = malloc(sizeof(arrayWords));
+	createArrayWords(arrayOfFilenames);
+	
+	for(int i=0; i<array->position; i++){		//for each query word
+	//printf("Word '%s' .\n", array->words[i]);
+		postingList* pL = searchWordInTrie(trie, array->words[i]);
+		if(pL==NULL){			//word does not exist
+			printf("Word '%s' does not exist.\n", array->words[i]);
+			continue;
+		}
+	
+		
+		postingListNode* tempNode = pL->firstNode;
+		while(tempNode!=NULL){							//for each document
+		
+		
+			int* linesForWordInDoc = malloc(0);
+			int sizeOfLinesForWordInDoc = 0;
+
+			insertArrayWords(arrayOfFilenames, tempNode->filePath, 1);		//do not enter if it already exists
+			//get path, no of line
+			//write on pipe
+			printf("FilePath is %s\n", tempNode->filePath);
+			//get lines
+			ListNode* tempListNode = tempNode->info->firstNode;
+			while(tempListNode!=NULL){
+				if(lineAlreadyExists(linesForWordInDoc, sizeOfLinesForWordInDoc, tempListNode->lineOfText)){										//line has already been selected
+					tempListNode = tempListNode->next;
+					continue;
+				}
+				linesForWordInDoc[sizeOfLinesForWordInDoc] = tempListNode->lineOfText;
+				sizeOfLinesForWordInDoc++;
+				linesForWordInDoc = realloc(linesForWordInDoc, sizeOfLinesForWordInDoc*sizeof(int));
+				
+				//write on pipe
+				printf("line is %d\n",  tempListNode->lineOfText);
+				
+				//get contents of line
+				
+				
+				tempListNode = tempListNode->next;
+			}
+		
+		
+			tempNode = tempNode->next;
+			free(linesForWordInDoc);
+			linesForWordInDoc = NULL;
+		}
+		
+		
+	}
+	
+}
 
 
 
 FileInfoMinMax* maxCount(char* text, Trie* trie){
 	
-	arrayWords* array = stringToArray(text);
+	arrayWords* array = stringToArray(text, 0);
 	if(array->position!=1){
 		printf("Error! Only 1 word should be given.\n");
 		deleteArrayWords(array);
@@ -60,7 +116,7 @@ FileInfoMinMax* maxCount(char* text, Trie* trie){
 
 FileInfoMinMax* minCount(char* text, Trie* trie){
 
-	arrayWords* array = stringToArray(text);
+	arrayWords* array = stringToArray(text, 0);
 	if(array->position!=1){
 		printf("Error! Only 1 word should be given.\n");
 		deleteArrayWords(array);
@@ -119,15 +175,23 @@ BytesWordsLinesNode* wc(ContainsTrie* containsTrie){
 		summedUpInfo->bytes+= info->array[i].bytes;
 		summedUpInfo->words+= info->array[i].words;
 		summedUpInfo->lines+= info->array[i].lines;
+
 	}
-	
+	printf("Total Number of bytes is: %d. Total Number of bytes is: %d. Total Number of bytes is: %d.\n",summedUpInfo->bytes, summedUpInfo->words, summedUpInfo->lines);
 	return summedUpInfo;
 	
 	//actually must write in pipe 3 integers: summedUpInfo->bytes, summedUpInfo->words, summedUpInfo->lines
 }
 
 
-
+bool lineAlreadyExists(int* array, int size, int line){
+	for(int i=0; i<size; i++){
+		if(array[i]==line){
+			return true;
+		}
+	}
+	return false;
+}
 
 
 

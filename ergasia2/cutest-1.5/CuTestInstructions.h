@@ -6,7 +6,7 @@
 void TestMaxCount(CuTest *tc);
 void TestMinCount(CuTest *tc);
 void TestWc(CuTest *tc);
-
+void TestSearch(CuTest *tc);
 
 CuSuite* InstructionsGetSuite();
 

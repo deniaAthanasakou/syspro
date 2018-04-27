@@ -4,7 +4,7 @@
 #include "arrayWords.h"
 
 
-arrayWords* stringToArray(char* text){		//converts a string into an array
+arrayWords* stringToArray(char* text, int doNotInsertSameElements){		//converts a string into an array
 	char* pch;
 	char** arrayOfWords; 
 	pch = strtok (text," \t");
@@ -17,7 +17,7 @@ arrayWords* stringToArray(char* text){		//converts a string into an array
 	{	
 		char* wordForInsert = malloc((strlen(pch)+1)* sizeof(char));
 		strcpy(wordForInsert,pch);   
-		insertArrayWords(arrayW, wordForInsert); //add pch into arrayOfWords
+		insertArrayWords(arrayW, wordForInsert, doNotInsertSameElements); //add pch into arrayOfWords
 		
 		pch = strtok (NULL, " \t");
 	}
@@ -38,7 +38,11 @@ void doubleArrayWords(arrayWords* array){
 	array->words = realloc(array->words,sizeof(char*)*array->length); 
 
 }
-void insertArrayWords(arrayWords* array, char* word){
+void insertArrayWords(arrayWords* array, char* word, int doNotInsertSameElements){
+	if(doNotInsertSameElements){
+		if(checkifWordExists(array, word))
+			return;
+	}
 	if(array->position==array->length){
 		doubleArrayWords(array);
 	}

@@ -139,6 +139,8 @@ void TestMinCount(CuTest *tc){
 
 }
 
+
+
 void TestWc(CuTest *tc){
 	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
 
@@ -188,6 +190,30 @@ void TestWc(CuTest *tc){
 	destroyContainsTrie(containsTrie);
 }
 
+void TestSearch(CuTest *tc){
+	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
+	initializeContainsTrie(&containsTrie);
+	Trie* trie = containsTrie->firstNode;
+	
+	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 0, 0);
+	insertFullWordIntoTrie(containsTrie, trie, "brown" , "b", 0, 0);
+	insertFullWordIntoTrie(containsTrie, trie, "This" , "c", 0, 0);
+	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 1, 4);
+	insertFullWordIntoTrie(containsTrie, trie, "brown" , "d", 5, 3);
+	insertFullWordIntoTrie(containsTrie, trie, "The" , "g", 4, 0);
+	insertFullWordIntoTrie(containsTrie, trie, "The" , "g", 4, 0);
+	insertFullWordIntoTrie(containsTrie, trie, "The" , "d", 3, 6);
+	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 3, 6);
+	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 0, 6);
+	
+	char* query = malloc((strlen("The what is This what The")+1)*sizeof(char));
+	strcpy(query, "The what is This what The");
+	printf("Executing test for search\n\n");
+	search(query, containsTrie);
+	printf("Test for search ended\n\n");
+	
+	
+}
 
 CuSuite* InstructionsGetSuite(){	//adding TestInstructions Functions into suite
 	CuSuite* suite = CuSuiteNew();
@@ -195,6 +221,7 @@ CuSuite* InstructionsGetSuite(){	//adding TestInstructions Functions into suite
     SUITE_ADD_TEST(suite, TestMaxCount);
     SUITE_ADD_TEST(suite, TestMinCount);
     SUITE_ADD_TEST(suite, TestWc);
+    SUITE_ADD_TEST(suite, TestSearch); 
     
     return suite;
 }
