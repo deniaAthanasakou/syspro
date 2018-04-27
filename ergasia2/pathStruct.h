@@ -1,5 +1,6 @@
 #ifndef _PATH_STRUCT_H_
 #define _PATH_STRUCT_H_
+#include <stdbool.h>
 
 
 typedef struct PathStruct{		
@@ -19,4 +20,5 @@ void doublePathArray(PathStruct* paths);
 void reducePathArrayLength(PathStruct* paths);
 void destroyPathStruct(PathStruct* paths);
 char* getLastPath(PathStruct* paths);	//like pop in lifo											//na to vgalw
+bool pathAlreadyExists(PathStruct* paths, char* path);
 #endif

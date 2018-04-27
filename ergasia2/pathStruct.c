@@ -47,6 +47,9 @@ int initializeFromFile(FILE* file, PathStruct* paths){
 }
  
 void insertIntoPathStruct(PathStruct* paths, char* path){
+	if(pathAlreadyExists(paths, path)){	//don't insert
+		return;
+	}
 	if(paths->position==paths->length){
 	//	printf("doubled");
 		doublePathArray(paths);
@@ -89,6 +92,14 @@ char* getLastPath(PathStruct* paths){		//like pop in lifo
 	
 	return path;
 }
+ 
+bool pathAlreadyExists(PathStruct* paths, char* path){
+	for(int i=0; i<paths->position; i++){
+		if(strcmp(path, paths->arrayOfPaths[i])==0)
+			return true;
+	}
+	return false;
+} 
  
 void destroyPathStruct(PathStruct* paths){
 	if(paths!=NULL){

@@ -6,6 +6,8 @@
 #include "CuTestTrie.h"
 #include "CuTestPostingList.h"
 #include "CuTestList.h"
+#include "CuTestInstructions.h"
+#include "CuTestBytesWordsLinesInfo.h"
 
 CuSuite* CuGetSuite();
 CuSuite* CuStringGetSuite();
@@ -46,6 +48,18 @@ void RunAllTests(void)
 	CuSuiteAddSuite(suite, listSuite);
 	free(listSuite);
 	listSuite=NULL;
+	
+	//instructions	
+	CuSuite* instructionsSuite =  InstructionsGetSuite();
+	CuSuiteAddSuite(suite, instructionsSuite);
+	free(instructionsSuite);
+	instructionsSuite=NULL;
+	
+	//bytesWordsLinesInfSuite	
+	CuSuite* bytesWordsLinesInfSuite =  BytesWordsLinesInfoGetSuite();
+	CuSuiteAddSuite(suite, bytesWordsLinesInfSuite);
+	free(bytesWordsLinesInfSuite);
+	bytesWordsLinesInfSuite=NULL;
 	
 
 	CuSuiteRun(suite);

@@ -13,18 +13,20 @@ void TestInsertPathStruct(CuTest *tc){
 	insertIntoPathStruct(pathStruct, "b");
 	insertIntoPathStruct(pathStruct, "c");
 	insertIntoPathStruct(pathStruct, "d");
-	insertIntoPathStruct(pathStruct, "a");
+	insertIntoPathStruct(pathStruct, "b");		//should not be inserted
+	insertIntoPathStruct(pathStruct, "g");
 	CuAssertIntEquals(tc,5,pathStruct->length);
 	CuAssertIntEquals(tc,5,pathStruct->position);
 	CuAssertStrEquals(tc,"a",pathStruct->arrayOfPaths[0]);
 	CuAssertStrEquals(tc,"b",pathStruct->arrayOfPaths[1]);
 	CuAssertStrEquals(tc,"c",pathStruct->arrayOfPaths[2]);
 	CuAssertStrEquals(tc,"d",pathStruct->arrayOfPaths[3]);
-	CuAssertStrEquals(tc,"a",pathStruct->arrayOfPaths[4]);
-	insertIntoPathStruct(pathStruct, "g");
+	CuAssertStrEquals(tc,"g",pathStruct->arrayOfPaths[4]);
+	insertIntoPathStruct(pathStruct, "h");
 	CuAssertIntEquals(tc,10,pathStruct->length);
 	CuAssertIntEquals(tc,6,pathStruct->position);
-	CuAssertStrEquals(tc,"g",pathStruct->arrayOfPaths[5]);
+	CuAssertStrEquals(tc,"g",pathStruct->arrayOfPaths[4]);
+	CuAssertStrEquals(tc,"h",pathStruct->arrayOfPaths[5]);
 	
 	reducePathArrayLength(pathStruct);
 	destroyPathStruct(pathStruct);

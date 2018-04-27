@@ -2,12 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include "trie.h"
 
 void initializeContainsTrie(ContainsTrie** containsTrie){
 	(*containsTrie)->noOfTrieWords=0;
 	(*containsTrie)->firstNode = malloc(sizeof(Trie));
 	initializeTrie(&((*containsTrie)->firstNode));
+	
+	(*containsTrie)->info = createBytesWordsLinesStruct();
 }
 
 
@@ -81,38 +87,11 @@ Trie* getSameLetterNode(Trie* trie, char charForInsert){		//goes through trie ho
 	}
 	return nextHorizontal;	
 }
-/*
-void insertLineTextIntoTrie(ContainsTrie* containsTrie, Trie* trie, char* line, int id){
-	char* tempLine = malloc((strlen(line)+1)*sizeof(char));
-	strcpy(tempLine, line);
-	char* word;
-	word = strtok(tempLine, " \t");
-	while(word!=NULL){
-		
-		char* wordToInsert = malloc((strlen(word)+1)*sizeof(char));
-		strcpy(wordToInsert,word);
-		insertFullWordIntoTrie(containsTrie, trie, wordToInsert, id);		//insert word
-		
-		free(wordToInsert);
-		wordToInsert = NULL;
-		
-		word = strtok(NULL, " \t");
-	}
-	if(tempLine)
-		free(tempLine);
-}
-
-
-void InsertAllLinesIntoTrie(ContainsTrie* containsTrie, Map* map){
-	for(int i=0; i<map->length; i++){
-		insertLineTextIntoTrie(containsTrie, containsTrie->firstNode, map->array[i].text ,map->array[i].id);
-	}
-}
-*/
 
 
 void destroyContainsTrie(ContainsTrie* containsTrie){
 	if(containsTrie!=NULL){
+		deleteBytesWordsLinesStruct(containsTrie->info);
 		destroyTrie(containsTrie->firstNode);
 		free(containsTrie);
 	}
@@ -164,6 +143,13 @@ postingList* searchWordInTrie(Trie* trie, char* word){
 
 int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 
+	int fd = open(fullPath, O_RDONLY);
+	struct stat buf;
+	fstat(fd, &buf);
+	int numBytes = buf.st_size;
+	close(fd);
+
+
 	FILE* file = fopen(fullPath,"r");
 	char *line = NULL;
 	size_t len = 0;
@@ -174,11 +160,12 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 	}
 	
 	int lineCounter = -1;
-	
+	int numWords = 0;
 	
 	while ((read = getline(&line, &len, file)) != -1) {
 	 	lineCounter++;
-		if(!strcmp(line, "\n")){	
+
+		if(!strcmp(line, "\n")){
 			continue;
 		}
 		
@@ -200,7 +187,6 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 					numOfSpacesAtBeggining++;
 					int j = i;
 					while(line[j+1] == ' ' || line[j+1] == '\n' || line[j+1] == '\t'){
-						//multipleSpacesFlag = 1;
 						j++;
 						numOfSpacesAtBeggining++;
 
@@ -229,8 +215,9 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 						
 						
 					numOfSpacesAtBeggining=0;
-					
+				//	printf("word %s\n", word);
 					insertFullWordIntoTrie(containsTrie, containsTrie->firstNode, word, fullPath, lineCounter, bytesBeforeWord);
+					numWords++;
 					bytesBeforeWord += lengthOfWord + spaces;
 					
 					spaces = 0;
@@ -259,12 +246,18 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 			}
 			
 		}
+		if(word)
+			free(word);
 	}
 
 	if (line){
 		free(line);
 		line=NULL;
 	}
+	
+	
+	insertBytesWordsLinesStruct(containsTrie->info, fullPath, numBytes, numWords, lineCounter+1);
+	
 	return 1;
 
 }
@@ -274,7 +267,7 @@ int createTrieFromDir(ContainsTrie* containsTrie, char* pathofDir){
 	if (pathofDir[0] == '/') 
    	 		memmove(pathofDir, pathofDir+1, strlen(pathofDir));
 		
-	printf("pathofDir--------------------------------------------------------------------------- %s\n", pathofDir);
+	printf("pathofDir-------------------------------------- %s\n", pathofDir);
 	DIR *dir;
 	struct dirent *ent;
 	dir = opendir(pathofDir);

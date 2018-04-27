@@ -96,6 +96,7 @@ int main (int argc,char* argv[]){
 					//for each word
 						//insert word and path into trie
 				
+				
 				if(createTrieFromDir(containsTrie, pathStruct->arrayOfPaths[counterForPaths])==0)
 					exit(1);
 				

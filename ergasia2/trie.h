@@ -2,8 +2,10 @@
 #define _TRIE_H_
 #include <stdbool.h>
 #include "postingList.h"
+#include "bytesWordsLinesInfo.h"
 
 typedef struct Trie Trie;
+
 
 struct Trie{
 	char letter; 
@@ -15,6 +17,7 @@ struct Trie{
 typedef struct ContainsTrie{
 	int noOfTrieWords;
 	Trie* firstNode;
+	BytesWordsLinesStruct* info;			//array
 }ContainsTrie;
 
 
@@ -36,7 +39,6 @@ void destroySingleNode(Trie* trie);
 
 int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath);
 int createTrieFromDir(ContainsTrie* containsTrie, char* pathofDir);
-
 
 /*
 arrayWords* getAllWordsOfTrie(Trie* trie);
