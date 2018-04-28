@@ -12,7 +12,6 @@
 #include "process.h"
 #include "trie.h"
 
-#define MAXBUFF 1024
 #define PERMS   0666
 extern int errno;
 
@@ -170,43 +169,51 @@ int main (int argc,char* argv[]){
 		char *line = NULL;
 		size_t len = 0;
 
-		char* query = NULL;
-		while(1){
-	
-			if(getline(&query, &len, stdin) != -1){
-				char* instruction = strtok(query," \t\n");
-				char* remainingLine = strtok(NULL,"\n");
-				
-	
-				if(strcmp(instruction,"/exit")==0 || strcmp(instruction,"\\exit")==0)
-					break;
-				
-				for(int i=0; i<numWorkers; i++){			//call server for each worker
-		 	//	printf("int i = %d\n", i);
-		 		//create stringNames for fifos
-		 		char FIFO1[50];			//write
-		 		char FIFO2[50];			//read
-		 		
-				sprintf(FIFO1, "./tmp/FIFOR_%d", i+1);
-				sprintf(FIFO2, "./tmp/FIFOW_%d", i+1);
-			 
+		while(getline(&line, &len, stdin) != -1){
+			char* fullLine = malloc((strlen(line)+1)*sizeof(char));
+			strcpy(fullLine, line);
+			char* instruction = strtok(line," \t\n");
+			char* remainingLine = strtok(NULL,"\n");
 			
-				if ( (readfd = open(FIFO1, 0))  < 0)  {
-				  perror("server: can't open read fifo");
-				}
-			 
-			   if ( (writefd = open(FIFO2, 1))  < 0)  {
-				  perror("server: can't open write fifo");
-			   }
-				//printf("calling server for %s %s\n",FIFO1,FIFO2);
-				server(readfd, writefd, instruction);
+			//char* line = malloc((strlen(instruction)+1)*sizeof(char));
+			//strcpy(line, instruction); 
+			//if(strcmp(instruction,"/exit")==0 || strcmp(instruction,"\\exit")==0)
+			//	break;
+			
+			for(int i=0; i<numWorkers; i++){			//call server for each worker
+	 	//	printf("int i = %d\n", i);
+	 		//create stringNames for fifos
+	 		char FIFO1[50];			//write
+	 		char FIFO2[50];			//read
+	 		
+			sprintf(FIFO1, "./tmp/FIFOR_%d", i+1);
+			sprintf(FIFO2, "./tmp/FIFOW_%d", i+1);
+		 
 		
-				close(readfd);													//close FIFO1
-		   		close(writefd);													//close FIFO2
-				
-	
-				}
+			if ( (readfd = open(FIFO1, 0))  < 0)  {
+			  perror("server: can't open read fifo");
 			}
+		 
+		   if ( (writefd = open(FIFO2, 1))  < 0)  {
+			  perror("server: can't open write fifo");
+		   }
+			//printf("calling server for %s %s\n",FIFO1,FIFO2);
+			server(readfd, writefd, instruction);			//must give fullLine
+			//free(line);
+			close(readfd);													//close FIFO1
+	   		close(writefd);													//close FIFO2
+	   		
+			}
+			
+			if(strcmp(instruction,"/exit")==0 || strcmp(instruction,"\\exit")==0){
+				printf("break\n");
+				break;
+			}
+			
+		}
+		if(line){
+			free(line);
+			line = NULL;
 		}
 				
 			/*	if(strcmp(instruction,"/search")==0 || strcmp(instruction,"\\search")==0){
@@ -230,9 +237,7 @@ int main (int argc,char* argv[]){
 			}*/
 		
 	}
-	else{	
-		//sleep(5);
-			//child
+	else{	//child
 		//	printf("in  other\n");
 		/* Open the FIFOs.  We assume server has already created them.  */
 		char FIFO1[50];
@@ -241,19 +246,26 @@ int main (int argc,char* argv[]){
 		sprintf(FIFO1, "./tmp/FIFOR_%d", noOfProcess);
 		sprintf(FIFO2, "./tmp/FIFOW_%d", noOfProcess);
 	 
+	 
+	 	int continueLoop = 1;
+	 	while(continueLoop){
+	 	
+	 
 		//printf("%s %s\n",FIFO1,FIFO2);
-		if ( (writefd = open(FIFO1, 1))  < 0)  {
-		  perror("client: can't open write fifo \n");
-	   }
-	   if ( (readfd = open(FIFO2, 0))  < 0)  {
-		  perror("client: can't open read fifo \n");
-	   }
+			if ( (writefd = open(FIFO1, 1))  < 0)  {
+			  perror("client: can't open write fifo \n");
+		   	}
+		   if ( (readfd = open(FIFO2, 0))  < 0)  {
+			  perror("client: can't open read fifo \n");
+		   }
 
 
-		client(readfd, writefd);
+			continueLoop = client(readfd, writefd);
 
-		close(readfd);													//close FIFO2
-		close(writefd);													//close FIFO1
+			close(readfd);													//close FIFO2
+			close(writefd);													//close FIFO1
+		
+		}
 
 		/* Delete the FIFOs, now that we're done.  */
 		//if exit

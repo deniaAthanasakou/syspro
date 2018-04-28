@@ -41,4 +41,5 @@ map.o: map.c
 			
 clean:
 	rm -f $(OBJECTS)
+	rm -f ./tmp/*
 

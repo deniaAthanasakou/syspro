@@ -9,7 +9,7 @@
 
 #include "pathStruct.h"
 
-#define MAXBUFF 1024
+#define MAXBUFF 102400
 #define PERMS   0666
 extern int errno;
 
