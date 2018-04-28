@@ -295,7 +295,7 @@ int createTrieFromDir(ContainsTrie* containsTrie, char* pathofDir){
 	if (pathofDir[0] == '/') 
    	 	memmove(pathofDir, pathofDir+1, strlen(pathofDir));
 		
-	printf("pathofDir-------------------------------------- %s\n", pathofDir);
+//	printf("pathofDir-------------------------------------- %s\n", pathofDir);
 	DIR *dir;
 	struct dirent *ent;
 	dir = opendir(pathofDir);
@@ -315,7 +315,7 @@ int createTrieFromDir(ContainsTrie* containsTrie, char* pathofDir){
 		strcat(fullPath, "/");
 		strcat(fullPath, fileName);
 		
-		printf("FULL PATH IS %s\n", fullPath);
+		//printf("FULL PATH IS %s\n", fullPath);
 		
 		noErrors = createTrieFromFile(containsTrie, fullPath);
 		
