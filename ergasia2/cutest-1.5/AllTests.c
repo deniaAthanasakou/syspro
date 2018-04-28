@@ -8,6 +8,7 @@
 #include "CuTestList.h"
 #include "CuTestInstructions.h"
 #include "CuTestBytesWordsLinesInfo.h"
+#include "CuTestMap.h"
 
 CuSuite* CuGetSuite();
 CuSuite* CuStringGetSuite();
@@ -55,11 +56,17 @@ void RunAllTests(void)
 	free(instructionsSuite);
 	instructionsSuite=NULL;
 	
-	//bytesWordsLinesInfSuite	
-	CuSuite* bytesWordsLinesInfSuite =  BytesWordsLinesInfoGetSuite();
-	CuSuiteAddSuite(suite, bytesWordsLinesInfSuite);
-	free(bytesWordsLinesInfSuite);
-	bytesWordsLinesInfSuite=NULL;
+	//bytesWordsLinesInfo
+	CuSuite* bytesWordsLinesInfoSuite =  BytesWordsLinesInfoGetSuite();
+	CuSuiteAddSuite(suite, bytesWordsLinesInfoSuite);
+	free(bytesWordsLinesInfoSuite);
+	bytesWordsLinesInfoSuite=NULL;
+	
+	//map
+	CuSuite* mapSuite =  MapGetSuite();
+	CuSuiteAddSuite(suite, mapSuite);
+	free(mapSuite);
+	mapSuite=NULL;
 	
 
 	CuSuiteRun(suite);

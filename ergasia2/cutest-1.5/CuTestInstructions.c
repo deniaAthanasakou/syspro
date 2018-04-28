@@ -191,6 +191,8 @@ void TestWc(CuTest *tc){
 }
 
 void TestSearch(CuTest *tc){
+
+
 	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
 	initializeContainsTrie(&containsTrie);
 	Trie* trie = containsTrie->firstNode;
@@ -199,19 +201,50 @@ void TestSearch(CuTest *tc){
 	insertFullWordIntoTrie(containsTrie, trie, "brown" , "b", 0, 0);
 	insertFullWordIntoTrie(containsTrie, trie, "This" , "c", 0, 0);
 	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 1, 4);
-	insertFullWordIntoTrie(containsTrie, trie, "brown" , "d", 5, 3);
+	insertFullWordIntoTrie(containsTrie, trie, "brown" , "d", 2, 3);
 	insertFullWordIntoTrie(containsTrie, trie, "The" , "g", 4, 0);
 	insertFullWordIntoTrie(containsTrie, trie, "The" , "g", 4, 0);
 	insertFullWordIntoTrie(containsTrie, trie, "The" , "d", 3, 6);
 	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 3, 6);
 	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 0, 6);
 	
-	char* query = malloc((strlen("The what is This what The")+1)*sizeof(char));
-	strcpy(query, "The what is This what The");
-	printf("Executing test for search\n\n");
-	search(query, containsTrie);
-	printf("Test for search ended\n\n");
 	
+	//create map
+	char* fileName = (char*)malloc((strlen("a")+1)*sizeof(char));
+	strcpy(fileName, "a");
+	MapNode* node = insertIntoMap(containsTrie->mapOfFiles, fileName);
+	insertIntoMapNode(node, "The wonderful life");
+	insertIntoMapNode(node, " hello The life");
+	insertIntoMapNode(node, " whatr");
+	insertIntoMapNode(node, " up The The");
+	
+	fileName = (char*)malloc((strlen("g")+1)*sizeof(char));
+	strcpy(fileName, "g");
+	node = insertIntoMap(containsTrie->mapOfFiles, fileName);
+	insertIntoMapNode(node, " what0");
+	insertIntoMapNode(node, " what1");
+	insertIntoMapNode(node, " what2");
+	insertIntoMapNode(node, " what3");
+	insertIntoMapNode(node, "The up life");
+	
+	fileName = (char*)malloc((strlen("d")+1)*sizeof(char));
+	strcpy(fileName, "d");
+	node = insertIntoMap(containsTrie->mapOfFiles, fileName);
+	insertIntoMapNode(node, " what01");
+	insertIntoMapNode(node, " what12");
+	insertIntoMapNode(node, " brown brownnnnnnnnnnn");
+	insertIntoMapNode(node, " uuuuuu The ");
+	
+	
+	
+	char* query = malloc((strlen("The what is brown This what The brown")+1)*sizeof(char));
+	strcpy(query, "The what is brown This what The brown");
+	printf("\n\nExecuting test for search\n\n");
+	search(query, containsTrie);
+	printf("\nTest for search ended\n\n");
+	
+	free(query);
+	destroyContainsTrie(containsTrie);
 	
 }
 

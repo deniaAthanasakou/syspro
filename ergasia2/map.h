@@ -3,7 +3,7 @@
 
 typedef struct MapNode{
 	char* fileName; 
-	char** lineContent;
+	char** lineContents;
 	int position;				//position of first empty element
 	int length;					//initially is 5
 }MapNode;
@@ -15,21 +15,25 @@ typedef struct Map{
 }Map;
 
 //functions for MapNode
-void insertIntoMapNode(MapNode* mapArray, char* text);
+void insertIntoMapNode(MapNode* node, char* text);
 void initializeMapNode(MapNode* node);
 void doubleMapNode(MapNode* node);
-int getMapNodesFromFile(FILE* file, MapNode* mapArray);
+//int getMapNodeFromFile(FILE* file, MapNode* node);
+void destroyMapNode(MapNode* node);
+void reduceMapNodeArrayLength(MapNode* node);
+void printMapNode(MapNode* node);
 
 
-
-
+//functions for Map
 Map* createMap();
-void insertNewIntoMap(Map* map, char* fileName, char* text);
+MapNode* insertIntoMap(Map* map, char* fileName);
 void printMap(Map* map);
 void doubleMap(Map* map);
-void reduceMapLength(Map* map);
 //int getNoOfWordsOfMapText(MapNode* node);
 //int getNoOfAllWords(Map* map);
 void destroyMap(Map* map);
+char* getLineOfFile(Map* map, char* fileName, int line);
+MapNode* getNodeBasedOnFileName(Map* map, char* fileName);
+
 
 #endif

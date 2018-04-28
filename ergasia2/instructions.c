@@ -9,9 +9,13 @@ void search(char* text, ContainsTrie* containsTrie){
 	arrayWords* array = stringToArray(text, 1);
 	Trie* trie = containsTrie->firstNode;
 	
-	arrayWords* arrayOfFilenames = malloc(sizeof(arrayWords));
-	createArrayWords(arrayOfFilenames);
 	
+	if(array->position==0){
+		printf("No query words were given.\n");
+		deleteArrayWords(array);
+		return;
+	}
+
 	for(int i=0; i<array->position; i++){		//for each query word
 	//printf("Word '%s' .\n", array->words[i]);
 		postingList* pL = searchWordInTrie(trie, array->words[i]);
@@ -24,29 +28,36 @@ void search(char* text, ContainsTrie* containsTrie){
 		postingListNode* tempNode = pL->firstNode;
 		while(tempNode!=NULL){							//for each document
 		
+			printf("\n\n");
 		
 			int* linesForWordInDoc = malloc(0);
 			int sizeOfLinesForWordInDoc = 0;
-
-			insertArrayWords(arrayOfFilenames, tempNode->filePath, 1);		//do not enter if it already exists
+			
+			
 			//get path, no of line
 			//write on pipe
-			printf("FilePath is %s\n", tempNode->filePath);
+			printf("FilePath is '%s'\n", tempNode->filePath);
 			//get lines
 			ListNode* tempListNode = tempNode->info->firstNode;
 			while(tempListNode!=NULL){
-				if(lineAlreadyExists(linesForWordInDoc, sizeOfLinesForWordInDoc, tempListNode->lineOfText)){										//line has already been selected
+				if(lineAlreadyExists(linesForWordInDoc, sizeOfLinesForWordInDoc, tempListNode->lineOfText)){					//line has already been printed
 					tempListNode = tempListNode->next;
 					continue;
 				}
-				linesForWordInDoc[sizeOfLinesForWordInDoc] = tempListNode->lineOfText;
 				sizeOfLinesForWordInDoc++;
 				linesForWordInDoc = realloc(linesForWordInDoc, sizeOfLinesForWordInDoc*sizeof(int));
+				linesForWordInDoc[sizeOfLinesForWordInDoc-1] = tempListNode->lineOfText;
+				
 				
 				//write on pipe
-				printf("line is %d\n",  tempListNode->lineOfText);
+				printf("Number of line is '%d'\n",  tempListNode->lineOfText);
 				
 				//get contents of line
+				char* contentsOfLine = getLineOfFile(containsTrie->mapOfFiles, tempNode->filePath, tempListNode->lineOfText);
+				if(contentsOfLine!=NULL){
+					//write on pipe
+					printf("line is '%s'\n",  contentsOfLine);
+				}
 				
 				
 				tempListNode = tempListNode->next;
@@ -56,10 +67,13 @@ void search(char* text, ContainsTrie* containsTrie){
 			tempNode = tempNode->next;
 			free(linesForWordInDoc);
 			linesForWordInDoc = NULL;
+			
+			
 		}
 		
 		
 	}
+	deleteArrayWords(array);
 	
 }
 

@@ -1,8 +1,8 @@
 CC = gcc -g
-FILES = AllTests.c CuTest.c CuTestProcess.c CuTestPathStruct.c CuTestTrie.c CuTestPostingList.c CuTestList.c CuTestInstructions.c CuTestBytesWordsLinesInfo.c ../process.c ../pathStruct.c ../trie.c ../postingList.c ../list.c ../instructions.c ../arrayWords.c ../bytesWordsLinesInfo.c
-OBJECTS = AllTests.o CuTest.o CuTestProcess.o CuTestPathStruct.o CuTestTrie.o CuTestPostingList.o CuTestList.o CuTestInstructions.o CuTestBytesWordsLinesInfo.o process.o pathStruct.o trie.o postingList.o list.o instructions.o arrayWords.o bytesWordsLinesInfo.o 
+FILES = AllTests.c CuTest.c CuTestProcess.c CuTestPathStruct.c CuTestTrie.c CuTestPostingList.c CuTestList.c CuTestInstructions.c CuTestBytesWordsLinesInfo.c CuTestMap.c ../process.c ../pathStruct.c ../trie.c ../postingList.c ../list.c ../instructions.c ../arrayWords.c ../bytesWordsLinesInfo.c ../map.c
+OBJECTS = AllTests.o CuTest.o CuTestProcess.o CuTestPathStruct.o CuTestTrie.o CuTestPostingList.o CuTestList.o CuTestInstructions.o CuTestBytesWordsLinesInfo.o CuTestMap.o process.o pathStruct.o trie.o postingList.o list.o instructions.o arrayWords.o bytesWordsLinesInfo.o map.o
 OUT = test
-HEADERS = CuTest.h CuTestProcess.h CuTestPathStruct.h CuTestTrie.h CuTestPostingList.h CuTestList.h CuTestInstructions.h CuTestBytesWordsLinesInfo.h ../process.h ../pathStruct.h ../trie.h ../postingList.h ../list.h ../instructions.h ../arrayWords.h ../bytesWordsLinesInfo.h
+HEADERS = CuTest.h CuTestProcess.h CuTestPathStruct.h CuTestTrie.h CuTestPostingList.h CuTestList.h CuTestInstructions.h CuTestBytesWordsLinesInfo.h CuTestMap.h ../process.h ../pathStruct.h ../trie.h ../postingList.h ../list.h ../instructions.h ../arrayWords.h ../bytesWordsLinesInfo.h ../map.h
 
 all: $(OBJECTS) $(HEADERS)
 	$(CC) -o $(OUT) $(FILES)
@@ -33,7 +33,10 @@ CuTestInstructions.o: CuTestInstructions.c
 	$(CC) -c CuTestInstructions.c			
 
 CuTestBytesWordsLinesInfo.o: CuTestBytesWordsLinesInfo.c
-	$(CC) -c CuTestBytesWordsLinesInfo.c		
+	$(CC) -c CuTestBytesWordsLinesInfo.c
+	
+CuTestMap.o: CuTestMap.c
+	$(CC) -c CuTestMap.c			
 	
 process.o: ../process.c
 	$(CC) -c ../process.c	
@@ -58,6 +61,9 @@ arrayWords.o: ../arrayWords.c
 
 bytesWordsLinesInfo.o: ../bytesWordsLinesInfo.c
 	$(CC) -c ../bytesWordsLinesInfo.c
+	
+map.o: ../map.c
+	$(CC) -c ../map.c	
 
 clean:
 	rm -f $(OBJECTS)

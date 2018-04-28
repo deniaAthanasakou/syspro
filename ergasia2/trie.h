@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "postingList.h"
 #include "bytesWordsLinesInfo.h"
+#include "map.h"
 
 typedef struct Trie Trie;
 
@@ -18,6 +19,7 @@ typedef struct ContainsTrie{
 	int noOfTrieWords;
 	Trie* firstNode;
 	BytesWordsLinesStruct* info;			//array
+	Map* mapOfFiles;
 }ContainsTrie;
 
 

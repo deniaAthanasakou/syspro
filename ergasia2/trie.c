@@ -14,6 +14,7 @@ void initializeContainsTrie(ContainsTrie** containsTrie){
 	initializeTrie(&((*containsTrie)->firstNode));
 	
 	(*containsTrie)->info = createBytesWordsLinesStruct();
+	(*containsTrie)->mapOfFiles = createMap();
 }
 
 
@@ -92,6 +93,7 @@ Trie* getSameLetterNode(Trie* trie, char charForInsert){		//goes through trie ho
 void destroyContainsTrie(ContainsTrie* containsTrie){
 	if(containsTrie!=NULL){
 		deleteBytesWordsLinesStruct(containsTrie->info);
+		destroyMap(containsTrie->mapOfFiles);
 		destroyTrie(containsTrie->firstNode);
 		free(containsTrie);
 	}
@@ -147,9 +149,12 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 	struct stat buf;
 	fstat(fd, &buf);
 	int numBytes = buf.st_size;
-	close(fd);
+	if(fd != -1)
+	{
+		close(fd);
+	}
 
-
+	//insertIntoMap(containsTrie->map, char* fileName)
 	FILE* file = fopen(fullPath,"r");
 	char *line = NULL;
 	size_t len = 0;
@@ -159,11 +164,28 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 		return 0;
 	}
 	
+	char* path = malloc((strlen(fullPath)+1)*sizeof(char));
+	strcpy(path, fullPath);
+	MapNode* mapNode = insertIntoMap(containsTrie->mapOfFiles, path);
+	
+	
 	int lineCounter = -1;
 	int numWords = 0;
 	
 	while ((read = getline(&line, &len, file)) != -1) {
 	 	lineCounter++;
+	 	
+		
+		//inserting lines into map
+		char* text = malloc((strlen(line)+1)* sizeof(char));
+		strcpy(text, line);
+		if(text[strlen(line)-1]=='\n');{
+			text[strlen(line)-1] = '\0';
+		}
+		insertIntoMapNode(mapNode, line);
+		free(text);
+		text=NULL;
+	 		
 
 		if(!strcmp(line, "\n")){
 			continue;
@@ -249,6 +271,7 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 		if(word)
 			free(word);
 	}
+	reduceMapNodeArrayLength(mapNode);
 
 	if (line){
 		free(line);
@@ -264,8 +287,13 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 
 
 int createTrieFromDir(ContainsTrie* containsTrie, char* pathofDir){
+
+
+
+
+
 	if (pathofDir[0] == '/') 
-   	 		memmove(pathofDir, pathofDir+1, strlen(pathofDir));
+   	 	memmove(pathofDir, pathofDir+1, strlen(pathofDir));
 		
 	printf("pathofDir-------------------------------------- %s\n", pathofDir);
 	DIR *dir;

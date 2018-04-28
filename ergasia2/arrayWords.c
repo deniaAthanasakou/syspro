@@ -40,8 +40,10 @@ void doubleArrayWords(arrayWords* array){
 }
 void insertArrayWords(arrayWords* array, char* word, int doNotInsertSameElements){
 	if(doNotInsertSameElements){
-		if(checkifWordExists(array, word))
+		if(checkifWordExists(array, word)){
+			free(word);
 			return;
+		}
 	}
 	if(array->position==array->length){
 		doubleArrayWords(array);
