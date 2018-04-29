@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "arrayWords.h"
 #include "trie.h"
+#include "searchStruct.h"
 
 typedef struct FileInfoMinMax{
 	char* fileName;
@@ -11,7 +12,7 @@ typedef struct FileInfoMinMax{
 }FileInfoMinMax;
 
 
-void search(char* text, ContainsTrie* containsTrie);
+SearchStruct* search(char* text, ContainsTrie* containsTrie);
 
 FileInfoMinMax* maxCount(char* text, Trie* trie);
 FileInfoMinMax* minCount(char* text, Trie* trie);

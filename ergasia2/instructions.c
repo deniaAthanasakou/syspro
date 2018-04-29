@@ -5,7 +5,7 @@
 
 #include "instructions.h"
 
-void search(char* text, ContainsTrie* containsTrie){
+SearchStruct* search(char* text, ContainsTrie* containsTrie){
 	arrayWords* array = stringToArray(text, 1);
 	Trie* trie = containsTrie->firstNode;
 	
@@ -13,8 +13,14 @@ void search(char* text, ContainsTrie* containsTrie){
 	if(array->position==0){
 		printf("No query words were given.\n");
 		deleteArrayWords(array);
-		return;
+		return NULL;
 	}
+
+	SearchStruct* searchStruct = createSearchStruct();
+	
+	
+	arrayWords* arrayOfFileNames = malloc(sizeof(arrayWords));
+	createArrayWords(arrayOfFileNames);
 
 	for(int i=0; i<array->position; i++){		//for each query word
 	//printf("Word '%s' .\n", array->words[i]);
@@ -27,7 +33,11 @@ void search(char* text, ContainsTrie* containsTrie){
 		
 		postingListNode* tempNode = pL->firstNode;
 		while(tempNode!=NULL){							//for each document
-		
+			if(checkifWordExists(arrayOfFileNames, tempNode->filePath)){
+				tempNode = tempNode->next;
+				continue;
+			}
+			insertArrayWords(arrayOfFileNames, tempNode->filePath, 1);
 			printf("\n\n");
 		
 			int* linesForWordInDoc = malloc(0);
@@ -36,7 +46,7 @@ void search(char* text, ContainsTrie* containsTrie){
 			
 			//get path, no of line
 			//write on pipe
-			printf("FilePath is '%s'\n", tempNode->filePath);
+		//	printf("FilePath is '%s'\n", tempNode->filePath);
 			//get lines
 			ListNode* tempListNode = tempNode->info->firstNode;
 			while(tempListNode!=NULL){
@@ -50,13 +60,15 @@ void search(char* text, ContainsTrie* containsTrie){
 				
 				
 				//write on pipe
-				printf("Number of line is '%d'\n",  tempListNode->lineOfText);
+			//	printf("Number of line is '%d'\n",  tempListNode->lineOfText);
 				
 				//get contents of line
 				char* contentsOfLine = getLineOfFile(containsTrie->mapOfFiles, tempNode->filePath, tempListNode->lineOfText);
 				if(contentsOfLine!=NULL){
 					//write on pipe
-					printf("line is '%s'\n",  contentsOfLine);
+				//	printf("line is '%s'\n",  contentsOfLine);
+					insertIntoSearchStruct(searchStruct,tempNode->filePath, tempListNode->lineOfText, contentsOfLine );
+					
 				}
 				
 				
@@ -73,7 +85,10 @@ void search(char* text, ContainsTrie* containsTrie){
 		
 		
 	}
+	free(arrayOfFileNames->words);
+	free(arrayOfFileNames);
 	deleteArrayWords(array);
+	return searchStruct;
 	
 }
 
@@ -83,7 +98,7 @@ FileInfoMinMax* maxCount(char* text, Trie* trie){
 	
 	arrayWords* array = stringToArray(text, 0);
 	if(array->position!=1){
-		printf("Error! Only 1 word should be given.\n");
+		printf("Error! One word should be given.\n");
 		deleteArrayWords(array);
 		return NULL;
 	}
@@ -94,7 +109,7 @@ FileInfoMinMax* maxCount(char* text, Trie* trie){
 
 	postingList* pL = searchWordInTrie(trie, wordToSearch);
 	if(pL==NULL){			//word does not exist
-		printf("Word '%s' does not exist.\n", wordToSearch);
+	//	printf("Word '%s' does not exist.\n", wordToSearch);
 		deleteArrayWords(array);
 		return NULL;
 	}
@@ -104,24 +119,32 @@ FileInfoMinMax* maxCount(char* text, Trie* trie){
 	info->type="max";
 	info->minOrMax=0;
 	info->fileName = NULL;
+	
+	char* tempFile = "\0";
 		
 	postingListNode* tempNode = pL->firstNode;
 	while(tempNode!=NULL){
 		if(tempNode->occurrences > info->minOrMax){
 			info->minOrMax = tempNode->occurrences;
-			info->fileName = tempNode->filePath;
+			tempFile = tempNode->filePath;
 		}
 		else if(tempNode->occurrences == info->minOrMax){ 		//choose alphabetically smaller
-			if(strcmp(tempNode->filePath, info->fileName)<0){
-				info->fileName = tempNode->filePath;
+			if(strcmp(tempFile,"\0")==0){
+				tempFile = tempNode->filePath;					//initialization
+			}
+			else if(strcmp(tempNode->filePath, tempFile)<0){
+				tempFile = tempNode->filePath;
 			}
 		}
 		
 		tempNode = tempNode->next;
 	}
 	
-	
-	printf("%s %s %d\n", info->type, info->fileName, info->minOrMax);
+	if(tempFile!=NULL){
+		info->fileName = malloc((strlen(tempFile)+1)*sizeof(char));
+		strcpy(info->fileName, tempFile);
+	}
+	//printf("%s %s %d\n", info->type, info->fileName, info->minOrMax);
 	deleteArrayWords(array);
 	return info;
 	
@@ -143,7 +166,7 @@ FileInfoMinMax* minCount(char* text, Trie* trie){
 
 	postingList* pL = searchWordInTrie(trie, wordToSearch);
 	if(pL==NULL){			//word does not exist
-		printf("Word '%s' does not exist.\n", wordToSearch);
+	//	printf("Word '%s' does not exist.\n", wordToSearch);
 		deleteArrayWords(array);
 		return NULL;
 	}
@@ -154,23 +177,37 @@ FileInfoMinMax* minCount(char* text, Trie* trie){
 	info->minOrMax=INT_MAX;		//defined value
 	info->fileName = NULL;
 	
+	char* tempFile = "\0";
 		
 	postingListNode* tempNode = pL->firstNode;
 	while(tempNode!=NULL){
 		if(tempNode->occurrences < info->minOrMax){
 			info->minOrMax = tempNode->occurrences;
-			info->fileName = tempNode->filePath;
+			tempFile = tempNode->filePath;
 		}
 		else if(tempNode->occurrences == info->minOrMax){ 		//choose alphabetically smaller
-			if(strcmp(tempNode->filePath, info->fileName)<0){
-				info->fileName = tempNode->filePath;
+			if(strcmp(tempFile,"\0")==0){
+				tempFile = tempNode->filePath;					//initialization
+			}
+			else if(strcmp(tempNode->filePath, tempFile)<0){
+				tempFile = tempNode->filePath;
 			}
 		}
 		
 		tempNode = tempNode->next;
 	}
 	
-	printf("%s %s %d\n", info->type, info->fileName, info->minOrMax);
+	
+	
+	//printf("%s %s %d\n", info->type, info->fileName, tempFile);
+	
+	
+	if(tempFile!=NULL){
+		info->fileName = malloc((strlen(tempFile)+1)*sizeof(char));
+		strcpy(info->fileName, tempFile);
+	}
+	
+	
 	deleteArrayWords(array);
 	return info;
 	//actually must write in pipe 1 integer and 1 string: info->fileName, info->minOrMax
@@ -191,7 +228,7 @@ BytesWordsLinesNode* wc(ContainsTrie* containsTrie){
 		summedUpInfo->lines+= info->array[i].lines;
 
 	}
-	printf("Total Number of bytes is: %d. Total Number of bytes is: %d. Total Number of bytes is: %d.\n",summedUpInfo->bytes, summedUpInfo->words, summedUpInfo->lines);
+	//printf("Total Number of bytes is: %d. Total Number of words is: %d. Total Number of lines is: %d.\n",summedUpInfo->bytes, summedUpInfo->words, summedUpInfo->lines);
 	return summedUpInfo;
 	
 	//actually must write in pipe 3 integers: summedUpInfo->bytes, summedUpInfo->words, summedUpInfo->lines

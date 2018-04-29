@@ -1,8 +1,8 @@
 CC = gcc -g
-FILES = main.c pathStruct.c process.c trie.c postingList.c list.c instructions.c arrayWords.c bytesWordsLinesInfo.c map.c
-OBJECTS = main.o pathStruct.o process.o trie.o postingList.o list.o instructions.o arrayWords.o bytesWordsLinesInfo.o map.o
+FILES = main.c pathStruct.c process.c trie.c postingList.c list.c instructions.c arrayWords.c bytesWordsLinesInfo.c map.c searchStruct.c
+OBJECTS = main.o pathStruct.o process.o trie.o postingList.o list.o instructions.o arrayWords.o bytesWordsLinesInfo.o map.o searchStruct.o
 OUT = jobExecutor
-HEADERS = pathStruct.h process.h trie.h postingList.h list.h instructions.h arrayWords.h bytesWordsLinesInfo.h map.h
+HEADERS = pathStruct.h process.h trie.h postingList.h list.h instructions.h arrayWords.h bytesWordsLinesInfo.h map.h searchStruct.h
 
 
 all: $(OBJECTS) $(HEADERS)
@@ -38,6 +38,9 @@ bytesWordsLinesInfo.o: bytesWordsLinesInfo.c
 	
 map.o: map.c
 	$(CC) -c map.c		
+
+searchStruct.o: searchStruct.c
+	$(CC) -c searchStruct.c				
 			
 clean:
 	rm -f $(OBJECTS)

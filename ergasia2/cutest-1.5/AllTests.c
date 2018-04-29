@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "CuTest.h"
-#include "CuTestProcess.h"
 #include "CuTestPathStruct.h"
 #include "CuTestTrie.h"
 #include "CuTestPostingList.h"
@@ -18,13 +17,6 @@ void RunAllTests(void)
 {
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
-	
-	
-	//process	
-	CuSuite* processSuite =  ProcessGetSuite();
-	CuSuiteAddSuite(suite, processSuite);
-	free(processSuite);
-	processSuite=NULL;
 	
 	//pathStruct	
 	CuSuite* pathStructSuite =  PathStructGetSuite();

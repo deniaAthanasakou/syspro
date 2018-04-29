@@ -206,7 +206,7 @@ void TestSearch(CuTest *tc){
 	insertFullWordIntoTrie(containsTrie, trie, "The" , "g", 4, 0);
 	insertFullWordIntoTrie(containsTrie, trie, "The" , "d", 3, 6);
 	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 3, 6);
-	insertFullWordIntoTrie(containsTrie, trie, "The" , "a", 0, 6);
+	insertFullWordIntoTrie(containsTrie, trie, " whatr" , "a", 2, 6);
 	
 	
 	//create map
@@ -240,8 +240,41 @@ void TestSearch(CuTest *tc){
 	char* query = malloc((strlen("The what is brown This what The brown")+1)*sizeof(char));
 	strcpy(query, "The what is brown This what The brown");
 	printf("\n\nExecuting test for search\n\n");
-	search(query, containsTrie);
+	SearchStruct* searchStruct = search(query, containsTrie);
+	
+	CuAssertPtrNotNull(tc,searchStruct);
+	CuAssertIntEquals(tc, 10, searchStruct->length);	
+	CuAssertIntEquals(tc, 6, searchStruct->position);	
+	
+	CuAssertIntEquals(tc, 0, searchStruct->array[0].lineNo);	
+	CuAssertStrEquals(tc, "a", searchStruct->array[0].fileName);	
+	CuAssertStrEquals(tc, "The wonderful life", searchStruct->array[0].content);
+	
+	CuAssertIntEquals(tc, 1, searchStruct->array[1].lineNo);	
+	CuAssertStrEquals(tc, "a", searchStruct->array[1].fileName);	
+	CuAssertStrEquals(tc, " hello The life", searchStruct->array[1].content);	
+	
+	CuAssertIntEquals(tc, 3, searchStruct->array[2].lineNo);	
+	CuAssertStrEquals(tc, "a", searchStruct->array[2].fileName);	
+	CuAssertStrEquals(tc, " up The The", searchStruct->array[2].content);	
+	
+	CuAssertIntEquals(tc, 4, searchStruct->array[3].lineNo);	
+	CuAssertStrEquals(tc, "g", searchStruct->array[3].fileName);	
+	CuAssertStrEquals(tc, "The up life", searchStruct->array[3].content);	
+	
+	CuAssertIntEquals(tc, 3, searchStruct->array[4].lineNo);	
+	CuAssertStrEquals(tc, "d", searchStruct->array[4].fileName);	
+	CuAssertStrEquals(tc, " uuuuuu The ", searchStruct->array[4].content);
+	
+	CuAssertIntEquals(tc, 2, searchStruct->array[5].lineNo);	
+	CuAssertStrEquals(tc, "d", searchStruct->array[5].fileName);	
+	CuAssertStrEquals(tc, " brown brownnnnnnnnnnn", searchStruct->array[5].content);
+	
 	printf("\nTest for search ended\n\n");
+	
+	
+	destroySearchStruct(searchStruct);
+	
 	
 	free(query);
 	destroyContainsTrie(containsTrie);

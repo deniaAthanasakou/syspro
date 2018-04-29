@@ -1,8 +1,8 @@
 CC = gcc -g
-FILES = AllTests.c CuTest.c CuTestProcess.c CuTestPathStruct.c CuTestTrie.c CuTestPostingList.c CuTestList.c CuTestInstructions.c CuTestBytesWordsLinesInfo.c CuTestMap.c ../process.c ../pathStruct.c ../trie.c ../postingList.c ../list.c ../instructions.c ../arrayWords.c ../bytesWordsLinesInfo.c ../map.c
-OBJECTS = AllTests.o CuTest.o CuTestProcess.o CuTestPathStruct.o CuTestTrie.o CuTestPostingList.o CuTestList.o CuTestInstructions.o CuTestBytesWordsLinesInfo.o CuTestMap.o process.o pathStruct.o trie.o postingList.o list.o instructions.o arrayWords.o bytesWordsLinesInfo.o map.o
+FILES = AllTests.c CuTest.c CuTestPathStruct.c CuTestTrie.c CuTestPostingList.c CuTestList.c CuTestInstructions.c CuTestBytesWordsLinesInfo.c CuTestMap.c ../process.c ../pathStruct.c ../trie.c ../postingList.c ../list.c ../instructions.c ../arrayWords.c ../bytesWordsLinesInfo.c ../map.c ../searchStruct.c
+OBJECTS = AllTests.o CuTest.o CuTestPathStruct.o CuTestTrie.o CuTestPostingList.o CuTestList.o CuTestInstructions.o CuTestBytesWordsLinesInfo.o CuTestMap.o process.o pathStruct.o trie.o postingList.o list.o instructions.o arrayWords.o bytesWordsLinesInfo.o map.o searchStruct.o
 OUT = test
-HEADERS = CuTest.h CuTestProcess.h CuTestPathStruct.h CuTestTrie.h CuTestPostingList.h CuTestList.h CuTestInstructions.h CuTestBytesWordsLinesInfo.h CuTestMap.h ../process.h ../pathStruct.h ../trie.h ../postingList.h ../list.h ../instructions.h ../arrayWords.h ../bytesWordsLinesInfo.h ../map.h
+HEADERS = CuTest.h CuTestPathStruct.h CuTestTrie.h CuTestPostingList.h CuTestList.h CuTestInstructions.h CuTestBytesWordsLinesInfo.h CuTestMap.h ../process.h ../pathStruct.h ../trie.h ../postingList.h ../list.h ../instructions.h ../arrayWords.h ../bytesWordsLinesInfo.h ../map.h ../searchStruct.h
 
 all: $(OBJECTS) $(HEADERS)
 	$(CC) -o $(OUT) $(FILES)
@@ -14,8 +14,6 @@ AllTests.o: AllTests.c
 CuTest.o: CuTest.c
 	$(CC) -c CuTest.c	
 				
-CuTestProcess.o: CuTestProcess.c
-	$(CC) -c CuTestProcess.c
 	
 CuTestPathStruct.o: CuTestPathStruct.c
 	$(CC) -c CuTestPathStruct.c	
@@ -64,6 +62,9 @@ bytesWordsLinesInfo.o: ../bytesWordsLinesInfo.c
 	
 map.o: ../map.c
 	$(CC) -c ../map.c	
+	
+searchStruct.o: ../searchStruct.c
+	$(CC) -c ../searchStruct.c	
 
 clean:
 	rm -f $(OBJECTS)
