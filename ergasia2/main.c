@@ -6,7 +6,7 @@
 #include  <sys/stat.h>
 #include <sys/errno.h>
 #include <sys/wait.h>
-#include <fcntl.h> // for open
+#include <fcntl.h>  // for open
 #include <unistd.h> // for close
 #include "pathStruct.h"
 #include "process.h"
@@ -64,9 +64,7 @@ int main (int argc,char* argv[]){
 	}
 	printf("after initialization NumWorkers = %d\n", numWorkers);
 	
-	//ProcessStruct* procStr = createProcessStruct(numWorkers);
-	
-	
+
 	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
 	initializeContainsTrie(&containsTrie);
 	
@@ -81,35 +79,11 @@ int main (int argc,char* argv[]){
 	int counterForPaths = 0;
 	
 	int noOfProcess = 0;
+	
+	
+	FIFOS fifosUsed[numWorkers];
 
-	for(int i=0; i<numWorkers; i++){		//for each worker create 2 FIFO
- 		//create stringNames for fifos
- 		printf("in  main\n");
- 		char FIFO1[50];
- 		char FIFO2[50];
- 		
-		sprintf(FIFO1, "./tmp/FIFOW_%d", i+1);
-		sprintf(FIFO2, "./tmp/FIFOR_%d", i+1);
-	 
-		// Print the string stored in buffer and
-		// character count
-		printf("%s %s\n",FIFO1,FIFO2);
-		
-		
-		if ( (mkfifo(FIFO1, PERMS) < 0) && (errno != EEXIST) ) {		//create fifo1
-		   perror("Error! Can't create fifo.");
-		}
-		if ((mkfifo(FIFO2, PERMS) < 0) && (errno != EEXIST)) {			//create fifo2
-		   unlink(FIFO1);
-		   perror("Error! Can't create fifo.");
-		}
-
- 	}
-	
-	
-	
-	
-	
+	int readfd=0, writefd=0;
 	
 	
 	for(int i=0; i<numWorkers; i++){
@@ -121,6 +95,46 @@ int main (int argc,char* argv[]){
 			exit(1);
 		}
 		else if (childpid == 0){			//child
+		
+		
+		
+			//create stringNames for fifos
+	 		char FIFO1[50];
+	 		char FIFO2[50];
+	 		
+			sprintf(FIFO1, "./tmp/FIFOW_%d", i+1);
+			sprintf(FIFO2, "./tmp/FIFOR_%d", i+1);
+		 
+			// Print the string stored in buffer and
+			// character count
+			printf("%s %s\n",FIFO1,FIFO2);
+		
+		
+			if ( (mkfifo(FIFO1, PERMS) < 0) && (errno != EEXIST) ) {		//create fifo1
+			   perror("Error! Can't create fifo.");
+			   exit(1);
+			}
+			if ((mkfifo(FIFO2, PERMS) < 0) && (errno != EEXIST)) {			//create fifo2
+			   unlink(FIFO1);
+			   perror("Error! Can't create fifo.");
+			   exit(1);
+			}
+		
+			if ( (readfd = open(FIFO1, O_RDWR))  < 0)  {
+				  perror("server: can't open read fifo");
+				  exit(1);
+			}
+		 
+		   if ( (writefd = open(FIFO2, O_RDWR))  < 0)  {
+			  perror("server: can't open write fifo");
+			  exit(1);
+			}
+		
+			fifosUsed[i].readfd=readfd;
+			fifosUsed[i].writefd=writefd;
+		
+			//printf("else writefd %d readfd %d\n", writefd, readfd);
+		
 		
 			noOfProcess = i+1;
 			printf("I am the child process with ID: %ld\n", (long)getpid());
@@ -154,7 +168,6 @@ int main (int argc,char* argv[]){
 		}
 
 	}
-	int readfd, writefd;
 	pid_t currentId = getpid();
 	if(mainId==currentId){				//parent process
 								
@@ -168,39 +181,20 @@ int main (int argc,char* argv[]){
 			char* instruction = strtok(line," \t\n");
 			//char* remainingLine = strtok(NULL,"\n");
 			
-			for(int i=0; i<numWorkers; i++){			//call server for each worker
-		 		//create stringNames for fifos
-		 		char FIFO1[50];			//write
-		 		char FIFO2[50];			//read
-		 		
-				sprintf(FIFO1, "./tmp/FIFOR_%d", i+1);
-				sprintf(FIFO2, "./tmp/FIFOW_%d", i+1);
-			 
+			for(int i=0; i<numWorkers; i++){			//call server for each worker	
+				printf("called server\n"); 		
+				server(fifosUsed[i].readfd, fifosUsed[i].writefd, fullLine);			//must give fullLine
+			}
+			printf("after server\n"); 	
+			if(fullLine){
+				free(fullLine);
+				fullLine = NULL;
+			}
 		
-				if ( (readfd = open(FIFO1, 0))  < 0)  {
-				  perror("server: can't open read fifo");
-				}
-			 
-			   if ( (writefd = open(FIFO2, 1))  < 0)  {
-				  perror("server: can't open write fifo");
-			   }
-				//printf("calling server for %s %s\n",FIFO1,FIFO2);
-				server(readfd, writefd, fullLine);			//must give fullLine
-				//free(line);
-				close(readfd);													//close FIFO1
-		   		close(writefd);													//close FIFO2
-		   		
-				}
-			
-				if(fullLine){
-					free(fullLine);
-					fullLine = NULL;
-				}
-			
-				if(strcmp(instruction,"/exit")==0 || strcmp(instruction,"\\exit")==0){
-					printf("break\n");
-					break;
-				}
+			if(strcmp(instruction,"/exit")==0 || strcmp(instruction,"\\exit")==0){
+				printf("break\n");
+				break;
+			}
 		
 		}
 		if(line){
@@ -208,35 +202,21 @@ int main (int argc,char* argv[]){
 			line = NULL;
 		}
 		
+		
+		for(int i=0; i<numWorkers; i++){			//close fifos
+			close(fifosUsed[i].readfd);													
+			close(fifosUsed[i].writefd);	
+			
+	   		
+		}
+														//close FIFO2
+		
 	}
 	else{	//child
 		//	printf("in  other\n");
-		/* Open the FIFOs.  We assume server has already created them.  */
-		char FIFO1[50];
-	 	char FIFO2[50];
- 		
-		sprintf(FIFO1, "./tmp/FIFOR_%d", noOfProcess);
-		sprintf(FIFO2, "./tmp/FIFOW_%d", noOfProcess);
-	 
-	 
-	 	int continueLoop = 1;
-	 	while(continueLoop){
-	 	
-	 
-		//printf("%s %s\n",FIFO1,FIFO2);
-			if ( (writefd = open(FIFO1, 1))  < 0)  {
-			  perror("client: can't open write fifo \n");
-		   	}
-		   if ( (readfd = open(FIFO2, 0))  < 0)  {
-			  perror("client: can't open read fifo \n");
-		   }
-
-
-			continueLoop = client(readfd, writefd, containsTrie);
-
-			close(readfd);													//close FIFO2
-			close(writefd);													//close FIFO1
-		
+	 	printf("else writefd %d readfd %d\n", writefd, readfd);
+	 	while(client(writefd, readfd, containsTrie)){
+	 		printf("got in while\n");
 		}
 
 		/* Delete the FIFOs, now that we're done.  */

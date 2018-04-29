@@ -15,6 +15,11 @@
 extern int errno;
 
 
+typedef struct FIFOS{
+	int readfd;			//server reads
+	int writefd;		//server writes
+}FIFOS;
+
 int server(int readfd, int writefd, char* queryLine);
 
 int client(int readfd, int writefd, ContainsTrie* containsTrie);
