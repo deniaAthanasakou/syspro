@@ -80,10 +80,49 @@ int main (int argc,char* argv[]){
 	
 	int noOfProcess = 0;
 	
-	
-	FIFOS fifosUsed[numWorkers];
-
 	int readfd=0, writefd=0;
+	FIFOS fifosUsed[numWorkers];
+	for(int i=0; i<numWorkers; i++){
+		//create stringNames for fifos
+ 		char FIFO1[50];
+ 		char FIFO2[50];
+ 		
+		sprintf(FIFO1, "./tmp/FIFOW_%d", i+1);
+		sprintf(FIFO2, "./tmp/FIFOR_%d", i+1);
+	 
+		// Print the string stored in buffer and
+		// character count
+		printf("%s %s\n",FIFO1,FIFO2);
+	
+	
+		if ( (mkfifo(FIFO1, PERMS) < 0) && (errno != EEXIST) ) {		//create fifo1
+		   perror("Error! Can't create fifo.");
+		   exit(1);
+		}
+		if ((mkfifo(FIFO2, PERMS) < 0) && (errno != EEXIST)) {			//create fifo2
+		   unlink(FIFO1);
+		   perror("Error! Can't create fifo.");
+		   exit(1);
+		}
+	
+		if ( (readfd = open(FIFO1, O_RDWR))  < 0)  {
+			  perror("server: can't open read fifo");
+			  exit(1);
+		}
+	 
+	   if ( (writefd = open(FIFO2, O_RDWR))  < 0)  {
+		  perror("server: can't open write fifo");
+		  exit(1);
+		}
+	
+		fifosUsed[i].readfd=readfd;
+		fifosUsed[i].writefd=writefd;
+	}
+	
+	
+	
+
+	
 	
 	
 	for(int i=0; i<numWorkers; i++){
@@ -98,45 +137,12 @@ int main (int argc,char* argv[]){
 		
 		
 		
-			//create stringNames for fifos
-	 		char FIFO1[50];
-	 		char FIFO2[50];
-	 		
-			sprintf(FIFO1, "./tmp/FIFOW_%d", i+1);
-			sprintf(FIFO2, "./tmp/FIFOR_%d", i+1);
-		 
-			// Print the string stored in buffer and
-			// character count
-			printf("%s %s\n",FIFO1,FIFO2);
-		
-		
-			if ( (mkfifo(FIFO1, PERMS) < 0) && (errno != EEXIST) ) {		//create fifo1
-			   perror("Error! Can't create fifo.");
-			   exit(1);
-			}
-			if ((mkfifo(FIFO2, PERMS) < 0) && (errno != EEXIST)) {			//create fifo2
-			   unlink(FIFO1);
-			   perror("Error! Can't create fifo.");
-			   exit(1);
-			}
-		
-			if ( (readfd = open(FIFO1, O_RDWR))  < 0)  {
-				  perror("server: can't open read fifo");
-				  exit(1);
-			}
-		 
-		   if ( (writefd = open(FIFO2, O_RDWR))  < 0)  {
-			  perror("server: can't open write fifo");
-			  exit(1);
-			}
-		
-			fifosUsed[i].readfd=readfd;
-			fifosUsed[i].writefd=writefd;
+			
 		
 			//printf("else writefd %d readfd %d\n", writefd, readfd);
 		
 		
-			noOfProcess = i+1;
+			noOfProcess = i;
 			printf("I am the child process with ID: %ld\n", (long)getpid());
 			//do job for child
 
@@ -155,7 +161,6 @@ int main (int argc,char* argv[]){
 				counterForPaths++;
 			}
 			counterForExtraDirs++;
-			//printProcessStruct(procStr);
 			break;
 		}
 		else{						//parent
@@ -181,11 +186,11 @@ int main (int argc,char* argv[]){
 			char* instruction = strtok(line," \t\n");
 			//char* remainingLine = strtok(NULL,"\n");
 			
-			for(int i=0; i<numWorkers; i++){			//call server for each worker	
-				printf("called server\n"); 		
-				server(fifosUsed[i].readfd, fifosUsed[i].writefd, fullLine);			//must give fullLine
-			}
-			printf("after server\n"); 	
+			//for(int i=0; i<numWorkers; i++){			//call server for each worker	
+				//printf("called server\n"); 		
+			server(fifosUsed, numWorkers, fullLine);			//must give fullLine
+			//}
+			//printf("after server\n"); 	
 			if(fullLine){
 				free(fullLine);
 				fullLine = NULL;
@@ -214,20 +219,12 @@ int main (int argc,char* argv[]){
 	}
 	else{	//child
 		//	printf("in  other\n");
-	 	printf("else writefd %d readfd %d\n", writefd, readfd);
-	 	while(client(writefd, readfd, containsTrie)){
-	 		printf("got in while\n");
+	 //	printf("else writefd %d readfd %d\n", writefd, readfd);
+	 	while(client(fifosUsed[noOfProcess].writefd, fifosUsed[noOfProcess].readfd, containsTrie)){
+	 		//printf("got in while\n");
 		}
 
-		/* Delete the FIFOs, now that we're done.  */
-		//if exit
-		/*if ( unlink(FIFO1) < 0) {
-			perror("client: can't unlink \n");
-		}
-		if ( unlink(FIFO2) < 0) {
-			perror("client: can't unlink \n");
-		}
-		*/
+		
 	}
 	
 	

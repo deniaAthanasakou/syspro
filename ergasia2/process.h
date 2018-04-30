@@ -20,7 +20,7 @@ typedef struct FIFOS{
 	int writefd;		//server writes
 }FIFOS;
 
-int server(int readfd, int writefd, char* queryLine);
+int server(FIFOS* fifosUsed, int numWorkers, char* queryLine);
 
 int client(int readfd, int writefd, ContainsTrie* containsTrie);
 
