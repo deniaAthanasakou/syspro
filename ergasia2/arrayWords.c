@@ -25,7 +25,29 @@ arrayWords* stringToArray(char* text, int doNotInsertSameElements){		//converts 
 	return arrayW;
 
 }
+/*
+arrayWords* stringToArrayForSearch(char* text, int doNotInsertSameElements){		//converts a string into an array and checks for deadline
+	char* pch;
+	char** arrayOfWords; 
+	pch = strtok (text," \t");
+	int noOfWords=0;
+	
+	arrayWords* arrayW = malloc(sizeof(arrayWords));
+	createArrayWords(arrayW);
+	
+	while (pch != NULL)
+	{	
+		char* wordForInsert = malloc((strlen(pch)+1)* sizeof(char));
+		strcpy(wordForInsert,pch);   
+		insertArrayWords(arrayW, wordForInsert, doNotInsertSameElements); //add pch into arrayOfWords
+		
+		pch = strtok (NULL, " \t");
+	}
+	
+	return arrayW;
 
+}
+*/
 void createArrayWords(arrayWords* array){
 	array->length=5;
 	array->position=0;

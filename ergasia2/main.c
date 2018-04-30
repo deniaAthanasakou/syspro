@@ -179,28 +179,12 @@ int main (int argc,char* argv[]){
 		//read user input for queries
 		char *line = NULL;
 		size_t len = 0;
-
-		while(getline(&line, &len, stdin) != -1){
-			char* fullLine = malloc((strlen(line)+1)*sizeof(char));
-			strcpy(fullLine, line);
-			char* instruction = strtok(line," \t\n");
-			//char* remainingLine = strtok(NULL,"\n");
+		int continueLoop = 1;
+		while(continueLoop==1 && getline(&line, &len, stdin) != -1){
+			if(strcmp(line,"\n")==0)
+				continue;
+			continueLoop = server(fifosUsed, numWorkers, line);			//must give fullLine
 			
-			//for(int i=0; i<numWorkers; i++){			//call server for each worker	
-				//printf("called server\n"); 		
-			server(fifosUsed, numWorkers, fullLine);			//must give fullLine
-			//}
-			//printf("after server\n"); 	
-			if(fullLine){
-				free(fullLine);
-				fullLine = NULL;
-			}
-		
-			if(strcmp(instruction,"/exit")==0 || strcmp(instruction,"\\exit")==0){
-				printf("break\n");
-				break;
-			}
-		
 		}
 		if(line){
 			free(line);
@@ -211,24 +195,32 @@ int main (int argc,char* argv[]){
 		for(int i=0; i<numWorkers; i++){			//close fifos
 			close(fifosUsed[i].readfd);													
 			close(fifosUsed[i].writefd);	
-			
-	   		
+
 		}
-														//close FIFO2
 		
 	}
 	else{	//child
-		//	printf("in  other\n");
-	 //	printf("else writefd %d readfd %d\n", writefd, readfd);
-	 	while(client(fifosUsed[noOfProcess].writefd, fifosUsed[noOfProcess].readfd, containsTrie)){
-	 		//printf("got in while\n");
+	
+		char nameOfFile[20];
+		sprintf(nameOfFile, "log/Worker_%ld", (long)getpid());
+		printf("nameOfFile '%s'\n",nameOfFile );
+		FILE *workerFile = fopen(nameOfFile, "w");
+		if(workerFile==NULL){
+			perror("Error! Log file could not be opened");
+			exit(1);
 		}
+	 	while(client(fifosUsed[noOfProcess].writefd, fifosUsed[noOfProcess].readfd, containsTrie, workerFile)){
+		}
+		fclose(workerFile);
+		
 
 		
 	}
 	
 	
-	while (wait(&status) > 0);
+	//while (wait(&status) > 0){
+	//	printf("waiting in while\n");	
+	//}
 	destroyPathStruct(pathStruct);
 	destroyContainsTrie(containsTrie);
 	return 0;

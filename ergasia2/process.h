@@ -22,6 +22,6 @@ typedef struct FIFOS{
 
 int server(FIFOS* fifosUsed, int numWorkers, char* queryLine);
 
-int client(int readfd, int writefd, ContainsTrie* containsTrie);
+int client(int readfd, int writefd, ContainsTrie* containsTrie, FILE *logFile);
 
 #endif

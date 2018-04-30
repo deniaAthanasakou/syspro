@@ -64,3 +64,45 @@ void destroySearchStruct(SearchStruct* searchStruct){
 	}
 }
 
+char* getStringForPrint(SearchStruct* searchStruct, int deadLine){
+	
+	char* sendString = malloc((2*sizeof(int) +10)*sizeof(char));
+	sprintf(sendString, "search|%d|%d|", deadLine, searchStruct->position);			//number of elements
+	int lengthOfString = 0;
+	for(int i=0; i<searchStruct->position; i++){
+		lengthOfString = strlen(sendString);
+		char* beggining = malloc((strlen("Server: One or more query words were discovered in file '%s'")+1+strlen(searchStruct->array[i].fileName))*sizeof(char));
+		sprintf(beggining,"Server: One or more query words were discovered in file '%s'", searchStruct->array[i].fileName);
+		
+		char* middle = malloc((strlen(" in line '%d'")+1+sizeof(searchStruct->array[i].lineNo))*sizeof(char));
+		sprintf(middle," in line '%d'", searchStruct->array[i].lineNo);
+		
+		char* ending = malloc((strlen(" with contents '%s'.\n")+1+strlen(searchStruct->array[i].content))*sizeof(char));
+		sprintf(ending," with contents '%s'.\n", searchStruct->array[i].content);
+
+		sendString = realloc(sendString, (lengthOfString + strlen(beggining) + strlen(middle) + strlen(ending)+1)*sizeof(char));
+		
+		strcat(sendString,beggining );
+		strcat(sendString,middle );
+		strcat(sendString,ending );
+		
+		free(beggining);
+		free(middle);
+		free(ending);
+	}
+	
+	return sendString;
+				
+}
+
+
+
+
+
+
+
+
+
+
+
+

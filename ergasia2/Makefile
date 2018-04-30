@@ -45,4 +45,5 @@ searchStruct.o: searchStruct.c
 clean:
 	rm -f $(OBJECTS)
 	rm -f ./tmp/*
+	rm -f ./log/*
 
