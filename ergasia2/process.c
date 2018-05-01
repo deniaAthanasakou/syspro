@@ -7,6 +7,7 @@
 #include <time.h>
 #include "process.h"
 #include "instructions.h"
+#include "printLog.h"
 
 #define BUFFSIZE 1024
 
@@ -25,6 +26,7 @@ int server(FIFOS* fifosUsed, int numWorkers, char* queryLine) {
 	char* maxFilename = malloc(1);
 	maxFilename[0] = '\0';
 	
+	int exitFlag=0;
 	
 	int searchFlag=0, searchWorkersReplied = numWorkers;
 	clock_t begin = clock();
@@ -126,17 +128,11 @@ int server(FIFOS* fifosUsed, int numWorkers, char* queryLine) {
 			else if(strcmp(instruction,"exit")==0){
 				free(minFilename);
   				free(maxFilename);
-				return 0;
+				exitFlag = 1;
 			}
-			//else{
-			//	free(minFilename);
-  			//	free(maxFilename);
-			//	return 1;
-			//}
 		
 		}
     }
-    //clock_t end = clock();
     if(searchFlag){
     	printf("Server: %d/%d workers replied on time.\n",searchWorkersReplied, numWorkers);
     }
@@ -160,17 +156,17 @@ int server(FIFOS* fifosUsed, int numWorkers, char* queryLine) {
   	free(minFilename);
   	free(maxFilename);
   
-   return 1;
+   return !exitFlag;
 }
 
 
-int client(int readfd, int writefd, ContainsTrie* containsTrie, FILE *logFile) {
+int client(int readfd, int writefd, ContainsTrie* containsTrie, int logFile) {
 	
   	char line[MAXBUFF];
    	int length;
 	//printf("in client\n");
 	line[0] = '\0';
-    while( (length = read(readfd, line, MAXBUFF) ) > 0) {
+    if( (length = read(readfd, line, MAXBUFF) ) > 0) {
  	//	printf("client: BUFFER length  %d\n", length);
 		line[length] = '\0';
 
@@ -191,23 +187,24 @@ int client(int readfd, int writefd, ContainsTrie* containsTrie, FILE *logFile) {
 			}
 			if(deadLine>0){
 			//	int late = 0;			//flag late is 1 if worker took more time than deadLine
-				printf("queryLine '%s', deadLine '%d'\n", queryLine, deadLine);
-				//clock_t begin = clock();
+				printf("queryLine '%s', deadLine '%d'\n", queryLine, deadLine);			
+				char* queryLine2 = malloc((strlen(queryLine)+1)*sizeof(char));
+				strcpy(queryLine2, queryLine);
 				SearchStruct* info = search(queryLine, containsTrie);
-				//clock_t end = clock();
-			//	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-				
-				//if(time_spent>deadLine)
-				//	late=1;
 				
 				if(info!=NULL){
-				//	printSearchStruct(info);
-				
-					char* sendString = getStringForPrint(info, deadLine);
-					//printf("sendString '%s'\n", sendString);
-				
+					
+					printSystemTimeAndQuery(logFile, instruction);							//logfile
+					printString(logFile, queryLine2);
+					printPathsFromInfo(logFile, info);
+					write(logFile, "\n", strlen("\n"));
+					
+					char* sendString = getStringForPrint(info, deadLine );
+
 					if ( write(writefd, sendString, strlen(sendString)) != strlen(sendString)) { 
-						exit(1);
+						free(sendString);
+						free(queryLine2);
+						return 1;
 					}
 					free(sendString);
 				
@@ -215,30 +212,44 @@ int client(int readfd, int writefd, ContainsTrie* containsTrie, FILE *logFile) {
 				}
 				else{
 					if (write(writefd, "no input", strlen("no input")) != strlen("no input")) { 
-						exit(1);
+						free(queryLine2);
+						return 1;
 					}
 				}
+				
+				free(queryLine2);
+				
 			}
 			else{
 				printf("Wrong deadline type was given\n");
 				if (write(writefd, "no input", strlen("no input")) != strlen("no input")) { 
-					exit(1);
+					return 1;
 				}
 			}
 			
 		}
 		else if(strcmp(instruction,"/maxcount")==0 || strcmp(instruction,"\\maxcount")==0){
 			//printf("instruction is maxcount\n");
+			
 			FileInfoMinMax* info =  maxCount(remainingLine, containsTrie->firstNode);
 			if(info!=NULL){
 				//printf("%s %s %d\n", info->type, info->fileName, info->minOrMax);
+				
+				printSystemTimeAndQuery(logFile, instruction);							//logfile
+				printString(logFile, remainingLine);
+				char* winnerFile = malloc((strlen(info->fileName)+50)*sizeof(char));
+				sprintf(winnerFile, "winner file %s : occurrences %d\n", info->fileName, info->minOrMax);
+				printString(logFile, winnerFile);
+				
+				free(winnerFile);
 				
 				char* sendString = malloc((strlen(info->fileName)+1 + 20)*sizeof(char));
 				sprintf(sendString, "maxcount|%s,%d", info->fileName, info->minOrMax);
 				//printf("sendString=%s\n",sendString);
 				
 				if ( write(writefd, sendString, strlen(sendString)) != strlen(sendString)) { 
-				    exit(1);
+				    free(sendString);
+					return 1;
 				}
 				
 				free(sendString);
@@ -252,23 +263,30 @@ int client(int readfd, int writefd, ContainsTrie* containsTrie, FILE *logFile) {
 				//printf("sendString=%s\n",sendString);
 				
 				if ( write(writefd, sendString, strlen(sendString)) != strlen(sendString)) { 
-				    exit(1);
+					return 1;
 				}
 			}
 		}
 		else if(strcmp(instruction,"/mincount")==0 || strcmp(instruction,"\\mincount")==0){
 			FileInfoMinMax* info =  minCount(remainingLine, containsTrie->firstNode);
 			if(info!=NULL){
-			//	printf("%s %s %d\n", info->type, info->fileName, info->minOrMax);
+				printSystemTimeAndQuery(logFile, instruction);							//logfile
+				printString(logFile, remainingLine);
+				char* winnerFile = malloc((strlen(info->fileName)+50)*sizeof(char));
+				sprintf(winnerFile, "winner file %s : occurrences %d\n", info->fileName, info->minOrMax);
+				printString(logFile, winnerFile);
+				
+				free(winnerFile);
+				
 				
 				char* sendString = malloc((strlen(info->fileName)+1 + 20)*sizeof(char));
 				sprintf(sendString, "mincount|%s,%d", info->fileName, info->minOrMax);
 				//printf("sendString=%s\n",sendString);
-				
+
 				if ( write(writefd, sendString, strlen(sendString)) != strlen(sendString)) { 
-				    exit(1);
+				    free(sendString);
+					return 1;
 				}
-				
 				free(sendString);
 				free(info->fileName);
 				free(info);
@@ -278,9 +296,8 @@ int client(int readfd, int writefd, ContainsTrie* containsTrie, FILE *logFile) {
 				char sendString[30];
 				sprintf(sendString, "mincount|%s,%d", "noFile", INT_MAX);
 				//printf("sendString=%s\n",sendString);
-				
 				if (write(writefd, sendString, strlen(sendString)) != strlen(sendString)) { 
-				    exit(1);
+					return 1;
 				}
 			}
 		}
@@ -291,50 +308,49 @@ int client(int readfd, int writefd, ContainsTrie* containsTrie, FILE *logFile) {
 			if(info!=NULL){
 				//printf("Total Number of bytes is: %d. Total Number of words is: %d. Total Number of lines is: %d.\n",info->bytes, info->words, info->lines);
 				
+				
+				
+				printSystemTimeAndQuery(logFile, instruction);
+				printPathsFromMap(logFile, containsTrie->mapOfFiles);
+				//fprintf(logFile, "\n");
+				char total[70];
+				sprintf(total, "Total bytes = %d : Total words = %d : Total lines = %d", info->bytes, info->words, info->lines);
+				printString(logFile, total);
+				write(logFile, "\n", strlen("\n"));
+				
+				
+				
 				char sendString[50];
 				sprintf(sendString, "wc|%d,%d,%d", info->bytes, info->words, info->lines);
 				//printf("sendString=%s\n",sendString);
 				
 				if ( write(writefd, sendString, strlen(sendString)) != strlen(sendString)) { 
-					exit(1);
+					return 1;
 				}
-				fprintf(logFile, "%s\n", sendString);
 				free(info);
 				
 			}
 			else{
 				char* sendString = "no input";
 				if ( write(writefd, sendString, strlen(sendString)) != strlen(sendString)) { 
-					exit(1);
+					return 1;
 				}
 			}
 			
 		}
 		else if(strcmp(instruction,"/exit")==0 || strcmp(instruction,"\\exit")==0){
 			if ( write(writefd, "exit", strlen("exit")) != strlen("exit")) { 
-			    exit(1);
+			   	return 1;
 			}
         	return 0;
 		}
 		else{			//wrong input
 			if (write(writefd, "no input", strlen("no input")) != strlen("no input")) { 
-			    exit(1);
+			   return 1;
 			}
-			return 1;
 		}
 		
-		/*
-			time_t queryArrival = time(0); // Get the system time
-			fprintf(logFile, "Time of query arrival : %lld Query type : %s string : %s",  (long long)queryArrival, instruction, remainingLine);
-			for(int counter=0; counter<containsTrie->map->position; i++){
-				//fprintf(logFile, " pathname%d : %s",  (long long)queryArrival, instruction);
-				//get pathnames
-			}
-			fprintf(logFile, "\n");
-				
-		*/
     }
-   
    return 1;
 
 }

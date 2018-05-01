@@ -75,14 +75,13 @@ int main (int argc,char* argv[]){
 	printf("dirsPerWorker = %d, numOfExtraDirs = %d\n",dirsPerWorker,numOfExtraDirs);
 	
 	pid_t childpid, mainId = getpid();
-	int status = 0;
 	int counterForPaths = 0;
 	
 	int noOfProcess = 0;
 	
 	int readfd=0, writefd=0;
 	FIFOS fifosUsed[numWorkers];
-	for(int i=0; i<numWorkers; i++){
+	for(int i=0; i<numWorkers; i++){			//create fifos
 		//create stringNames for fifos
  		char FIFO1[50];
  		char FIFO2[50];
@@ -198,29 +197,40 @@ int main (int argc,char* argv[]){
 
 		}
 		
+		
+	
+		
+		
 	}
 	else{	//child
 	
 		char nameOfFile[20];
 		sprintf(nameOfFile, "log/Worker_%ld", (long)getpid());
-		printf("nameOfFile '%s'\n",nameOfFile );
-		FILE *workerFile = fopen(nameOfFile, "w");
-		if(workerFile==NULL){
-			perror("Error! Log file could not be opened");
+		//printf("nameOfFile '%s'\n",nameOfFile );
+		int workerFile = open(nameOfFile, O_CREAT | O_RDWR, PERMS);
+		if(workerFile==-1){
+			perror("Error! Log file could not be created");
 			exit(1);
 		}
+		//fprintf(workerFile, "nameOfFile '%s'\n",nameOfFile );
 	 	while(client(fifosUsed[noOfProcess].writefd, fifosUsed[noOfProcess].readfd, containsTrie, workerFile)){
+	 			//printf("process %ld is in while\n", (long)getpid());
 		}
-		fclose(workerFile);
+		//printf("process %ld is out of while\n", (long)getpid());
+		//printf("before fclose\n");
+		close(workerFile);
+		//printf("afrer fclose\n");
 		
-
+		exit(0);
 		
 	}
+
+	while (wait(NULL) > 0)		//wait for all children
+  	{
+		//printf("%d child completed\n", j++);
+  	}
+
 	
-	
-	//while (wait(&status) > 0){
-	//	printf("waiting in while\n");	
-	//}
 	destroyPathStruct(pathStruct);
 	destroyContainsTrie(containsTrie);
 	return 0;

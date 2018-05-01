@@ -8,10 +8,8 @@
 #include <string.h>
 
 #include "trie.h"
-//#include "pathStruct.h"
 
-#define MAXBUFF 102400
-#define PERMS   0666
+#define MAXBUFF 1024
 extern int errno;
 
 
@@ -22,6 +20,6 @@ typedef struct FIFOS{
 
 int server(FIFOS* fifosUsed, int numWorkers, char* queryLine);
 
-int client(int readfd, int writefd, ContainsTrie* containsTrie, FILE *logFile);
+int client(int readfd, int writefd, ContainsTrie* containsTrie, int logFile);
 
 #endif

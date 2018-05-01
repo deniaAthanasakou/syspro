@@ -1,8 +1,8 @@
 CC = gcc -g
-FILES = main.c pathStruct.c process.c trie.c postingList.c list.c instructions.c arrayWords.c bytesWordsLinesInfo.c map.c searchStruct.c
-OBJECTS = main.o pathStruct.o process.o trie.o postingList.o list.o instructions.o arrayWords.o bytesWordsLinesInfo.o map.o searchStruct.o
+FILES = main.c pathStruct.c process.c trie.c postingList.c list.c instructions.c arrayWords.c bytesWordsLinesInfo.c map.c searchStruct.c printLog.c
+OBJECTS = main.o pathStruct.o process.o trie.o postingList.o list.o instructions.o arrayWords.o bytesWordsLinesInfo.o map.o searchStruct.o printLog.o
 OUT = jobExecutor
-HEADERS = pathStruct.h process.h trie.h postingList.h list.h instructions.h arrayWords.h bytesWordsLinesInfo.h map.h searchStruct.h
+HEADERS = pathStruct.h process.h trie.h postingList.h list.h instructions.h arrayWords.h bytesWordsLinesInfo.h map.h searchStruct.h printLog.h
 
 
 all: $(OBJECTS) $(HEADERS)
@@ -41,7 +41,10 @@ map.o: map.c
 
 searchStruct.o: searchStruct.c
 	$(CC) -c searchStruct.c				
-			
+
+printLog.o: printLog.c
+	$(CC) -c printLog.c	
+				
 clean:
 	rm -f $(OBJECTS)
 	rm -f ./tmp/*
