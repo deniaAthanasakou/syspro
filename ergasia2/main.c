@@ -118,11 +118,7 @@ int main (int argc,char* argv[]){
 		fifosUsed[i].writefd=writefd;
 	}
 	
-	
-	
 
-	
-	
 	
 	for(int i=0; i<numWorkers; i++){
 		//process
@@ -220,6 +216,22 @@ int main (int argc,char* argv[]){
 		//printf("before fclose\n");
 		close(workerFile);
 		//printf("afrer fclose\n");
+		
+		
+		char FIFO1[50];
+ 		char FIFO2[50];
+ 		
+		sprintf(FIFO1, "./tmp/FIFOW_%d", noOfProcess+1);
+		sprintf(FIFO2, "./tmp/FIFOR_%d", noOfProcess+1);
+		
+		if ( unlink(FIFO1) < 0) {						//delete fifos
+			perror("client: can't unlink \n");
+		}
+		if ( unlink(FIFO2) < 0) {
+			perror("client: can't unlink \n");
+		}
+		
+		
 		
 		exit(0);
 		

@@ -9,7 +9,7 @@
 #include "instructions.h"
 #include "printLog.h"
 
-#define BUFFSIZE 1024
+#define BUFFSIZE 50000
 
 int server(FIFOS* fifosUsed, int numWorkers, char* queryLine) {
 
@@ -126,8 +126,6 @@ int server(FIFOS* fifosUsed, int numWorkers, char* queryLine) {
 				sumLines+=atoi(lines);
 			}
 			else if(strcmp(instruction,"exit")==0){
-				free(minFilename);
-  				free(maxFilename);
 				exitFlag = 1;
 			}
 		

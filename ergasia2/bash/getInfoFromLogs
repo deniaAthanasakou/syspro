@@ -1,0 +1,46 @@
+#!/bin/bash
+
+	FILE_LIST=`ls ../log/*`		#get all files from log
+	
+	
+	
+	for file in ${FILE_LIST}
+	do
+		counterOfSearchQueries=0		#search queries of worker
+		while read line 		#for each line of file	
+		do 
+			searchflag=0
+			search="search"
+			separators=":"
+			if [[ $line == *"$search"* ]]; then		#if word search is in line
+				counter=0
+				separatorsCount=0
+				for str in $line
+				do	
+					counter=$(($counter+1))
+					#echo $counter
+					if [ "$counter" -eq 4 ]  && [ "$str" == "$search" ]		#if search is instruction
+						then searchflag=1
+					fi	
+					if [ "$str" == "$separators" ]		#if string is :
+						then separatorsCount=$(($separatorsCount+1))
+					fi
+					if [ "$separatorsCount" -eq 2 ] && [ "$searchflag" -eq 1 ] && [ "$str" != "$separators" ]	#if we are examing query words
+						#then echo $str
+						then counterOfSearchQueries=$(($counterOfSearchQueries+1))
+					fi
+					
+					#if [ "$separatorsCount" -gt 2 ]	&& [ "$str" != "$separators" ]	#if string is pathname
+						#then echo $str
+					#fi
+
+			  		
+			  	done	
+			fi
+		done < $file 
+		
+		echo "Total number of keywords searched for worker: "$counterOfSearchQueries
+		
+	done
+
+

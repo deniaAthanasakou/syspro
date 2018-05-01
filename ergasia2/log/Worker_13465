@@ -1,0 +1,4 @@
+2018-5-1 20:3:19 : wc : inputDirectories/dirA/ascii_textA3 : inputDirectories/dirA/ascii_textA2 : inputDirectories/dirA/ascii_textA1 : Total bytes = 50 : Total words = 12 : Total lines = 13
+2018-5-1 20:3:22 : search : sada  : inputDirectories/dirA/ascii_textA1 : inputDirectories/dirA/ascii_textA1
+2018-5-1 20:3:26 : mincount : a1 : winner file inputDirectories/dirA/ascii_textA1 : occurrences 1
+2018-5-1 20:3:30 : maxcount : a2 : winner file inputDirectories/dirA/ascii_textA2 : occurrences 1

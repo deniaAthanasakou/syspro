@@ -1,0 +1,4 @@
+2018-5-1 20:2:49 : wc : inputDirectories/home/user/dirC/ascii_textC1 : inputDirectories/home/user/dirC/ascii_textC4 : inputDirectories/home/user/dirC/ascii_textC2 : inputDirectories/home/user/dirC/ascii_textC3 : Total bytes = 35 : Total words = 9 : Total lines = 8
+2018-5-1 20:2:55 : search : sada  : inputDirectories/home/user/dirC/ascii_textC1 : inputDirectories/home/user/dirC/ascii_textC3 : inputDirectories/home/user/dirC/ascii_textC3
+2018-5-1 20:2:58 : mincount : a1 : winner file inputDirectories/home/user/dirC/ascii_textC1 : occurrences 1
+2018-5-1 20:3:3 : wc : inputDirectories/home/user/dirC/ascii_textC1 : inputDirectories/home/user/dirC/ascii_textC4 : inputDirectories/home/user/dirC/ascii_textC2 : inputDirectories/home/user/dirC/ascii_textC3 : Total bytes = 35 : Total words = 9 : Total lines = 8

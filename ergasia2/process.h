@@ -9,7 +9,7 @@
 
 #include "trie.h"
 
-#define MAXBUFF 1024
+#define MAXBUFF 50000
 extern int errno;
 
 
