@@ -18,7 +18,6 @@ typedef struct Map{
 void insertIntoMapNode(MapNode* node, char* text);
 void initializeMapNode(MapNode* node);
 void doubleMapNode(MapNode* node);
-//int getMapNodeFromFile(FILE* file, MapNode* node);
 void destroyMapNode(MapNode* node);
 void reduceMapNodeArrayLength(MapNode* node);
 void printMapNode(MapNode* node);
@@ -29,8 +28,6 @@ Map* createMap();
 MapNode* insertIntoMap(Map* map, char* fileName);
 void printMap(Map* map);
 void doubleMap(Map* map);
-//int getNoOfWordsOfMapText(MapNode* node);
-//int getNoOfAllWords(Map* map);
 void destroyMap(Map* map);
 char* getLineOfFile(Map* map, char* fileName, int line);
 MapNode* getNodeBasedOnFileName(Map* map, char* fileName);

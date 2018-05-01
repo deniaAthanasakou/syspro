@@ -16,7 +16,6 @@ typedef struct SearchStruct{
 }SearchStruct;
 
 
-
 SearchStruct* createSearchStruct();
 int initializeSearchNode(SearchNode* node);
 void insertIntoSearchStruct(SearchStruct* searchStruct, char* fileName, int line, char* content);
@@ -24,4 +23,5 @@ void printSearchStruct(SearchStruct* searchStruct);
 void doubleSearchStruct(SearchStruct* searchStruct);
 void destroySearchStruct(SearchStruct* searchStruct);
 char* getStringForPrint(SearchStruct* searchStruct, int deadLine);
+
 #endif

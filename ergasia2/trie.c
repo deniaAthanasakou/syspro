@@ -36,7 +36,7 @@ Trie* insertLetterIntoTrie(ContainsTrie* containsTrie, Trie* trie, char charForI
 		trieOfInsert->letter = charForInsert;
 	}
 	if(setPostingList){						//last letter of word was inserted
-		if(trieOfInsert->pL==NULL){	//new word will be inseted
+		if(trieOfInsert->pL==NULL){		//new word will be inseted
 			containsTrie->noOfTrieWords++;
 			trieOfInsert->pL = malloc(sizeof(postingList));
 			createPostingList(trieOfInsert->pL);
@@ -154,13 +154,12 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 		close(fd);
 	}
 
-	//insertIntoMap(containsTrie->map, char* fileName)
 	FILE* file = fopen(fullPath,"r");
 	char *line = NULL;
 	size_t len = 0;
 	int read;
 	if (file == NULL){
-		printf("Error! Null file was given.\n");
+		perror("Error! Null file was given.\n");
 		return 0;
 	}
 	
@@ -194,7 +193,6 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 		int multipleSpacesFlag = 0;
 		int lengthOfWord = 0;
 		int maxLength = 10;
-		//int bytesBeforeNextWord = -1;
 		int bytesBeforeWord = 0;
 		int spaces = 0;
 		int numOfSpacesAtBeggining = 0;
@@ -237,7 +235,6 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 						
 						
 					numOfSpacesAtBeggining=0;
-				//	printf("word %s\n", word);
 					insertFullWordIntoTrie(containsTrie, containsTrie->firstNode, word, fullPath, lineCounter, bytesBeforeWord);
 					numWords++;
 					bytesBeforeWord += lengthOfWord + spaces;
@@ -288,14 +285,9 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 
 int createTrieFromDir(ContainsTrie* containsTrie, char* pathofDir){
 
-
-
-
-
 	if (pathofDir[0] == '/') 
    	 	memmove(pathofDir, pathofDir+1, strlen(pathofDir));
 		
-//	printf("pathofDir-------------------------------------- %s\n", pathofDir);
 	DIR *dir;
 	struct dirent *ent;
 	dir = opendir(pathofDir);
@@ -303,7 +295,6 @@ int createTrieFromDir(ContainsTrie* containsTrie, char* pathofDir){
 	if (dir != NULL) {
 	  /* print all the files and directories within directory */
 	  while ((ent = readdir (dir)) != NULL) {
-		//printf ("%s\n", ent->d_name);
 		if(ent->d_name[0]=='.')
 			continue;
 		//correct file name
@@ -313,26 +304,21 @@ int createTrieFromDir(ContainsTrie* containsTrie, char* pathofDir){
 		char* fullPath = malloc(sizeof(char)*(strlen(pathofDir)+strlen(fileName)+2));
 		strcpy(fullPath, pathofDir);
 		strcat(fullPath, "/");
-		strcat(fullPath, fileName);
-		
-		printf("FULL PATH IS %s\n", fullPath);
-		
+		strcat(fullPath, fileName);		
 		noErrors = createTrieFromFile(containsTrie, fullPath);
 		
 		 free(fullPath);
 		 fullPath=NULL;
 		
 	  }
-	  
-	 
 	  closedir (dir);
 	  
 	  return noErrors;
 	  
 	} else {
 	  /* could not open directory */
-	  perror ("Error! Could not open directory.");
-	  return 0;
+	  	perror ("Error! Could not open directory.");
+	  	return 0;
 	}
 	
 }

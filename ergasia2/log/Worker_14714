@@ -1,0 +1,4 @@
+2018-5-1 21:1:28 : wc : inputDirectories/tmp/dirB/ascii_textB2 : inputDirectories/tmp/dirB/ascii_textB1 : Total bytes = 7 : Total words = 2 : Total lines = 1
+2018-5-1 21:1:32 : wc : inputDirectories/tmp/dirB/ascii_textB2 : inputDirectories/tmp/dirB/ascii_textB1 : Total bytes = 7 : Total words = 2 : Total lines = 1
+2018-5-1 21:2:7 : search : sada  : inputDirectories/tmp/dirB/ascii_textB2
+2018-5-1 21:2:14 : search : sada a1 a2 nj  : inputDirectories/tmp/dirB/ascii_textB2

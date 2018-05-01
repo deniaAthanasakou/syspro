@@ -9,7 +9,7 @@
 
 void printSystemTimeAndQuery(int fileDescr, char* queryType);
 void printString(int fileDescr, char* string);
-void printPathsFromMap(int fileDescr, Map* map);
+void printPathsFromMap(int fileDescr, Map* map);				//for wc
 void printPathsFromInfo(int fileDescr, SearchStruct* info);		//for search
 
 #endif

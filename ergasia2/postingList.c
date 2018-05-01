@@ -48,30 +48,6 @@ postingListNode* searchForPath(postingList* pL, char* path){		//is used by funct
 		pL->firstNode = node;
 	return node;		
 }
-/*
-OccurrencesInText* getNodeById(postingList* pL,int id){
-	if(pL==NULL)
-		return NULL;
-	OccurrencesInText* node = pL->firstNode;
-	while(node!=NULL){
-		if(node->textId == id)
-			return node;
-	
-		node = node->next;	
-	}
-	
-	return NULL;		
-}*/
-/*
-void getDifferentIds(postingList* pL, DifferentIds* diffIds){
-	OccurrencesInText* tempNode = pL->firstNode;
-	while(tempNode!=NULL){
-		insertionSortDifferentIds(diffIds, tempNode->textId);
-		tempNode = tempNode->next;
-	}
-}
-
-*/
 
 void printPostingList(postingList* pL){
 	printf("Printing Posting List\n");

@@ -22,7 +22,6 @@ void printSystemTimeAndQuery(int fileDescr, char* queryType){
 }
 
 void printString(int fileDescr, char* string){		//for query string or pathnames
-	//fprintf(fp," : %s", string);
 	write(fileDescr, " : ", strlen(" : "));
 	write(fileDescr, string, strlen(string));
 }
@@ -34,7 +33,7 @@ void printPathsFromMap(int fileDescr, Map* map){		//for wc
 	}
 }
 
-void printPathsFromInfo(int fileDescr, SearchStruct* info){
+void printPathsFromInfo(int fileDescr, SearchStruct* info){			//for search
 	for(int i=0; i<info->position; i++){
 		printString(fileDescr, info->array[i].fileName);
 	}

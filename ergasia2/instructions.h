@@ -5,7 +5,7 @@
 #include "trie.h"
 #include "searchStruct.h"
 
-typedef struct FileInfoMinMax{
+typedef struct FileInfoMinMax{		//used for mincount and maxcount
 	char* fileName;
 	int minOrMax;
 	char* type;		//value is "min" or "max"
@@ -13,12 +13,10 @@ typedef struct FileInfoMinMax{
 
 
 SearchStruct* search(char* text, ContainsTrie* containsTrie);
-
 FileInfoMinMax* maxCount(char* text, Trie* trie);
 FileInfoMinMax* minCount(char* text, Trie* trie);
-
 BytesWordsLinesNode* wc(ContainsTrie* trie);
 
-bool lineAlreadyExists(int* array, int size, int line);
+bool lineAlreadyExists(int* array, int size, int line);	//used in search
 
 #endif

@@ -38,7 +38,7 @@ void insertIntoSearchStruct(SearchStruct* searchStruct, char* fileName, int line
 }	
 
 void printSearchStruct(SearchStruct* searchStruct){
-	printf("Printing search nodes: pos = %d\n", searchStruct->position);
+	printf("Printing search nodes:\n");
 	for(int i=0; i<searchStruct->position; i++){
 		printf("filename: '%s', line no '%d', content '%s'\n",searchStruct->array[i].fileName, searchStruct->array[i].lineNo, searchStruct->array[i].content);
 	}
@@ -71,8 +71,8 @@ char* getStringForPrint(SearchStruct* searchStruct, int deadLine){
 	int lengthOfString = 0;
 	for(int i=0; i<searchStruct->position; i++){
 		lengthOfString = strlen(sendString);
-		char* beggining = malloc((strlen("Server: One or more query words were discovered in file '%s'")+1+strlen(searchStruct->array[i].fileName))*sizeof(char));
-		sprintf(beggining,"Server: One or more query words were discovered in file '%s'", searchStruct->array[i].fileName);
+		char* beggining = malloc((strlen("One or more query words were discovered in file '%s'")+1+strlen(searchStruct->array[i].fileName))*sizeof(char));
+		sprintf(beggining,"One or more query words were discovered in file '%s'", searchStruct->array[i].fileName);
 		
 		char* middle = malloc((strlen(" in line '%d'")+1+sizeof(searchStruct->array[i].lineNo))*sizeof(char));
 		sprintf(middle," in line '%d'", searchStruct->array[i].lineNo);

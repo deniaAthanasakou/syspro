@@ -3,8 +3,6 @@
 #include <string.h>
 #include "map.h"
 
-
-
 Map* createMap(){
 	Map* map = malloc(sizeof(Map));
 	map->length = 5;
@@ -91,58 +89,9 @@ MapNode* insertIntoMap(Map* map, char* fileName){
 	
 	return &(map->array[map->position-1]);
 	
-	/*
-
-	FILE* fp = fopen(fileName, "r");
-	if (fp!=NULL)
-	{
-		
-
-		//getMapNodeFromFile(fp, &(map->array[map->position]));		//get contents
-		
-		//map->array[map->position] = *node;
-		map->position++;
-		fclose (fp);
-	}
-
-	return NULL;
-	*/
-	
 }
-/*
-int getMapNodeFromFile(FILE* file, MapNode* node){
-	char *line = NULL;
-	size_t len = 0;
-	int read;
-	if (file == NULL){
-		printf("Error! Null file was given\n");
-		return 0;
-	}
-	while ((read = getline(&line, &len, file)) != -1) {
-		
-		if(line[strlen(line)-1]=='\n');{
-			line[strlen(line)-1] = '\0';
-		}
-		
-		//inserting lines into map
-		char* text = malloc((strlen(line)+1)* sizeof(char));
-		strcpy(text, line);
-		insertIntoMapNode(node, line);
-		free(text);
-		text=NULL;
-		
-	}
-	reduceMapNodeArrayLength(node);
-	if (line){
-		free(line);
-		line=NULL;
-	}
-	return 1;
-}
-*/
+
 void insertIntoMapNode(MapNode* node, char* text){
-	//char* content = malloc((strlen(text)+1)*sizeof(char));
-	//strcpy(content, text);	
 	if(node->position==node->length){
 		doubleMapNode(node);
 	}
@@ -168,12 +117,10 @@ char* getLineOfFile(Map* map, char* fileName, int line){
 	MapNode* node = getNodeBasedOnFileName(map, fileName);
 	
 	if(node == NULL){					//doesn't exist
-		printf("File %s not found\n", fileName);
 		return NULL;
 	}
 	
 	if(line>=node->position){			//out of bounds
-		printf("Line %d not found\n", line);
 		return NULL;
 	}
 	return node->lineContents[line];

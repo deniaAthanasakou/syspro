@@ -23,10 +23,8 @@ SearchStruct* search(char* text, ContainsTrie* containsTrie){
 	createArrayWords(arrayOfFileNames);
 
 	for(int i=0; i<array->position; i++){		//for each query word
-	//printf("Word '%s' .\n", array->words[i]);
 		postingList* pL = searchWordInTrie(trie, array->words[i]);
 		if(pL==NULL){			//word does not exist
-			printf("Word '%s' does not exist.\n", array->words[i]);
 			continue;
 		}
 	
@@ -38,19 +36,15 @@ SearchStruct* search(char* text, ContainsTrie* containsTrie){
 				continue;
 			}
 			insertArrayWords(arrayOfFileNames, tempNode->filePath, 1);
-			printf("\n\n");
 		
 			int* linesForWordInDoc = malloc(0);
 			int sizeOfLinesForWordInDoc = 0;
 			
 			
-			//get path, no of line
-			//write on pipe
-		//	printf("FilePath is '%s'\n", tempNode->filePath);
-			//get lines
+			//get path, no of line, content
 			ListNode* tempListNode = tempNode->info->firstNode;
 			while(tempListNode!=NULL){
-				if(lineAlreadyExists(linesForWordInDoc, sizeOfLinesForWordInDoc, tempListNode->lineOfText)){					//line has already been printed
+				if(lineAlreadyExists(linesForWordInDoc, sizeOfLinesForWordInDoc, tempListNode->lineOfText)){					//line has already been inserted into array
 					tempListNode = tempListNode->next;
 					continue;
 				}
@@ -58,38 +52,24 @@ SearchStruct* search(char* text, ContainsTrie* containsTrie){
 				linesForWordInDoc = realloc(linesForWordInDoc, sizeOfLinesForWordInDoc*sizeof(int));
 				linesForWordInDoc[sizeOfLinesForWordInDoc-1] = tempListNode->lineOfText;
 				
-				
-				//write on pipe
-			//	printf("Number of line is '%d'\n",  tempListNode->lineOfText);
-				
 				//get contents of line
 				char* contentsOfLine = getLineOfFile(containsTrie->mapOfFiles, tempNode->filePath, tempListNode->lineOfText);
 				if(contentsOfLine!=NULL){
-					//write on pipe
-				//	printf("line is '%s'\n",  contentsOfLine);
-					insertIntoSearchStruct(searchStruct,tempNode->filePath, tempListNode->lineOfText, contentsOfLine );
-					
+					insertIntoSearchStruct(searchStruct,tempNode->filePath, tempListNode->lineOfText, contentsOfLine );	
 				}
-				
 				
 				tempListNode = tempListNode->next;
 			}
-		
-		
+
 			tempNode = tempNode->next;
 			free(linesForWordInDoc);
 			linesForWordInDoc = NULL;
-			
-			
-		}
-		
-		
+		}	
 	}
 	free(arrayOfFileNames->words);
 	free(arrayOfFileNames);
 	deleteArrayWords(array);
-	return searchStruct;
-	
+	return searchStruct;	
 }
 
 
@@ -104,17 +84,13 @@ FileInfoMinMax* maxCount(char* text, Trie* trie){
 	}
 	
 	char* wordToSearch = array->words[0];
-	
-	
 
 	postingList* pL = searchWordInTrie(trie, wordToSearch);
 	if(pL==NULL){			//word does not exist
-	//	printf("Word '%s' does not exist.\n", wordToSearch);
 		deleteArrayWords(array);
 		return NULL;
 	}
-		
-		
+			
 	FileInfoMinMax* info = malloc(sizeof(FileInfoMinMax));
 	info->type="max";
 	info->minOrMax=0;
@@ -144,11 +120,8 @@ FileInfoMinMax* maxCount(char* text, Trie* trie){
 		info->fileName = malloc((strlen(tempFile)+1)*sizeof(char));
 		strcpy(info->fileName, tempFile);
 	}
-	//printf("%s %s %d\n", info->type, info->fileName, info->minOrMax);
 	deleteArrayWords(array);
 	return info;
-	
-	//actually must write in pipe 1 integer and 1 string: info->fileName, info->minOrMax
 }
 
 FileInfoMinMax* minCount(char* text, Trie* trie){
@@ -161,16 +134,12 @@ FileInfoMinMax* minCount(char* text, Trie* trie){
 	}
 	
 	char* wordToSearch = array->words[0];
-	
-	
 
 	postingList* pL = searchWordInTrie(trie, wordToSearch);
 	if(pL==NULL){			//word does not exist
-	//	printf("Word '%s' does not exist.\n", wordToSearch);
 		deleteArrayWords(array);
 		return NULL;
 	}
-		
 		
 	FileInfoMinMax* info = malloc(sizeof(FileInfoMinMax));
 	info->type="min";
@@ -197,11 +166,6 @@ FileInfoMinMax* minCount(char* text, Trie* trie){
 		tempNode = tempNode->next;
 	}
 	
-	
-	
-	//printf("%s %s %d\n", info->type, info->fileName, tempFile);
-	
-	
 	if(tempFile!=NULL){
 		info->fileName = malloc((strlen(tempFile)+1)*sizeof(char));
 		strcpy(info->fileName, tempFile);
@@ -210,7 +174,6 @@ FileInfoMinMax* minCount(char* text, Trie* trie){
 	
 	deleteArrayWords(array);
 	return info;
-	//actually must write in pipe 1 integer and 1 string: info->fileName, info->minOrMax
 }
 
 BytesWordsLinesNode* wc(ContainsTrie* containsTrie){
@@ -228,10 +191,7 @@ BytesWordsLinesNode* wc(ContainsTrie* containsTrie){
 		summedUpInfo->lines+= info->array[i].lines;
 
 	}
-	//printf("Total Number of bytes is: %d. Total Number of words is: %d. Total Number of lines is: %d.\n",summedUpInfo->bytes, summedUpInfo->words, summedUpInfo->lines);
 	return summedUpInfo;
-	
-	//actually must write in pipe 3 integers: summedUpInfo->bytes, summedUpInfo->words, summedUpInfo->lines
 }
 
 

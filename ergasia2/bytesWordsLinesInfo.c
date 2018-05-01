@@ -55,12 +55,6 @@ void printBytesWordsLinesStruct(BytesWordsLinesStruct* info){
 
 void deleteBytesWordsLinesStruct(BytesWordsLinesStruct* info){
 	if(info!=NULL){
-		//for(int i=0;i<info->position;i++){
-			//if( info->array[i]!=NULL){
-				//free(info->array[i]);
-				//info->array[i] = NULL;
-			//}
-		//}
 		free(info->array);
 		free(info);
 		info=NULL;	

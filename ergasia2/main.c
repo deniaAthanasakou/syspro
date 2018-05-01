@@ -20,7 +20,7 @@ char *mystring = "This is a test only";
 
 int main (int argc,char* argv[]){
 	if(argc<3 || argc>5 || argc==4){
-		printf("Error! Wrong Number of Arguments.\n");
+		perror("Error! Wrong Number of Arguments.\n");
 		exit(1);
 	}
 	char* fileName=NULL;
@@ -33,15 +33,14 @@ int main (int argc,char* argv[]){
 	}
 	
 	if(fileName==NULL){
-		printf("Error! No file was given.\n");
+		perror("Error! No file was given.\n");
 		exit(1);
 	}
 	if(numWorkers<=0){
-		printf("Error! Invalid value for number of processes.\n");
+		perror("Error! Invalid value for number of processes.\n");
 		exit(1);
 	}
-	printf("NumWorkers = %d\n", numWorkers);
-	
+
 	//initialize
 	FILE *docFile;
 	docFile = fopen (fileName,"r");
@@ -54,25 +53,20 @@ int main (int argc,char* argv[]){
 		fclose (docFile);
 	}
 	if (init==0){
-		printf("Error! Null file was given.\n");
+		perror("Error! Null file was given.\n");
 		exit(1);
 	}
 	
-	//printPathStruct(pathStruct);
-	if(pathStruct->length < numWorkers){
+	if(pathStruct->length < numWorkers){			//if less workers are needed
 		numWorkers = pathStruct->length;
 	}
-	printf("after initialization NumWorkers = %d\n", numWorkers);
-	
-
 	ContainsTrie* containsTrie = malloc(sizeof(ContainsTrie));
 	initializeContainsTrie(&containsTrie);
 	
 
-	int dirsPerWorker = pathStruct->length / numWorkers;
+	int dirsPerWorker = pathStruct->length / numWorkers;		//divide directories for workers
 	int numOfExtraDirs = pathStruct->length % numWorkers;
 	int counterForExtraDirs = 0;
-	printf("dirsPerWorker = %d, numOfExtraDirs = %d\n",dirsPerWorker,numOfExtraDirs);
 	
 	pid_t childpid, mainId = getpid();
 	int counterForPaths = 0;
@@ -89,11 +83,6 @@ int main (int argc,char* argv[]){
 		sprintf(FIFO1, "./tmp/FIFOW_%d", i+1);
 		sprintf(FIFO2, "./tmp/FIFOR_%d", i+1);
 	 
-		// Print the string stored in buffer and
-		// character count
-		printf("%s %s\n",FIFO1,FIFO2);
-	
-	
 		if ( (mkfifo(FIFO1, PERMS) < 0) && (errno != EEXIST) ) {		//create fifo1
 		   perror("Error! Can't create fifo.");
 		   exit(1);
@@ -129,21 +118,9 @@ int main (int argc,char* argv[]){
 			exit(1);
 		}
 		else if (childpid == 0){			//child
-		
-		
-		
-			
-		
-			//printf("else writefd %d readfd %d\n", writefd, readfd);
-		
-		
 			noOfProcess = i;
-			printf("I am the child process with ID: %ld\n", (long)getpid());
 			//do job for child
 
-			/*int id = getpid();
-			insertIdIntoProcessStruct(procStr, id);	
-			*/
 			int dirs = dirsPerWorker;
 			if(i<numOfExtraDirs){
 				dirs++;
@@ -164,7 +141,6 @@ int main (int argc,char* argv[]){
 				counterForPaths++;
 				counterForExtraDirs++;
 			}
-			printf("I am the parent process with ID: %ld\n", (long)getpid());
 		}
 
 	}
@@ -185,38 +161,27 @@ int main (int argc,char* argv[]){
 			free(line);
 			line = NULL;
 		}
-		
-		
+
 		for(int i=0; i<numWorkers; i++){			//close fifos
 			close(fifosUsed[i].readfd);													
 			close(fifosUsed[i].writefd);	
 
 		}
-		
-		
-	
-		
-		
+
 	}
 	else{	//child
 	
 		char nameOfFile[20];
 		sprintf(nameOfFile, "log/Worker_%ld", (long)getpid());
-		//printf("nameOfFile '%s'\n",nameOfFile );
-		int workerFile = open(nameOfFile, O_CREAT | O_RDWR, PERMS);
+		int workerFile = open(nameOfFile, O_CREAT | O_RDWR, PERMS);			//create log file
 		if(workerFile==-1){
 			perror("Error! Log file could not be created");
 			exit(1);
 		}
-		//fprintf(workerFile, "nameOfFile '%s'\n",nameOfFile );
 	 	while(client(fifosUsed[noOfProcess].writefd, fifosUsed[noOfProcess].readfd, containsTrie, workerFile)){
-	 			//printf("process %ld is in while\n", (long)getpid());
 		}
-		//printf("process %ld is out of while\n", (long)getpid());
-		//printf("before fclose\n");
-		close(workerFile);
-		//printf("afrer fclose\n");
-		
+
+		close(workerFile);													//close log file		
 		
 		char FIFO1[50];
  		char FIFO2[50];
@@ -230,22 +195,20 @@ int main (int argc,char* argv[]){
 		if ( unlink(FIFO2) < 0) {
 			perror("client: can't unlink \n");
 		}
-		
-		
-		
+
+		destroyPathStruct(pathStruct);
+		destroyContainsTrie(containsTrie);
+
 		exit(0);
 		
 	}
 
 	while (wait(NULL) > 0)		//wait for all children
   	{
-		//printf("%d child completed\n", j++);
   	}
 
-	
 	destroyPathStruct(pathStruct);
 	destroyContainsTrie(containsTrie);
 	return 0;
-	
-	
+
 }
