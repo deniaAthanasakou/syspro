@@ -31,7 +31,7 @@ int server(FIFOS* fifosUsed, int numWorkers, char* queryLine) {
 	
 	for(int i=0; i<numWorkers; i++){
 		if ( write(fifosUsed[i].writefd, queryLine, strlen(queryLine)) != strlen(queryLine)) { 
-		    perror("server: error in write\n");
+		    printf("server: error in write\n");
 		}
 		
 		

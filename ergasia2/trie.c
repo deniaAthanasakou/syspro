@@ -159,7 +159,7 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 	size_t len = 0;
 	int read;
 	if (file == NULL){
-		perror("Error! Null file was given.\n");
+		printf("Error! Null file was given.\n");
 		return 0;
 	}
 	
@@ -284,9 +284,6 @@ int createTrieFromFile(ContainsTrie* containsTrie, char* fullPath){
 
 
 int createTrieFromDir(ContainsTrie* containsTrie, char* pathofDir){
-
-	if (pathofDir[0] == '/') 
-   	 	memmove(pathofDir, pathofDir+1, strlen(pathofDir));
 		
 	DIR *dir;
 	struct dirent *ent;
@@ -317,10 +314,10 @@ int createTrieFromDir(ContainsTrie* containsTrie, char* pathofDir){
 	  
 	} else {
 	  /* could not open directory */
-	  	perror ("Error! Could not open directory.");
+	  	printf ("Error! Could not open directory.\n");
 	  	return 0;
 	}
-	
+	return 1;
 }
 
 

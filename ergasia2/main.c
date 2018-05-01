@@ -20,7 +20,7 @@ char *mystring = "This is a test only";
 
 int main (int argc,char* argv[]){
 	if(argc<3 || argc>5 || argc==4){
-		perror("Error! Wrong Number of Arguments.\n");
+		printf("Error! Wrong Number of Arguments.\n");
 		exit(1);
 	}
 	char* fileName=NULL;
@@ -33,11 +33,11 @@ int main (int argc,char* argv[]){
 	}
 	
 	if(fileName==NULL){
-		perror("Error! No file was given.\n");
+		printf("Error! No file was given.\n");
 		exit(1);
 	}
 	if(numWorkers<=0){
-		perror("Error! Invalid value for number of processes.\n");
+		printf("Error! Invalid value for number of processes.\n");
 		exit(1);
 	}
 
@@ -53,7 +53,7 @@ int main (int argc,char* argv[]){
 		fclose (docFile);
 	}
 	if (init==0){
-		perror("Error! Null file was given.\n");
+		printf("Error! Null file was given.\n");
 		exit(1);
 	}
 	
@@ -84,22 +84,22 @@ int main (int argc,char* argv[]){
 		sprintf(FIFO2, "./tmp/FIFOR_%d", i+1);
 	 
 		if ( (mkfifo(FIFO1, PERMS) < 0) && (errno != EEXIST) ) {		//create fifo1
-		   perror("Error! Can't create fifo.");
+		   printf("Error! Can't create fifo.");
 		   exit(1);
 		}
 		if ((mkfifo(FIFO2, PERMS) < 0) && (errno != EEXIST)) {			//create fifo2
 		   unlink(FIFO1);
-		   perror("Error! Can't create fifo.");
+		   printf("Error! Can't create fifo.");
 		   exit(1);
 		}
 	
 		if ( (readfd = open(FIFO1, O_RDWR))  < 0)  {
-			  perror("server: can't open read fifo");
+			  printf("server: can't open read fifo");
 			  exit(1);
 		}
 	 
 	   if ( (writefd = open(FIFO2, O_RDWR))  < 0)  {
-		  perror("server: can't open write fifo");
+		  printf("server: can't open write fifo");
 		  exit(1);
 		}
 	
@@ -114,7 +114,7 @@ int main (int argc,char* argv[]){
 		
 		childpid = fork();
 		if (childpid == -1){		//error
-			perror("Failed to fork");
+			printf("Failed to fork");
 			exit(1);
 		}
 		else if (childpid == 0){			//child
@@ -175,7 +175,7 @@ int main (int argc,char* argv[]){
 		sprintf(nameOfFile, "log/Worker_%ld", (long)getpid());
 		int workerFile = open(nameOfFile, O_CREAT | O_RDWR, PERMS);			//create log file
 		if(workerFile==-1){
-			perror("Error! Log file could not be created");
+			printf("Error! Log file could not be created");
 			exit(1);
 		}
 	 	while(client(fifosUsed[noOfProcess].writefd, fifosUsed[noOfProcess].readfd, containsTrie, workerFile)){
@@ -190,10 +190,10 @@ int main (int argc,char* argv[]){
 		sprintf(FIFO2, "./tmp/FIFOR_%d", noOfProcess+1);
 		
 		if ( unlink(FIFO1) < 0) {						//delete fifos
-			perror("client: can't unlink \n");
+			printf("client: can't unlink \n");
 		}
 		if ( unlink(FIFO2) < 0) {
-			perror("client: can't unlink \n");
+			printf("client: can't unlink \n");
 		}
 
 		destroyPathStruct(pathStruct);

@@ -49,4 +49,5 @@ clean:
 	rm -f $(OBJECTS)
 	rm -f ./tmp/*
 	rm -f ./log/*
+	rm -f ./bash/myout
 
