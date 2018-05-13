@@ -52,7 +52,15 @@ do
 		do
 			randomNum=$RANDOM
 		done
-		touch ./$root_directory/site$i/page$i\_$randomNum.html		#create file
+		fileName=./$root_directory/site$i/page$i\_$randomNum.html
+		touch $fileName		#create file
+		#get contents of file
+		source ./htmlContents.sh 
+		writeContents $fileName $numOfLines
+		
+		
+		
+		
 	done
 done	
 
