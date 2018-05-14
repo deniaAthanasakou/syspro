@@ -56,7 +56,7 @@ do
 		touch $fileName		#create file
 		#get contents of file
 		source ./htmlContents.sh 
-		writeContents $fileName $numOfLines
+		writeContents $fileName $numOfLines $p $text_file
 		
 		
 		
