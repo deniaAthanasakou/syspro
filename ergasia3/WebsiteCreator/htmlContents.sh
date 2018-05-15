@@ -10,6 +10,9 @@ writeContents ()
 	lines=$2
 	p=$3					#pages
 	text_file=$4
+	arrayOfFileNames=$5
+	
+	echo "we are in file $fileForAppending"
 	
 	
 	k=$(( ( RANDOM % ($lines-2000) )  + 1 ))		#start reading from file from line k
@@ -20,14 +23,47 @@ writeContents ()
 	
 	#adding links into array
 	source ./links.sh 
-	createLinks $fileForAppending $f $q $arrayOfLinks
+	createLinks $fileForAppending $f $q
 	
-	for item in ${arrayOfLinks[@]}
-	do
-		echo $item
+	for item in ${arrayOfLinks[@]} ; do
+		echo link is $item
 	done	
-	
-	
+
+	let lastElement=${#arrayOfLinks[@]}-1
+	randomPositions=`shuf -i 0-$lastElement`
+	echo $randomPositions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	header="<!DOCTYPE html>
 <html>
 <body>"
@@ -35,7 +71,7 @@ writeContents ()
 	
 	#middle part steps 6-7
 	startingPoint=$k
-	echo $fileForAppending $startingPoint
+	#echo $fileForAppending $startingPoint
 	let "readNumOfLines=m/($f+$q)"
 	let readUpToHere=startingPoint+readNumOfLines
 	linkCounter=1
@@ -69,5 +105,4 @@ writeContents ()
 	footer="</body>
 </html>"
 	echo $footer >> $fileForAppending			#adding footer
-
 }

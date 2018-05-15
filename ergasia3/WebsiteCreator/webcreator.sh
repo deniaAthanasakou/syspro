@@ -39,29 +39,44 @@ if ! [ "$p" -eq "$p" ] 2>/dev/null; then	#is not integer
 	exit
 fi
 
+arrayOfFileNames=()							#will be used for links
 
 rm -rf ./$root_directory/*					#delete existing directories
 #create w folders for sites inside root_directory
-for ((i=0; i < w; i++))
-do
+for ((i=0; i < w; i++)); do		#pages will be inserted into arrayOfFileNames
 	mkdir ./$root_directory/site$i		#create new ones
-	for ((j=0; j < p; j++))
-	do
+	for ((j=0; j < p; j++)); do
+		
 		randomNum=$RANDOM
-		while [ -e ./$root_directory/site$i/page$i\_$randomNum.html ]
-		do
+			
+		while [ true ]; do
+			flag=0
+			tempPage="./$root_directory/site$i/page$i\_$randomNum.html"
+			for page in ${arrayOfFileNames[@]}			#check if fileName exists in array
+			do
+				if [ "$page" == "$tempPage" ]; then
+					flag=1
+					break
+				fi
+			done
+			if [ "$flag" -eq "0" ]; then
+				break
+			fi
 			randomNum=$RANDOM
 		done
 		fileName=./$root_directory/site$i/page$i\_$randomNum.html
-		touch $fileName		#create file
-		#get contents of file
-		source ./htmlContents.sh 
-		writeContents $fileName $numOfLines $p $text_file
-		
-		
-		
+		arrayOfFileNames+=($fileName)
 		
 	done
+done	
+
+for page in ${arrayOfFileNames[@]}			
+do
+	touch $page		#create file
+	#get contents of file
+	source ./htmlContents.sh 
+	#echo $page
+	writeContents $page $numOfLines $p $text_file $arrayOfFileNames
 done	
 
 : <<'END'		
