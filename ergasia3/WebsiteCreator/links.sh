@@ -4,6 +4,13 @@ createLinks (){
 	fileForAppending=$1
 	internalLinks=$2
 	externalLinks=$3
+
+	IFS=$'/'
+	pathOfFileForAppending=()
+	for item in $fileForAppending; do
+		pathOfFileForAppending+=($item)
+	done
+	unset IFS			# reset back to default value
 	
 	let lastElement=${#arrayOfFileNames[@]}-1
 	randomPositions=`shuf -i 0-$lastElement`
@@ -12,7 +19,6 @@ createLinks (){
 			continue
 		fi
 
-		pathOfFileForAppending=()
 		pathOfOtherPage=()
 
 
@@ -21,18 +27,24 @@ createLinks (){
 			pathOfOtherPage+=($item)
 		done
 
-		for item in $fileForAppending; do
-			pathOfFileForAppending+=($item)
-		done
-
 		# reset back to default value
 		unset IFS
 
 		#check if link is internal
-		if [ "${pathOfFileForAppending[2]}" == "${pathOfOtherPage[2]}" ]; then
+		if [ "${pathOfFileForAppending[2]}" == "${pathOfOtherPage[2]}" ]; then		#siteX
 			#internal Link
 			if [ "$internalLinks" -gt "0" ]; then
-				arrayOfLinks+=(${arrayOfFileNames[$position]})	#insert link into array
+				for ((incCounter=0; incCounter < ${#arrayOfIncomingLinks[@]}; incCounter++)); do
+					if [ "${arrayOfFileNames[$position]}" == "${arrayOfIncomingLinks[$incCounter]}" ]; then
+						arrayOfIncomingLinks[$incCounter]=true
+					fi	
+				done
+
+
+				linkToBeInserted="./${pathOfOtherPage[3]}"
+				arrayOfLinks+=($linkToBeInserted)	#insert link into array
+
+
 				let internalLinks=internalLinks-1
 			fi	
 
@@ -40,14 +52,16 @@ createLinks (){
 		else
 			#external Link
 			if [ "$externalLinks" -gt "0" ]; then
-				arrayOfLinks+=(${arrayOfFileNames[$position]})	#insert link into array
+				linkToBeInserted="../${pathOfOtherPage[2]}/${pathOfOtherPage[3]}"
+				arrayOfLinks+=($linkToBeInserted)	#insert link into array
 				let externalLinks=externalLinks-1
 			fi	
 		fi	
 	done	
 
 	if [ "$internalLinks" -gt "0" ]; then
-		arrayOfLinks+=($fileForAppending)	#must insert same page
+		linkToBeInserted="./${pathOfFileForAppending[3]}"
+		arrayOfLinks+=($linkToBeInserted)	#must insert same page
 		let internalLinks=internalLinks-1
 	fi	
 

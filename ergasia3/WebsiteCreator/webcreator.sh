@@ -11,7 +11,6 @@ root_directory=$1
 text_file=$2
 w=$3
 p=$4
-echo $root_directory $text_file $w $p 
 
 if [ ! -d "$root_directory" ]; then		#directory does not exist
 	echo "Error! Directory '$root_directory' does not exist."
@@ -41,9 +40,15 @@ fi
 
 arrayOfFileNames=()							#will be used for links
 
+#check if root_directory is empty
+if [ "$(ls -A ./$root_directory)" ]; then
+   echo "# Warning: directory is full, purging..."
+fi
+
 rm -rf ./$root_directory/*					#delete existing directories
 #create w folders for sites inside root_directory
 for ((i=0; i < w; i++)); do		#pages will be inserted into arrayOfFileNames
+	echo "# Creating web site $i"
 	mkdir ./$root_directory/site$i		#create new ones
 	for ((j=0; j < p; j++)); do
 		
@@ -68,17 +73,34 @@ for ((i=0; i < w; i++)); do		#pages will be inserted into arrayOfFileNames
 		arrayOfFileNames+=($fileName)
 		
 	done
-done	
+done
+
+arrayOfIncomingLinks=("${arrayOfFileNames[@]}")   	
 
 for page in ${arrayOfFileNames[@]}			
 do
 	touch $page		#create file
 	#get contents of file
 	source ./htmlContents.sh 
-	#echo $page
-	writeContents $page $numOfLines $p $text_file $arrayOfFileNames
+	writeContents $page $numOfLines $p $text_file 
+	
 done	
 
+flagForIncoming=1		#all pages have at least one incoming link
+for item in ${arrayOfIncomingLinks[@]}; do
+	if [ "$item" != "true" ]; then
+		flagForIncoming=0
+		break
+	fi	
+done
+
+if [ "$flagForIncoming" -eq "1" ]; then
+	echo "# All pages have at least one incoming link"
+else
+	echo "# Not all pages have at least one incoming link"	
+fi	
+
+echo "# Done"
 : <<'END'		
 block comments
 END
