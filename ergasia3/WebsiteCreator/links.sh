@@ -31,7 +31,7 @@ createLinks (){
 		unset IFS
 
 		#check if link is internal
-		if [ "${pathOfFileForAppending[2]}" == "${pathOfOtherPage[2]}" ]; then		#siteX
+		if [ "${pathOfFileForAppending[4]}" == "${pathOfOtherPage[4]}" ]; then		#siteX
 			#internal Link
 			if [ "$internalLinks" -gt "0" ]; then
 				for ((incCounter=0; incCounter < ${#arrayOfIncomingLinks[@]}; incCounter++)); do
@@ -41,7 +41,7 @@ createLinks (){
 				done
 
 
-				linkToBeInserted="./${pathOfOtherPage[3]}"
+				linkToBeInserted="./${pathOfOtherPage[5]}"
 				arrayOfLinks+=($linkToBeInserted)	#insert link into array
 
 
@@ -52,7 +52,7 @@ createLinks (){
 		else
 			#external Link
 			if [ "$externalLinks" -gt "0" ]; then
-				linkToBeInserted="../${pathOfOtherPage[2]}/${pathOfOtherPage[3]}"
+				linkToBeInserted="../${pathOfOtherPage[4]}/${pathOfOtherPage[5]}"
 				arrayOfLinks+=($linkToBeInserted)	#insert link into array
 				let externalLinks=externalLinks-1
 			fi	
@@ -60,7 +60,7 @@ createLinks (){
 	done	
 
 	if [ "$internalLinks" -gt "0" ]; then
-		linkToBeInserted="./${pathOfFileForAppending[3]}"
+		linkToBeInserted="./${pathOfFileForAppending[5]}"
 		arrayOfLinks+=($linkToBeInserted)	#must insert same page
 		let internalLinks=internalLinks-1
 	fi	

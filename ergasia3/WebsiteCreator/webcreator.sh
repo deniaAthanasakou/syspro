@@ -41,22 +41,22 @@ fi
 arrayOfFileNames=()							#will be used for links
 
 #check if root_directory is empty
-if [ "$(ls -A ./$root_directory)" ]; then
+if [ "$(ls -A $root_directory)" ]; then
    echo "# Warning: directory is full, purging..."
 fi
 
-rm -rf ./$root_directory/*					#delete existing directories
+rm -rf $root_directory/*					#delete existing directories
 #create w folders for sites inside root_directory
 for ((i=0; i < w; i++)); do		#pages will be inserted into arrayOfFileNames
 	echo "# Creating web site $i"
-	mkdir ./$root_directory/site$i		#create new ones
+	mkdir $root_directory/site$i		#create new ones
 	for ((j=0; j < p; j++)); do
 		
 		randomNum=$RANDOM
 			
 		while [ true ]; do
 			flag=0
-			tempPage="./$root_directory/site$i/page$i\_$randomNum.html"
+			tempPage="$root_directory/site$i/page$i\_$randomNum.html"
 			for page in ${arrayOfFileNames[@]}			#check if fileName exists in array
 			do
 				if [ "$page" == "$tempPage" ]; then
@@ -69,7 +69,7 @@ for ((i=0; i < w; i++)); do		#pages will be inserted into arrayOfFileNames
 			fi
 			randomNum=$RANDOM
 		done
-		fileName=./$root_directory/site$i/page$i\_$randomNum.html
+		fileName=$root_directory/site$i/page$i\_$randomNum.html
 		arrayOfFileNames+=($fileName)
 		
 	done
