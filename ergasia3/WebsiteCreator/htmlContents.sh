@@ -76,7 +76,8 @@ writeContents ()
 		fi
 		sed -n "${startingPoint},${readUpToHere}p" $text_file >> $fileForAppending				#get lines from text_file and add them to html	
 			
-		linkText="link${linkCounter}_text"
+		#linkText="link${linkCounter}_text"
+		linkText="link${linkCounter}_text-${randomLinkArray[0]}"
 		link="<a href="${randomLinkArray[0]}">$linkText</a>"
 		
 	
