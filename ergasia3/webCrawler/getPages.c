@@ -8,8 +8,9 @@
 #include <string.h> /* strlen */
 
 #include "errorHandler.h"
+#include "getPages.h"
 
-void createSocket(int port, int commandPort){
+void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* startingURL){
 
 	int sock, i;
 	char buf[256];
@@ -20,33 +21,55 @@ void createSocket(int port, int commandPort){
 	/* Create socket */
 	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		perror_exit("socket");
+
 	/* Find server address */
-	if ((rem = gethostbyname(argv[1])) == NULL) {
+	if ((rem = gethostbyname(host_or_IP)) == NULL) {
 		herror("gethostbyname"); exit(1);
 	}
 
 	server.sin_family = AF_INET; /* Internet domain */
 	memcpy(&server.sin_addr, rem->h_addr, rem->h_length);
-	server.sin_port = htons(port); /* Server port */
+	server.sin_port = htons(servingPort); /* Server port */
 
 	/* Initiate connection */
 	if (connect(sock, serverptr, sizeof(server)) < 0)
 		perror_exit("connect");
 
-	printf("Connecting to %s port %d\n", argv[1], port);
+	printf("Connecting to %s port %d\n", host_or_IP, servingPort);
+
+	char* req = createGetRequest(startingURL, host_or_IP);
 
 	do {
 		printf("Give input string: ");
 		fgets(buf, sizeof(buf), stdin); /* Read from stdin*/
+
+
+		
+
+
 		for(i=0; buf[i] != '\0'; i++) { /* For every char */
 			/* Send i-th character */
-			if (write(sock, buf + i, 1) < 0)
+			if (write(sock, buf + i, 1) < 0)				//write in socket
 				perror_exit("write");
 			/* receive i-th character transformed */
-			if (read(sock, buf + i, 1) < 0)
+			if (read(sock, buf + i, 1) < 0)					//read from socket
 				perror_exit("read");
 		}
 		printf("Received string: %s", buf);
 	} while (strcmp(buf, "END\n") != 0); /* Finish on "end" */
 	close(sock); /* Close socket and exit */
+}
+
+
+
+char* createGetRequest(char* url, char* host){
+	char* getReq = malloc((strlen(url)+strlen(host)+200)*sizeof(char));
+	//strcpy(getReq, "hello");
+	sprintf(getReq, "GET %s HTTP/1.1\nUser-­Agent: Mozilla/4.0 (compatible;; MSIE5.01;; Windows NT)\nHost: %s\nAccept-­Language: en-­us\nAccept-­Encoding: gzip, deflate\nConnection: Keep-­Alive\n\n", url, host);
+
+	printf("sizeof req %ld\n",strlen(getReq));
+	printf("str = %s", getReq);
+
+	return getReq;
+	
 }

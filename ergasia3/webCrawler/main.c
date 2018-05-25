@@ -18,7 +18,7 @@ int main (int argc,char* argv[]){
 	int num_of_threads=-1;		
 	int port=-1;		
 	int command_port=-1;	
-	int host_or_IP=-1;
+	char* host_or_IP=NULL;
 	char* starting_URL=NULL;	
 
 	for(int i=0; i<argc; i++){
@@ -31,7 +31,7 @@ int main (int argc,char* argv[]){
 		else if(!strcmp(argv[i],"-c"))
 			command_port=atoi(argv[i+1]);						//argument before command port should be -c
 		else if(!strcmp(argv[i],"-h"))
-			host_or_IP=atoi(argv[i+1]);							//argument before host_or_IP should be -h
+			host_or_IP=argv[i+1];							//argument before host_or_IP should be -h
 		else if (i==argc-1){
 			starting_URL=argv[i];								//last argument must be starting url
 		}
@@ -63,9 +63,9 @@ int main (int argc,char* argv[]){
 	}
 
 	printf("Printing input: save dir '%s', num_of_threads '%d', port '%d', command_port '%d' ", name_of_save_dir, num_of_threads, port, command_port);
-	printf("host_or_IP '%d', starting_URL '%s'\n", host_or_IP, starting_URL);
+	printf("host_or_IP '%s', starting_URL '%s'\n", host_or_IP, starting_URL);
 
-	//createSocket(serving_port, command_port);
+	connectToServer(port, command_port, host_or_IP, starting_URL);
 
 	return 0;
 
