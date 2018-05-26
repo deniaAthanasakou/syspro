@@ -48,7 +48,7 @@ int main (int argc,char* argv[]){
 
 	printf("Printing input: root dir '%s', num_of_threads '%d', serving_port '%d', command_port '%d'\n", name_of_root_dir, num_of_threads, serving_port, command_port);
 	
-	createSocket(serving_port, command_port);
+	createSocket(serving_port, command_port, name_of_root_dir);
 
 	return 0;
 

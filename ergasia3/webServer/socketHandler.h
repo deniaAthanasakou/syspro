@@ -1,8 +1,12 @@
 #ifndef _SOCKET_HANDLER_H_
 #define _SOCKET_HANDLER_H_
 
-void createSocket(int servingPort, int commandPort);
-void readFromSocket(int newSocket);
-char* getResponce(char* firstFline, int contentLength, char* content);
+void createSocket(int servingPort, int commandPort, char* rootDirectory);
+void readFromSocket(int newSocket, char* rootDirectory);
+char* getResponse(char* firstFline, int contentLength, char* content);
+char* handleRequest(char* req, char* rootDirectory);
+char* checkGETLine(char* GETLine);
+int checkHostLine(char* HostLine);
+char* getResponseForBadRequest();
 
 #endif

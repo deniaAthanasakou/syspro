@@ -13,9 +13,11 @@
 
 #include "socketHandler.h"
 #include "errorHandler.h"
+#include "pageHandler.h"
 
 
-void createSocket(int servingPort, int commandPort){
+
+void createSocket(int servingPort, int commandPort, char* rootDirectory){
 
 	int my_socket, my_new_socket;
 	struct sockaddr_in server, client;
@@ -45,7 +47,7 @@ void createSocket(int servingPort, int commandPort){
 		perror_exit("Listening");
 	}
 	printf("Listening for connections to port %d\n", servingPort);
-	getResponce("OK", 2, "he");
+	getResponse("OK", 2, "he");
 	while (1) { 
 		clientlen = sizeof(client);
 		/* accept connection */
@@ -60,7 +62,7 @@ void createSocket(int servingPort, int commandPort){
 		}
 		printf("Accepted connection from %s\n", rem->h_name);
 
-		readFromSocket(my_new_socket);
+		readFromSocket(my_new_socket, rootDirectory);
 
 		close(my_socket); /* parent closes socket to client */
 		close(my_new_socket); /* parent closes socket to client */
@@ -70,15 +72,13 @@ void createSocket(int servingPort, int commandPort){
 	printf("Everything is ok.\n");
 }
 
-void readFromSocket(int newSocket) {
-	char buf[1];
+void readFromSocket(int newSocket, char* rootDirectory) {
+	char request[1024];
 
-	while(read(newSocket, buf, 1) > 0) { /* Receive 1 char */
-		putchar(buf[0]); /* Print received char */
-		/* Capitalize character */
-		buf[0] = 'a';//toupper(buf[0]);
-		/* Reply */
-		if (write(newSocket, buf, 1) < 0)
+	while(read(newSocket, request, 1024) > 0){ /* Receive GET */
+		printf("req %s\n", request);
+		char* response = handleRequest(request, rootDirectory);
+		if (write(newSocket, response, strlen(response)) < 0)
 			perror_exit("write");
 	}
 	printf("Closing connection.\n");
@@ -86,7 +86,7 @@ void readFromSocket(int newSocket) {
 
 }
 
-char* getResponce(char* firstFline, int contentLength, char* content){
+char* getResponse(char* firstFline, int contentLength, char* content){
 
 	char date[100];
 	time_t now = time(0);
@@ -95,15 +95,112 @@ char* getResponce(char* firstFline, int contentLength, char* content){
 	printf("Time is: [%s]\n", date);
 
 
-	char* responce = malloc((strlen(firstFline)+strlen(content)+150)*sizeof(char));
+	char* response = malloc((strlen(firstFline)+strlen(content)+150)*sizeof(char));
 	int length = strlen(firstFline)+strlen(content)+150;
-	sprintf(responce, "%s\nDate: %s\nServer: myhttpd/1.0.0 (Ubuntu64)\nContent-­Length: %d\nContent-­Type: text/html\nConnection: Closed\n\n[%s]\n", firstFline, date, contentLength, content);
+	sprintf(response, "%s\nDate: %s\nServer: myhttpd/1.0.0 (Ubuntu64)\nContent-­Length: %d\nContent-­Type: text/html\nConnection: Closed\n\n[%s]\n", firstFline, date, contentLength, content);
 
-	printf("sizeof req %ld, %d\n",strlen(responce), length);
-	printf("str = %s", responce);
+	//printf("sizeof req %ld, %d\n",strlen(response), length);
+	//printf("str = %s", response);
 
-	return responce;
+	return response;
 }
+
+char* handleRequest(char* req, char* rootDirectory){	//will check for line with GET and line with Host
+	char* response=NULL;
+
+	char* initialReq=malloc((strlen(req)+1)*sizeof(char));
+	strcpy(initialReq, req);
+
+	char* GETLine=NULL;
+	char* hostLine=NULL;
+
+	char* line = strtok (req,"\n");
+	while (line != NULL)
+	{	
+		printf("line is '%s'\n",line );
+		if(strlen(line)>3 && line[0]=='G' && line[1]=='E' && line[2]=='T' && line[3]==' '){
+			GETLine=malloc((strlen(line)+1)*sizeof(char));
+			strcpy(GETLine, line);
+		}
+		if(strlen(line)>5 && line[0]=='H' && line[1]=='o' && line[2]=='s' && line[3]=='t' && line[4]==':' && line[5]==' '){
+			hostLine=malloc((strlen(line)+1)*sizeof(char));
+			strcpy(hostLine, line);
+		}
+
+		line = strtok (NULL, "\n");
+	}
+	//check if request is valid
+	if(strlen(initialReq)>3 && initialReq[strlen(initialReq)-1]=='\n' && initialReq[strlen(initialReq)-2]=='\n'){ //if last line is empty
+		char* page=checkGETLine(GETLine);
+		if(page==NULL || checkHostLine(hostLine)==0){
+			printf("Wrong request\n");
+			response=getResponseForBadRequest();
+		}
+		else{			//check page
+			printf("page is '%s'\n", page);
+			ResponseStr* responseStr = getResponseStrOfPage(page, rootDirectory);
+			response = getResponse(responseStr->firstLine, responseStr->contentLength, responseStr->content);
+		}
+		
+		
+	}
+	else{
+		response=getResponseForBadRequest();
+	}
+	return response;
+
+}
+
+char* checkGETLine(char* GETLine){
+	char* page=NULL;
+
+	char* word=strtok (GETLine," \t");
+	if (strcmp(word, "GET")!=0)
+		return NULL;
+
+	word=strtok (NULL," \t");		//page
+	if(word==NULL){
+		return NULL;
+	}
+	page=malloc((strlen(word)+1)*sizeof(char));
+	strcpy(page, word);
+
+	word=strtok (NULL," \t\n");
+	if (word==NULL || strcmp(word, "HTTP/1.1")!=0)
+		return NULL;
+
+	word=strtok (NULL," \t\n");
+	if(word!=NULL){
+		return NULL;
+	}
+	return page;
+}
+
+int checkHostLine(char* HostLine){
+
+	char* word=strtok (HostLine," \t");
+	if (strcmp(word, "Host:")!=0)
+		return 0;
+
+	word=strtok (NULL," \t");		//may need to change this
+	if(word==NULL || strcmp(word, "localhost")!=0){
+		return 0;
+	}
+
+	word=strtok (NULL," \t\n");
+	if(word!=NULL){
+		return 0;
+	}
+	return 1;
+}
+
+char* getResponseForBadRequest(){
+
+	char* response = malloc((strlen("Wrong request.")+1)*sizeof(char));
+	strcpy(response, "Wrong request.");
+	return response;
+}
+
 
 
 

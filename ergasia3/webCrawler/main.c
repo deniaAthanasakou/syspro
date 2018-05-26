@@ -62,10 +62,13 @@ int main (int argc,char* argv[]){
 		exit(1);
 	}
 
-	printf("Printing input: save dir '%s', num_of_threads '%d', port '%d', command_port '%d' ", name_of_save_dir, num_of_threads, port, command_port);
-	printf("host_or_IP '%s', starting_URL '%s'\n", host_or_IP, starting_URL);
 
-	connectToServer(port, command_port, host_or_IP, starting_URL);
+
+
+	printf("Printing input: save dir '%s', num_of_threads '%d', port '%d', command_port '%d' ", name_of_save_dir, num_of_threads, port, command_port);
+	printf("host_or_IP '%s', starting_URL '%s' (\"/site1/page1_21533.html\")\n", host_or_IP, starting_URL);
+
+	connectToServer(port, command_port, host_or_IP, "/site1/page1_21533.html");
 
 	return 0;
 

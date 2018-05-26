@@ -1,8 +1,8 @@
 CC = gcc -g
-FILES = main.c socketHandler.c errorHandler.c
-OBJECTS = main.o socketHandler.o errorHandler.o
+FILES = main.c socketHandler.c errorHandler.c pageHandler.c
+OBJECTS = main.o socketHandler.o errorHandler.o pageHandler.o
 OUT = myhttpd
-HEADERS = socketHandler.h errorHandler.h
+HEADERS = socketHandler.h errorHandler.h pageHandler.h
 
 all: $(OBJECTS) $(HEADERS)
 	$(CC) -o $(OUT) $(FILES) 
@@ -16,7 +16,9 @@ socketHandler.o: socketHandler.c
 
 errorHandler.o: errorHandler.c
 	$(CC) -c errorHandler.c	
-	
+
+pageHandler.o: pageHandler.c
+	$(CC) -c pageHandler.c		
 	
 clean:
 	rm -f $(OBJECTS)
