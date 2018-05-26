@@ -13,7 +13,7 @@
 void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* startingURL){
 
 	int sock, i;
-	char buffer[1024];
+	char buffer[4096];
 	struct sockaddr_in server;
 	struct sockaddr *serverptr = (struct sockaddr*)&server;
 	struct hostent *rem;
@@ -42,24 +42,51 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 	do {
 		//printf("Give input string: ");
 		//fgets(buf, sizeof(buf), stdin); /* Read from stdin*/
-
+		int lengthOfBuffer=0;
 		char* req = createGetRequest(startingURL, host_or_IP);
 		if (write(sock,req, strlen(req)) < 0)				//write in socket
 			perror_exit("write");
 
-		if (read(sock, buffer, 1024) < 0)					//read from socket
+		if ((lengthOfBuffer = read(sock, buffer, 20)) < 0)					//read from socket header
 			perror_exit("read");
 
+		buffer[lengthOfBuffer]='\0';
+		int lengthOfResponse=atoi(buffer);
+		printf("lengthOfResponse %d\n", lengthOfResponse);
 
-		/*for(i=0; buf[i] != '\0'; i++) { /* For every char */
-			/* Send i-th character */
-		//	if (write(sock, buf + i, 1) < 0)				//write in socket
-		//		perror_exit("write");
-			/* receive i-th character transformed */
-		//	if (read(sock, buf + i, 1) < 0)					//read from socket
-		//		perror_exit("read");
-		//}
-		printf("Received string: %s\n", buffer);
+
+		char* response=malloc((lengthOfResponse+1)*sizeof(char));
+		int charsRead=0;
+
+		int charsToRead;
+		if(lengthOfResponse<4096)
+			charsToRead=lengthOfResponse;
+		else
+			charsToRead=4096;
+
+		response[0]='\0';
+		while(charsRead<lengthOfResponse){
+			if ((lengthOfBuffer=read(sock, buffer, charsToRead)) < 0)					//read from socket response
+				perror_exit("read");
+
+			//printf("lengthOfBuffer %d\n", lengthOfBuffer);
+			buffer[lengthOfBuffer]='\0';
+			//printf("buffer: %s\n", buffer);
+			strcat(response, buffer);
+			charsRead+=charsToRead;
+
+
+			if(lengthOfResponse-charsRead<4096)
+				charsToRead=lengthOfResponse-charsRead;
+			else
+				charsToRead=4096;
+		}
+
+
+
+		printf("Received string: %s\n", response);
+
+		printf("charsRead %d, lengthOfResponse %d\n", charsRead, lengthOfResponse);
 		strcpy(buffer, "END\n");
 	} while (strcmp(buffer, "END\n") != 0); /* Finish on "end" */
 	close(sock); /* Close socket and exit */
@@ -77,4 +104,10 @@ char* createGetRequest(char* url, char* host){
 
 	return getReq;
 	
+}
+
+void handleResponse(char* response, char* url){
+	//gets first line for OK
+	//gets line for content will start with <!DOCTYPE html>
+	//saves it in saveDir
 }

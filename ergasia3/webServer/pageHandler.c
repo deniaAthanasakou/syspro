@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #include <errno.h>
 
@@ -23,23 +24,47 @@ ResponseStr* getResponseStrOfPage(char* page, char* rootDirectory){
 		if(errno == EACCES){// we do not have read permission
 			respStr->firstLine = "HTTP/1.1 403 Forbidden";
 			respStr->contentLength = 124;
-			respStr->content = "<html>Trying to access this file but don’t think I can make it.</html>";
+			respStr->content=malloc((strlen("<html>Trying to access this file but don’t think I can make it.</html>")+1)*sizeof(char));
+			strcpy(respStr->content, "<html>Trying to access this file but don’t think I can make it.</html>");
+			//respStr->content = "<html>Trying to access this file but don’t think I can make it.</html>";
 		}
 		else{ // file does not exist
 			respStr->firstLine = "HTTP/1.1 404 Not Found";
 			respStr->contentLength = 124;
-			respStr->content = "<html>Sorry dude, couldn’t find this file.</html>";
+			respStr->content=malloc((strlen("<html>Sorry dude, couldn’t find this file.</html>")+1)*sizeof(char));
+			strcpy(respStr->content, "<html>Sorry dude, couldn’t find this file.</html>");
+			//respStr->content = "<html>Sorry dude, couldn’t find this file.</html>";
 		}
 		
 	}
 	else{	//read content of file
+
+
+		struct stat buf;
+		fstat(fd, &buf);
+		int numBytes = buf.st_size;
+		char cont[numBytes];
+		printf("numBytes=%d\n", numBytes);
+		if(read(fd, cont, numBytes)<0){
+			respStr->content=malloc((strlen("<html>Error with file reading.</html>")+1)*sizeof(char));
+			strcpy(respStr->content, "<html>Error with file reading.</html>");
+			//respStr->content = "<html>Error with file reading.</html>";
+		}
+		//printf("cont=%s\n", cont);
+
+
 		respStr->firstLine = "HTTP/1.1 200 OK";
-		respStr->contentLength = 124;
-		respStr->content = "<html>Must get Content Of Page.</html>";
+		respStr->contentLength = strlen(cont)-49; 	//length of header + length of footer = 49
+		//respStr->content = cont;
+		respStr->content=malloc((strlen(cont)+1)*sizeof(char));
+		strcpy(respStr->content, cont);
+		
+
+
 
 
 		close (fd);
 	}
-
+	
 	return respStr;
 }

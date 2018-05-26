@@ -3,6 +3,7 @@
 
 char* createGetRequest(char* url, char* host);
 void connectToServer(int port, int commandPort, char* host_or_IP, char* startingURL);
+void handleResponse(char* response, char* url);
 
 
 #endif

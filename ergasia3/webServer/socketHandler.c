@@ -47,7 +47,6 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory){
 		perror_exit("Listening");
 	}
 	printf("Listening for connections to port %d\n", servingPort);
-	getResponse("OK", 2, "he");
 	while (1) { 
 		clientlen = sizeof(client);
 		/* accept connection */
@@ -74,12 +73,35 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory){
 
 void readFromSocket(int newSocket, char* rootDirectory) {
 	char request[1024];
+	char buffer[4096];
 
 	while(read(newSocket, request, 1024) > 0){ /* Receive GET */
-		printf("req %s\n", request);
+		//printf("req %s\n", request);
 		char* response = handleRequest(request, rootDirectory);
-		if (write(newSocket, response, strlen(response)) < 0)
+
+		char lengthOfResponse[20];
+		sprintf(lengthOfResponse, "%ld", strlen(response));
+		
+		//printf("content = %sOPK\n", response);
+
+		printf("lengthOfResponse %s\n", lengthOfResponse);
+		if (write(newSocket, lengthOfResponse, 20) < 0)		//send header to crawler
 			perror_exit("write");
+
+		int length=strlen(response);
+		int charsW=0;
+
+		while(charsW<length){
+			if (write(newSocket, response+charsW, 4096) < 0)					//write content to buffer
+				perror_exit("write");
+
+			//strcat(response, buffer);
+			charsW+=4096;
+		}
+
+
+		//if (write(newSocket, response, strlen(response)) < 0)			//den kserw an einai swsto
+		//	perror_exit("write");
 	}
 	printf("Closing connection.\n");
 	close(newSocket); /* Close socket */
@@ -87,7 +109,7 @@ void readFromSocket(int newSocket, char* rootDirectory) {
 }
 
 char* getResponse(char* firstFline, int contentLength, char* content){
-
+	//printf("content = %sOPs\n", content);
 	char date[100];
 	time_t now = time(0);
 	struct tm tm = *gmtime(&now);
@@ -96,12 +118,13 @@ char* getResponse(char* firstFline, int contentLength, char* content){
 
 
 	char* response = malloc((strlen(firstFline)+strlen(content)+150)*sizeof(char));
-	int length = strlen(firstFline)+strlen(content)+150;
+	//int length = strlen(firstFline)+strlen(content)+150;
 	sprintf(response, "%s\nDate: %s\nServer: myhttpd/1.0.0 (Ubuntu64)\nContent-­Length: %d\nContent-­Type: text/html\nConnection: Closed\n\n[%s]\n", firstFline, date, contentLength, content);
-
+	//strcpy(response, "Hello");
 	//printf("sizeof req %ld, %d\n",strlen(response), length);
 	//printf("str = %s", response);
-
+	//printf("response = %sOPP\n", response);
+	
 	return response;
 }
 
@@ -139,7 +162,9 @@ char* handleRequest(char* req, char* rootDirectory){	//will check for line with 
 		else{			//check page
 			printf("page is '%s'\n", page);
 			ResponseStr* responseStr = getResponseStrOfPage(page, rootDirectory);
+
 			response = getResponse(responseStr->firstLine, responseStr->contentLength, responseStr->content);
+
 		}
 		
 		
