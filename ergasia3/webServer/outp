@@ -10,9 +10,10 @@ line is 'Connection: Keep-­Alive'
 page is '/site1/page1_21533.html'
 fileName = '/home/denia/Desktop/root_directory/site1/page1_21533.html'
 numBytes=75121
-Time is: [Sat, 26 May 2018 18:43:50 GMT]
-response = HTTP/1.1 200 OK
-Date: Sat, 26 May 2018 18:43:50 GMT
+Time is: [Sun, 27 May 2018 09:30:57 GMT]
+lengthOfResponse 75279
+response is HTTP/1.1 200 OK
+Date: Sun, 27 May 2018 09:30:57 GMT
 Server: myhttpd/1.0.0 (Ubuntu64)
 Content-­Length: 75072
 Content-­Type: text/html
@@ -1583,6 +1584,47 @@ surface of the water?"
 "Not at all.  This boat is attached to the upper part of the hull of
 the Nautilus, and occupies a cavity made for it.  It is decked, quite
 water-tight, and held together by solid bolts.  This ladder leads to a
-ma�
-lengthOfResponse 73303
+man-hole made in the hull of the Nautilus, that corresponds with a
+similar hole made in the side of the boat.  By this double opening I
+get into the small vessel.  They shut the one belonging to the
+Nautilus; I shut the other by means of screw pressure.  I undo the
+bolts, and the little boat goes up to the surface of the sea with
+prodigious rapidity.  I then open the panel of the bridge, carefully
+shut till then; I mast it, hoist my sail, take my oars, and I'm off."
+
+"But how do you get back on board?"
+
+"I do not come back, M. Aronnax; the Nautilus comes to me."
+
+"By your orders?"
+
+"By my orders.  An electric thread connects us.  I telegraph to it, and
+that is enough."
+
+"Really," I said, astonished at these marvels, "nothing can be more
+simple."
+
+After having passed by the cage of the staircase that led to the
+platform, I saw a cabin six feet long, in which Conseil and Ned Land,
+enchanted with their repast, were devouring it with avidity.  Then a
+door opened into a kitchen nine feet long, situated between the large
+store-rooms. There electricity, better than gas itself, did all the
+cooking.  The streams under the furnaces gave out to the sponges of
+platina a heat which was regularly kept up and distributed.  They also
+heated a distilling apparatus, which, by evaporation, furnished
+excellent drinkable water.  Near this kitchen was a bathroom
+comfortably furnished, with hot and cold water taps.
+
+Next to the kitchen was the berth-room of the vessel, sixteen feet
+long.  But the door was shut, and I could not see the management of it,
+which might have given me an idea of the number of men employed on
+board the Nautilus.
+
+At the bottom was a fourth partition that separated this office from
+the engine-room. A door opened, and I found myself in the compartment
+<a href=/home/denia/Desktop/root_directory/site0/page0_4729.html>link4_text-/home/denia/Desktop/root_directory/site0/page0_4729.html</a>
+<br>
+</body> </html>
+]
+
 Closing connection.

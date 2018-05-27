@@ -74,9 +74,12 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory){
 void readFromSocket(int newSocket, char* rootDirectory) {
 	char request[1024];
 	char buffer[4096];
+	int requestLength=0;
 
-	while(read(newSocket, request, 1024) > 0){ /* Receive GET */
+	while((requestLength = read(newSocket, request, 1024)) > 0){ /* Receive GET */
 		//printf("req %s\n", request);
+
+		request[requestLength]='\0';
 		char* response = handleRequest(request, rootDirectory);
 
 		char lengthOfResponse[20];
@@ -85,23 +88,43 @@ void readFromSocket(int newSocket, char* rootDirectory) {
 		//printf("content = %sOPK\n", response);
 
 		printf("lengthOfResponse %s\n", lengthOfResponse);
-		if (write(newSocket, lengthOfResponse, 20) < 0)		//send header to crawler
+		if (write(newSocket, lengthOfResponse, strlen(lengthOfResponse)) < 0){		//send header to crawler
+			free(response);
 			perror_exit("write");
+		}
 
 		int length=strlen(response);
 		int charsW=0;
 
-		while(charsW<length){
-			if (write(newSocket, response+charsW, 4096) < 0)					//write content to buffer
-				perror_exit("write");
+		int charsToWrite;
+		if(length<4096)
+			charsToWrite=length;
+		else
+			charsToWrite=4096;
 
-			//strcat(response, buffer);
-			charsW+=4096;
+		printf("response is %s\n", response);
+
+		while(charsW<length){
+			if (write(newSocket, response+charsW, charsToWrite) < 0){					//write content to buffer
+				free(response);
+				perror_exit("write");
+			}
+
+			charsW+=charsToWrite;
+
+
+			if(length-charsW<4096)
+				charsToWrite=length-charsW;
+			else
+				charsToWrite=4096;
 		}
+
+
 
 
 		//if (write(newSocket, response, strlen(response)) < 0)			//den kserw an einai swsto
 		//	perror_exit("write");
+		free(response);
 	}
 	printf("Closing connection.\n");
 	close(newSocket); /* Close socket */
@@ -164,7 +187,10 @@ char* handleRequest(char* req, char* rootDirectory){	//will check for line with 
 			ResponseStr* responseStr = getResponseStrOfPage(page, rootDirectory);
 
 			response = getResponse(responseStr->firstLine, responseStr->contentLength, responseStr->content);
-
+			free(responseStr->content);
+			free(responseStr->firstLine);
+			free(responseStr);
+			free(page);
 		}
 		
 		
@@ -172,6 +198,13 @@ char* handleRequest(char* req, char* rootDirectory){	//will check for line with 
 	else{
 		response=getResponseForBadRequest();
 	}
+
+	if(GETLine)
+			free(GETLine);
+	if(hostLine)
+			free(hostLine);
+			
+	free(initialReq);
 	return response;
 
 }

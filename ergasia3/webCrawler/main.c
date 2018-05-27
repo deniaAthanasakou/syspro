@@ -41,6 +41,7 @@ int main (int argc,char* argv[]){
 	if (save_dir == NULL) {					//Not a directory or doesn't exist
 		perror_exit("Error in save directory");
 	}
+	closedir(save_dir);
 	if(num_of_threads<=0){
 		printf("Error! Invalid value for number of threads.\n");
 		exit(1);
@@ -66,9 +67,9 @@ int main (int argc,char* argv[]){
 
 
 	printf("Printing input: save dir '%s', num_of_threads '%d', port '%d', command_port '%d' ", name_of_save_dir, num_of_threads, port, command_port);
-	printf("host_or_IP '%s', starting_URL '%s' (\"/site1/page1_21533.html\")\n", host_or_IP, starting_URL);
+	printf("host_or_IP '%s', starting_URL '%s' (\"/site1/page1_8049.html\")\n", host_or_IP, starting_URL);
 
-	connectToServer(port, command_port, host_or_IP, "/site1/page1_21533.html");
+	connectToServer(port, command_port, host_or_IP, "/site1/page1_8049.html", name_of_save_dir);
 
 	return 0;
 

@@ -54,7 +54,7 @@ writeContents ()
 	header="<!DOCTYPE html>
 <html>
 <body>"
-	echo $header >> $fileForAppending			#adding header
+	echo -n $header >> $fileForAppending			#adding header
 	
 	#middle part steps 6-7
 	startingPoint=$k

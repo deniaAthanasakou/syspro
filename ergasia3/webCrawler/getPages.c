@@ -7,10 +7,13 @@
 #include <stdlib.h> /* exit */
 #include <string.h> /* strlen */
 
+#include <sys/stat.h>
+
+
 #include "errorHandler.h"
 #include "getPages.h"
 
-void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* startingURL){
+void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* startingURL, char* save_dir){
 
 	int sock, i;
 	char buffer[4096];
@@ -47,6 +50,9 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 		if (write(sock,req, strlen(req)) < 0)				//write in socket
 			perror_exit("write");
 
+
+		free(req);
+
 		if ((lengthOfBuffer = read(sock, buffer, 20)) < 0)					//read from socket header
 			perror_exit("read");
 
@@ -73,7 +79,9 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 			buffer[lengthOfBuffer]='\0';
 			//printf("buffer: %s\n", buffer);
 			strcat(response, buffer);
+			//response[strlen(response)]='\0';
 			charsRead+=charsToRead;
+			//printf("response: %s\n", response);
 
 
 			if(lengthOfResponse-charsRead<4096)
@@ -85,6 +93,10 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 
 
 		printf("Received string: %s\n", response);
+		handleResponse(response, startingURL, save_dir);
+
+
+		free(response);
 
 		printf("charsRead %d, lengthOfResponse %d\n", charsRead, lengthOfResponse);
 		strcpy(buffer, "END\n");
@@ -106,8 +118,121 @@ char* createGetRequest(char* url, char* host){
 	
 }
 
-void handleResponse(char* response, char* url){
+void handleResponse(char* response, char* url, char* save_dir){
 	//gets first line for OK
 	//gets line for content will start with <!DOCTYPE html>
 	//saves it in saveDir
+	char* tempResponse= malloc((strlen(response)+1)*sizeof(char));
+	strcpy(tempResponse, response);
+	char* tempResponse2=tempResponse;
+
+	char* fileName=malloc((strlen(url)+strlen(save_dir)+1)*sizeof(char));
+	sprintf(fileName, "%s%s",save_dir, url);
+	printf("fileName %s\n", fileName);
+	printf("in handle Response\n");
+	
+	createDir(url, save_dir);
+	if(file_exists(fileName)){
+		free(tempResponse);
+		free(fileName);
+		return;
+	}
+	FILE* fp = fopen(fileName, "w");
+	if(fp==NULL){	//file already exists
+		perror_exit("fopen");
+	}
+	printf("PAGE CREATED\n");
+
+	printf("response '%s'\n", response);
+	char* line = strtok (tempResponse,"\n");
+	int lineCounter=0;
+	while (line != NULL){
+
+
+		printf("LINE '%s'\n", line);
+		if(lineCounter==0){
+			if(strcmp(line,"HTTP/1.1 200 OK")==0){
+				printf("ok\n");
+			}
+			else if(strcmp(line,"HTTP/1.1 404 Not Found")==0){
+				printf("Not Found\n");
+			}
+			else if(strcmp(line,"HTTP/1.1 403 Forbidden")==0){
+				printf("Forbidden\n");
+			}
+			else{
+				printf("line '%s'\n", line);
+				free(fileName);
+				perror_exit("what just happened\n");
+			}
+		}
+
+
+
+
+		//printf("line is '%s'\n",line );
+
+		if((strlen(line)>5 && line[0]=='<' && line[1]=='h' && line[2]=='t' && line[3]=='m' && line[4]=='l' && line[5]=='>') || (strlen(line)>5 && line[0]=='[' && line[1]=='<' && line[2]=='!' && line[3]=='D' && line[4]=='O' && line[5]=='C') ) {
+			fprintf(fp, "%s", line+1);
+			char* remainingLine = strtok(NULL,"");
+			printf("remainingLine '%s'\n", remainingLine);
+			fprintf(fp, "%*.*s", (int)strlen(remainingLine)-2, (int)strlen(remainingLine)-2, remainingLine);
+			break;
+		}
+
+		line = strtok (NULL, "\n");
+		lineCounter++;
+	}
+	//if(line)
+	//	free(line);
+
+	fclose(fp);
+	free(fileName);
+
+	free(tempResponse2);
+
+
+}
+
+void createDir(char* pageName, char* save_dir){
+	char* tempPageName=malloc((strlen(pageName))*sizeof(char));
+	strcpy(tempPageName, pageName+1);	//to avoid '/'
+
+	//printf("tempPageName %s\n", tempPageName);
+	char* line=strtok(tempPageName, "/");
+
+	char* dirName=malloc((strlen(line) + strlen(save_dir) +2)*sizeof(char));
+
+	if(save_dir[strlen(save_dir)-1]!='/')
+		sprintf(dirName, "%s/%s", save_dir,line);
+	else
+		sprintf(dirName, "%s%s", save_dir,line);
+
+	//printf("dirName %s\n", dirName);
+
+	struct stat st = {0};
+
+	if (stat(dirName, &st) == -1) {
+	    mkdir(dirName, 0700);
+	}
+
+	free(dirName);
+	if(line)
+		free(line);
+
+
+
+}
+
+
+
+bool file_exists(const char * filename)
+{
+	FILE* file=fopen(filename, "r");
+    if (file)
+    {
+        fclose(file);
+        return true;
+    }
+    return false;
 }
