@@ -1,8 +1,8 @@
 CC = gcc -g
-FILES = main.c errorHandler.c getPages.c
-OBJECTS = main.o errorHandler.o getPages.o
+FILES = main.c errorHandler.c getPages.c queue.c
+OBJECTS = main.o errorHandler.o getPages.o queue.o
 OUT = mycrawler
-HEADERS = errorHandler.h getPages.h
+HEADERS = errorHandler.h getPages.h queue.h
 
 all: $(OBJECTS) $(HEADERS)
 	$(CC) -o $(OUT) $(FILES) 
@@ -16,7 +16,10 @@ errorHandler.o: errorHandler.c
 	
 getPages.o: getPages.c
 	$(CC) -c getPages.c	
-		
+
+queue.o: queue.c
+	$(CC) -c queue.c	
+
 clean:
 	rm -f $(OBJECTS)
 

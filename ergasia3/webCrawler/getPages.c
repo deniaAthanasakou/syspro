@@ -4,19 +4,21 @@
 #include <netinet/in.h> /* internet sockets */
 #include <unistd.h> /* read, write, close */
 #include <netdb.h> /* gethostbyaddr */
-#include <stdlib.h> /* exit */
-#include <string.h> /* strlen */
+#include <stdlib.h> 
+#include <string.h> 
 
 #include <sys/stat.h>
 
 
 #include "errorHandler.h"
 #include "getPages.h"
+#include "queue.h"
+#define BUFFSIZE 4096
 
 void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* startingURL, char* save_dir){
 
 	int sock, i;
-	char buffer[4096];
+	char buffer[BUFFSIZE];
 	struct sockaddr_in server;
 	struct sockaddr *serverptr = (struct sockaddr*)&server;
 	struct hostent *rem;
@@ -65,10 +67,10 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 		int charsRead=0;
 
 		int charsToRead;
-		if(lengthOfResponse<4096)
+		if(lengthOfResponse<BUFFSIZE)
 			charsToRead=lengthOfResponse;
 		else
-			charsToRead=4096;
+			charsToRead=BUFFSIZE;
 
 		response[0]='\0';
 		while(charsRead<lengthOfResponse){
@@ -84,10 +86,10 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 			//printf("response: %s\n", response);
 
 
-			if(lengthOfResponse-charsRead<4096)
+			if(lengthOfResponse-charsRead<BUFFSIZE)
 				charsToRead=lengthOfResponse-charsRead;
 			else
-				charsToRead=4096;
+				charsToRead=BUFFSIZE;
 		}
 
 

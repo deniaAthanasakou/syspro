@@ -15,6 +15,7 @@
 #include "errorHandler.h"
 #include "pageHandler.h"
 
+#define BUFFSIZE 4096
 
 
 void createSocket(int servingPort, int commandPort, char* rootDirectory){
@@ -73,7 +74,7 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory){
 
 void readFromSocket(int newSocket, char* rootDirectory) {
 	char request[1024];
-	char buffer[4096];
+	char buffer[BUFFSIZE];
 	int requestLength=0;
 
 	while((requestLength = read(newSocket, request, 1024)) > 0){ /* Receive GET */
@@ -97,10 +98,10 @@ void readFromSocket(int newSocket, char* rootDirectory) {
 		int charsW=0;
 
 		int charsToWrite;
-		if(length<4096)
+		if(length<BUFFSIZE)
 			charsToWrite=length;
 		else
-			charsToWrite=4096;
+			charsToWrite=BUFFSIZE;
 
 		printf("response is %s\n", response);
 
@@ -113,10 +114,10 @@ void readFromSocket(int newSocket, char* rootDirectory) {
 			charsW+=charsToWrite;
 
 
-			if(length-charsW<4096)
+			if(length-charsW<BUFFSIZE)
 				charsToWrite=length-charsW;
 			else
-				charsToWrite=4096;
+				charsToWrite=BUFFSIZE;
 		}
 
 
