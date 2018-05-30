@@ -48,7 +48,8 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory){
 		perror_exit("Listening");
 	}
 	printf("Listening for connections to port %d\n", servingPort);
-	while (1) { 
+	int stopWhile=0;
+	while (!stopWhile) { 
 		clientlen = sizeof(client);
 		/* accept connection */
 
@@ -62,25 +63,31 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory){
 		}
 		printf("Accepted connection from %s\n", rem->h_name);
 
-		readFromSocket(my_new_socket, rootDirectory);
+		int stopWhile = readFromSocket(my_new_socket, rootDirectory);
 
-		close(my_socket); /* parent closes socket to client */
-		close(my_new_socket); /* parent closes socket to client */
+		
 	}
-
+	close(my_socket); /* parent closes socket to client */
+	close(my_new_socket); /* parent closes socket to client */ //isws na mh xreiazetai
 
 	printf("Everything is ok.\n");
 }
 
-void readFromSocket(int newSocket, char* rootDirectory) {
+int readFromSocket(int newSocket, char* rootDirectory) {
 	char request[1024];
 	char buffer[BUFFSIZE];
 	int requestLength=0;
 
 	while((requestLength = read(newSocket, request, 1024)) > 0){ /* Receive GET */
-		//printf("req %s\n", request);
 
 		request[requestLength]='\0';
+
+		if(!strcmp(request, "Connection Ended")){
+			//printf("DONEEEE\n");
+			break;
+		}
+
+		printf("req %s\n", request);
 		char* response = handleRequest(request, rootDirectory);
 
 		char lengthOfResponse[20];
@@ -127,6 +134,7 @@ void readFromSocket(int newSocket, char* rootDirectory) {
 		//	perror_exit("write");
 		free(response);
 	}
+	return 1;
 	printf("Closing connection.\n");
 	close(newSocket); /* Close socket */
 
@@ -143,7 +151,7 @@ char* getResponse(char* firstFline, int contentLength, char* content){
 
 	char* response = malloc((strlen(firstFline)+strlen(content)+150)*sizeof(char));
 	//int length = strlen(firstFline)+strlen(content)+150;
-	sprintf(response, "%s\nDate: %s\nServer: myhttpd/1.0.0 (Ubuntu64)\nContent-­Length: %d\nContent-­Type: text/html\nConnection: Closed\n\n[%s]\n", firstFline, date, contentLength, content);
+	sprintf(response, "%s\nDate: %s\nServer: myhttpd/1.0.0 (Ubuntu64)\nContent-­Length: %d\nContent-­Type: text/html\nConnection: Closed\n\n%s\n", firstFline, date, contentLength, content);
 	//strcpy(response, "Hello");
 	//printf("sizeof req %ld, %d\n",strlen(response), length);
 	//printf("str = %s", response);
@@ -164,7 +172,7 @@ char* handleRequest(char* req, char* rootDirectory){	//will check for line with 
 	char* line = strtok (req,"\n");
 	while (line != NULL)
 	{	
-		printf("line is '%s'\n",line );
+		//printf("line is '%s'\n",line );
 		if(strlen(line)>3 && line[0]=='G' && line[1]=='E' && line[2]=='T' && line[3]==' '){
 			GETLine=malloc((strlen(line)+1)*sizeof(char));
 			strcpy(GETLine, line);

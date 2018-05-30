@@ -13,36 +13,36 @@ void TestInsert(CuTest *tc){
 	CuAssertPtrEquals(tc,NULL,queue->lastNode);
 	CuAssertIntEquals(tc,0,queue->size);
 
-	insertInQueue(queue, "a");
+	insertInQueue(queue, "http://linux01.di.uoa:8080/site2/a");
 	CuAssertIntEquals(tc,1,queue->size);
 	CuAssertPtrEquals(tc,queue->lastNode,queue->firstNode);
 	CuAssertStrEquals(tc,queue->lastNode->pageName,queue->firstNode->pageName);
-	CuAssertStrEquals(tc,"a",queue->firstNode->pageName);
+	CuAssertStrEquals(tc,"/site2/a",queue->firstNode->pageName);
 
-	insertInQueue(queue, "b");
+	insertInQueue(queue, "http://linux01.di.uoa:8080/site2/b");
 	CuAssertIntEquals(tc,2,queue->size);
-	CuAssertStrEquals(tc,"a",queue->firstNode->pageName);
-	CuAssertStrEquals(tc,"b",queue->lastNode->pageName);
+	CuAssertStrEquals(tc,"/site2/a",queue->firstNode->pageName);
+	CuAssertStrEquals(tc,"/site2/b",queue->lastNode->pageName);
 
-	insertInQueue(queue, "c");
+	insertInQueue(queue, "http://linux01.di.uoa:8080/site2/c");
 	CuAssertIntEquals(tc,3,queue->size);
-	CuAssertStrEquals(tc,"a",queue->firstNode->pageName);
-	CuAssertStrEquals(tc,"b",queue->firstNode->next->pageName);
-	CuAssertStrEquals(tc,"c",queue->lastNode->pageName);
+	CuAssertStrEquals(tc,"/site2/a",queue->firstNode->pageName);
+	CuAssertStrEquals(tc,"/site2/b",queue->firstNode->next->pageName);
+	CuAssertStrEquals(tc,"/site2/c",queue->lastNode->pageName);
 
-	insertInQueue(queue, "d");
+	insertInQueue(queue, "http://linux01.di.uoa:8080/site2/d");
 	CuAssertIntEquals(tc,4,queue->size);
-	CuAssertStrEquals(tc,"a",queue->firstNode->pageName);
-	CuAssertStrEquals(tc,"b",queue->firstNode->next->pageName);
-	CuAssertStrEquals(tc,"c",queue->firstNode->next->next->pageName);
-	CuAssertStrEquals(tc,"d",queue->lastNode->pageName);
+	CuAssertStrEquals(tc,"/site2/a",queue->firstNode->pageName);
+	CuAssertStrEquals(tc,"/site2/b",queue->firstNode->next->pageName);
+	CuAssertStrEquals(tc,"/site2/c",queue->firstNode->next->next->pageName);
+	CuAssertStrEquals(tc,"/site2/d",queue->lastNode->pageName);
 
-	insertInQueue(queue, "c");
+	insertInQueue(queue, "http://linux01.di.uoa:8080/site2/c");
 	CuAssertIntEquals(tc,4,queue->size);
-	CuAssertStrEquals(tc,"a",queue->firstNode->pageName);
-	CuAssertStrEquals(tc,"b",queue->firstNode->next->pageName);
-	CuAssertStrEquals(tc,"c",queue->firstNode->next->next->pageName);
-	CuAssertStrEquals(tc,"d",queue->lastNode->pageName);
+	CuAssertStrEquals(tc,"/site2/a",queue->firstNode->pageName);
+	CuAssertStrEquals(tc,"/site2/b",queue->firstNode->next->pageName);
+	CuAssertStrEquals(tc,"/site2/c",queue->firstNode->next->next->pageName);
+	CuAssertStrEquals(tc,"/site2/d",queue->lastNode->pageName);
 
 	//printQueue(queue);
 
@@ -52,26 +52,44 @@ void TestInsert(CuTest *tc){
 
 void TestDelete(CuTest *tc){
 	Queue* queue=createQueue();
-	insertInQueue(queue, "a");
-	insertInQueue(queue, "b");
-	insertInQueue(queue, "c");
-	insertInQueue(queue, "d");
-	insertInQueue(queue, "b");
+	insertInQueue(queue, "http://linux01.di.uoa:8080/site2/a");
+	insertInQueue(queue, "http://linux01.di.uoa:8080/site2/b");
+	insertInQueue(queue, "http://linux01.di.uoa:8080/site2/c");
+	insertInQueue(queue, "http://linux01.di.uoa:8080/site2/d");
+	insertInQueue(queue, "http://linux01.di.uoa:8080/site2/b");
 
 	deleteFromQueue(queue);
 	CuAssertIntEquals(tc,3,queue->size);
-	CuAssertStrEquals(tc,"b",queue->firstNode->pageName);
-	CuAssertStrEquals(tc,"c",queue->firstNode->next->pageName);
-	CuAssertStrEquals(tc,"d",queue->firstNode->next->next->pageName);
-	CuAssertStrEquals(tc,"d",queue->lastNode->pageName);
+	CuAssertStrEquals(tc,"/site2/b",queue->firstNode->pageName);
+	CuAssertStrEquals(tc,"/site2/c",queue->firstNode->next->pageName);
+	CuAssertStrEquals(tc,"/site2/d",queue->firstNode->next->next->pageName);
+	CuAssertStrEquals(tc,"/site2/d",queue->lastNode->pageName);
 
 	deleteFromQueue(queue);
 	CuAssertIntEquals(tc,2,queue->size);
-	CuAssertStrEquals(tc,"c",queue->firstNode->pageName);
-	CuAssertStrEquals(tc,"d",queue->firstNode->next->pageName);
-	CuAssertStrEquals(tc,"d",queue->lastNode->pageName);
+	CuAssertStrEquals(tc,"/site2/c",queue->firstNode->pageName);
+	CuAssertStrEquals(tc,"/site2/d",queue->firstNode->next->pageName);
+	CuAssertStrEquals(tc,"/site2/d",queue->lastNode->pageName);
 
 	destroyQueue(queue);
+}
+
+
+
+void TestGetFixedPageName(CuTest *tc){
+	char* correctPageName=getFixedPageName("http://linux01.di.uoa:8080/site1/page0_1234.html");
+	CuAssertStrEquals(tc,"/site1/page0_1234.html",correctPageName);
+
+	correctPageName=getFixedPageName("/site1/page0_1234.html");
+	CuAssertStrEquals(tc,"/site1/page0_1234.html",correctPageName);
+
+	char* pageName=malloc((strlen("a/b/c/d/e/f/g/sit/site1/page0_1234.html")+1)*sizeof(char));
+	strcpy(pageName, "a/b/c/d/e/f/g/sit/site1/page0_1234.html");
+	correctPageName=getFixedPageName(pageName);
+	CuAssertStrEquals(tc,"/site1/page0_1234.html",correctPageName);	
+
+	free(pageName);
+	
 }
 
 CuSuite* QueueGetSuite(){	//adding TestQueue Functions into suite
@@ -80,6 +98,7 @@ CuSuite* QueueGetSuite(){	//adding TestQueue Functions into suite
     
     SUITE_ADD_TEST(suite, TestInsert);
     SUITE_ADD_TEST(suite, TestDelete);
+    SUITE_ADD_TEST(suite, TestGetFixedPageName);
     
     return suite;
 }

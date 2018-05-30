@@ -42,6 +42,10 @@ int main (int argc,char* argv[]){
 		perror_exit("Error in save directory");
 	}
 	closedir(save_dir);
+	char cmd[500];
+	sprintf(cmd,"if [ \"$(ls -A %s)\" ]; then echo \"Warning: directory %s is full and will be emptied.\";rm -rf %s/*;fi",name_of_save_dir,name_of_save_dir , name_of_save_dir); 
+	system(cmd);
+
 	if(num_of_threads<=0){
 		printf("Error! Invalid value for number of threads.\n");
 		exit(1);
@@ -62,6 +66,13 @@ int main (int argc,char* argv[]){
 		printf("Error! NULL URL was given.\n");
 		exit(1);
 	}
+	if(port==command_port){
+		printf("Error! Different ports were required.\n");
+		exit(1);
+	}
+
+	
+	
 
 
 
@@ -69,7 +80,7 @@ int main (int argc,char* argv[]){
 	printf("Printing input: save dir '%s', num_of_threads '%d', port '%d', command_port '%d' ", name_of_save_dir, num_of_threads, port, command_port);
 	printf("host_or_IP '%s', starting_URL '%s' (\"/site1/page1_8049.html\")\n", host_or_IP, starting_URL);
 
-	connectToServer(port, command_port, host_or_IP, "/site1/page1_8049.html", name_of_save_dir);
+	connectToServer(port, command_port, host_or_IP, starting_URL, name_of_save_dir);
 
 	return 0;
 

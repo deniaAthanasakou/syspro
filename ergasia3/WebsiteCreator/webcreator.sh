@@ -43,9 +43,10 @@ arrayOfFileNames=()							#will be used for links
 #check if root_directory is empty
 if [ "$(ls -A $root_directory)" ]; then
    echo "# Warning: directory is full, purging..."
+   rm -rf $root_directory/*					#delete existing directories
 fi
 
-rm -rf $root_directory/*					#delete existing directories
+
 #create w folders for sites inside root_directory
 for ((i=0; i < w; i++)); do		#pages will be inserted into arrayOfFileNames
 	echo "# Creating web site $i"

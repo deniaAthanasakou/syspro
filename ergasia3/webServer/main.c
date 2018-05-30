@@ -33,6 +33,18 @@ int main (int argc,char* argv[]){
 	if (root_dir == NULL) {					//Not a directory or doesn't exist
 		perror_exit("Error in root directory");
 	}
+	int n = 0;
+	struct dirent *d;
+	while ((d = readdir(root_dir)) != NULL) {
+	if(++n > 2)
+	  break;
+	}
+	closedir(root_dir);
+	if (n <= 2) {//Directory Empty
+		printf("Error! Root directory is empty.\n");
+		exit(1);
+	}
+
 	if(num_of_threads<=0){
 		printf("Error! Invalid value for number of threads.\n");
 		exit(1);
@@ -43,6 +55,10 @@ int main (int argc,char* argv[]){
 	}
 	if(command_port<0){
 		printf("Error! Invalid value for command port.\n");
+		exit(1);
+	}
+	if(serving_port==command_port){
+		printf("Error! Different ports were required.\n");
 		exit(1);
 	}
 

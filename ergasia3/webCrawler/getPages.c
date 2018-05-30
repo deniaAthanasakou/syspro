@@ -11,8 +11,8 @@
 
 
 #include "errorHandler.h"
+#include "pageHandler.h"
 #include "getPages.h"
-#include "queue.h"
 #define BUFFSIZE 4096
 
 void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* startingURL, char* save_dir){
@@ -42,13 +42,15 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 
 	printf("Connecting to %s port %d\n", host_or_IP, servingPort);
 
-	
+	Queue* queue=createQueue();
+	insertInQueue(queue, startingURL);
+	QueueNode* tempNode = queue->firstNode;
 
-	do {
+	while(tempNode!=NULL) {
 		//printf("Give input string: ");
 		//fgets(buf, sizeof(buf), stdin); /* Read from stdin*/
 		int lengthOfBuffer=0;
-		char* req = createGetRequest(startingURL, host_or_IP);
+		char* req = createGetRequest(tempNode->pageName, host_or_IP);
 		if (write(sock,req, strlen(req)) < 0)				//write in socket
 			perror_exit("write");
 
@@ -74,6 +76,7 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 
 		response[0]='\0';
 		while(charsRead<lengthOfResponse){
+
 			if ((lengthOfBuffer=read(sock, buffer, charsToRead)) < 0)					//read from socket response
 				perror_exit("read");
 
@@ -94,16 +97,27 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 
 
 
-		printf("Received string: %s\n", response);
-		handleResponse(response, startingURL, save_dir);
+		printf("Received string: '%s'\n", response);
+		handleResponse(response, tempNode->pageName, save_dir, queue);
 
 
 		free(response);
 
-		printf("charsRead %d, lengthOfResponse %d\n", charsRead, lengthOfResponse);
-		strcpy(buffer, "END\n");
-	} while (strcmp(buffer, "END\n") != 0); /* Finish on "end" */
+		//printf("charsRead %d, lengthOfResponse %d\n", charsRead, lengthOfResponse);
+		printf("END\n");
+		tempNode= tempNode->next;
+		//deleteFromQueue(queue);
+		//break;
+
+
+	} //queue is empty
+
+	if (write(sock,"Connection Ended", strlen("Connection Ended")) < 0)				//write in socket to close connection
+			perror_exit("write");
+
+
 	close(sock); /* Close socket and exit */
+	destroyQueue(queue);
 }
 
 
@@ -120,7 +134,7 @@ char* createGetRequest(char* url, char* host){
 	
 }
 
-void handleResponse(char* response, char* url, char* save_dir){
+void handleResponse(char* response, char* url, char* save_dir, Queue* queue){
 	//gets first line for OK
 	//gets line for content will start with <!DOCTYPE html>
 	//saves it in saveDir
@@ -139,20 +153,21 @@ void handleResponse(char* response, char* url, char* save_dir){
 		free(fileName);
 		return;
 	}
-	FILE* fp = fopen(fileName, "w");
+	FILE* fp = fopen(fileName, "w+");
 	if(fp==NULL){	//file already exists
 		perror_exit("fopen");
 	}
 	printf("PAGE CREATED\n");
 
-	printf("response '%s'\n", response);
+	//printf("response '%s'\n", response);
 	char* line = strtok (tempResponse,"\n");
 	int lineCounter=0;
 	while (line != NULL){
 
 
-		printf("LINE '%s'\n", line);
-		if(lineCounter==0){
+		
+		/*if(lineCounter==0){
+			printf("LINE '%s'\n", line);
 			if(strcmp(line,"HTTP/1.1 200 OK")==0){
 				printf("ok\n");
 			}
@@ -164,21 +179,23 @@ void handleResponse(char* response, char* url, char* save_dir){
 			}
 			else{
 				printf("line '%s'\n", line);
-				free(fileName);
-				perror_exit("what just happened\n");
+				//free(fileName);
+				//perror_exit("what just happened\n");
 			}
 		}
+*/
 
 
 
+		printf("line is '%s'\n",line );
 
-		//printf("line is '%s'\n",line );
-
-		if((strlen(line)>5 && line[0]=='<' && line[1]=='h' && line[2]=='t' && line[3]=='m' && line[4]=='l' && line[5]=='>') || (strlen(line)>5 && line[0]=='[' && line[1]=='<' && line[2]=='!' && line[3]=='D' && line[4]=='O' && line[5]=='C') ) {
-			fprintf(fp, "%s", line+1);
+		if((strlen(line)>5 && line[0]=='<' && line[1]=='h' && line[2]=='t' && line[3]=='m' && line[4]=='l' && line[5]=='>') || (strlen(line)>5 && line[0]=='<' && line[1]=='!' && line[2]=='D' && line[3]=='O' && line[4]=='C') ) {
+			printf("line2 is '%s'\n",line );
+			fprintf(fp, "%s", line);
 			char* remainingLine = strtok(NULL,"");
-			printf("remainingLine '%s'\n", remainingLine);
-			fprintf(fp, "%*.*s", (int)strlen(remainingLine)-2, (int)strlen(remainingLine)-2, remainingLine);
+			//printf("remainingLine '%s'\n", remainingLine);
+			if(remainingLine!=NULL)
+				fprintf(fp, "%*.*s", (int)strlen(remainingLine)-2, (int)strlen(remainingLine)-2, remainingLine);
 			break;
 		}
 
@@ -188,11 +205,14 @@ void handleResponse(char* response, char* url, char* save_dir){
 	//if(line)
 	//	free(line);
 
+	getLinksIntoQueue(queue, fp);
+
+
 	fclose(fp);
 	free(fileName);
 
 	free(tempResponse2);
-
+	//exit(1);
 
 }
 

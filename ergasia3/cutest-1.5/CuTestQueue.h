@@ -5,6 +5,7 @@
 
 void TestInsert(CuTest *tc);
 void TestDelete(CuTest *tc);
+void TestGetFixedPageName(CuTest *tc);
 
 CuSuite* QueueGetSuite();
 

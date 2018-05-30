@@ -19,6 +19,7 @@ typedef struct Queue{
 
 Queue* createQueue();
 void initializeQueueNode(QueueNode* node, char* pageName);
+char* getFixedPageName(char* fullPageName);
 void insertInQueue(Queue* queue, char* pageName);
 void deleteFromQueue(Queue* queue);
 bool checkIfPageExists(Queue* queue, char* pageName);
