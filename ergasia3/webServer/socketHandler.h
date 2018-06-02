@@ -1,12 +1,19 @@
 #ifndef _SOCKET_HANDLER_H_
 #define _SOCKET_HANDLER_H_
 
-void createSocket(int servingPort, int commandPort, char* rootDirectory);
-int readFromSocket(int newSocket, char* rootDirectory);
+typedef struct Stats{
+	int pagesServed;
+	long int bytes;
+}Stats;
+
+
+void createSocket(int servingPort, int commandPort, char* rootDirectory, int numOfThreads);
+int readFromSocket(int newSocket, char* rootDirectory, Stats* stats);
 char* getResponse(char* firstFline, int contentLength, char* content);
-char* handleRequest(char* req, char* rootDirectory);
+char* handleRequest(char* req, char* rootDirectory, Stats* stats);
 char* checkGETLine(char* GETLine);
 int checkHostLine(char* HostLine);
 char* getResponseForBadRequest();
+void initializeStats(Stats* stats);
 
 #endif

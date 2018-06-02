@@ -112,8 +112,8 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 
 	} //queue is empty
 
-	if (write(sock,"Connection Ended", strlen("Connection Ended")) < 0)				//write in socket to close connection
-			perror_exit("write");
+	//if (write(sock,"Connection Ended", strlen("Connection Ended")) < 0)				//write in socket to close connection
+	//		perror_exit("write");
 
 
 	close(sock); /* Close socket and exit */
