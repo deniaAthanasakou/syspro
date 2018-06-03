@@ -47,79 +47,90 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 	QueueNode* tempNode = queue->firstNode;
 
 	while(tempNode!=NULL) {
-		//printf("Give input string: ");
-		//fgets(buf, sizeof(buf), stdin); /* Read from stdin*/
-		int lengthOfBuffer=0;
+
+		//create and send request
 		char* req = createGetRequest(tempNode->pageName, host_or_IP);
-		if (write(sock,req, strlen(req)) < 0)				//write in socket
+
+		int requestLength=strlen(req);
+		printf("will send requestLength '%d'\n", requestLength);
+
+		/*if (write(sock,&requestLength, sizeof(int)) < 0)				//write in socket request length
+			perror_exit("write requestLength");
+		*/
+		sprintf(buffer, "%d", requestLength);
+		if (write(sock, buffer, strlen(buffer)) < 0)				//write in socket request length
+			perror_exit("write requestLength");
+
+
+		if (write(sock,req, requestLength) < 0)							//write in socket
 			perror_exit("write");
 
 
 		free(req);
 
-		if ((lengthOfBuffer = read(sock, buffer, 20)) < 0)					//read from socket header
+		//get and handle response
+		
+		int lengthOfBuffer=0;
+		int responseLength = 0;
+		
+		/*if ((lengthOfBuffer = read(sock, &responseLength, sizeof(int))) < 0)					//read from socket header length of response
+			perror_exit("read");*/
+		if ((lengthOfBuffer = read(sock, buffer, 20)) < 0)					//read from socket header length of response
 			perror_exit("read");
-
 		buffer[lengthOfBuffer]='\0';
-		int lengthOfResponse=atoi(buffer);
-		printf("lengthOfResponse %d\n", lengthOfResponse);
 
+		printf("buffer length %s\n", buffer);
+		responseLength = atoi(buffer);
+		printf("will get responseLength %d\n", responseLength);
 
-		char* response=malloc((lengthOfResponse+1)*sizeof(char));
+		printf("will get responseLength %d\n", responseLength);
+
+		char* response=malloc((responseLength+1)*sizeof(char));
 		int charsRead=0;
 
 		int charsToRead;
-		if(lengthOfResponse<BUFFSIZE)
-			charsToRead=lengthOfResponse;
+		if(responseLength<BUFFSIZE)
+			charsToRead=responseLength;
 		else
 			charsToRead=BUFFSIZE;
 
 		response[0]='\0';
-		while(charsRead<lengthOfResponse){
+		while(charsRead<responseLength){
 
 			if ((lengthOfBuffer=read(sock, buffer, charsToRead)) < 0)					//read from socket response
 				perror_exit("read");
 
-			//printf("lengthOfBuffer %d\n", lengthOfBuffer);
 			buffer[lengthOfBuffer]='\0';
-			//printf("buffer: %s\n", buffer);
 			strcat(response, buffer);
-			//response[strlen(response)]='\0';
 			charsRead+=charsToRead;
-			//printf("response: %s\n", response);
 
-
-			if(lengthOfResponse-charsRead<BUFFSIZE)
-				charsToRead=lengthOfResponse-charsRead;
+			if(responseLength-charsRead<BUFFSIZE)
+				charsToRead=responseLength-charsRead;
 			else
 				charsToRead=BUFFSIZE;
 		}
 
-
-
 		printf("Received string: '%s'\n", response);
 		handleResponse(response, tempNode->pageName, save_dir, queue);
-
-
-		free(response);
-
-		//printf("charsRead %d, lengthOfResponse %d\n", charsRead, lengthOfResponse);
-		printf("END\n");
+		free(response);		
 		tempNode= tempNode->next;
-		//deleteFromQueue(queue);
-		//break;
-
 
 	} //queue is empty
 
-	//if (write(sock,"Connection Ended", strlen("Connection Ended")) < 0)				//write in socket to close connection
-	//		perror_exit("write");
+	int endLength = strlen("Connection Ended");
+	sprintf(buffer, "%d", endLength);
+	/*if (write(sock,&endLength, sizeof(int)) < 0)				//write length in socket to close connection
+		perror_exit("write");*/
+	if (write(sock,buffer, strlen(buffer)) < 0)				//write length in socket to close connection
+		perror_exit("write");
+
+	if (write(sock,"Connection Ended", strlen("Connection Ended")) < 0)				//write in socket to close connection
+		perror_exit("write");
 
 
 	close(sock); /* Close socket and exit */
 	destroyQueue(queue);
 }
-
 
 
 char* createGetRequest(char* url, char* host){
@@ -202,18 +213,13 @@ void handleResponse(char* response, char* url, char* save_dir, Queue* queue){
 		line = strtok (NULL, "\n");
 		lineCounter++;
 	}
-	//if(line)
-	//	free(line);
 
 	getLinksIntoQueue(queue, fp);
-
 
 	fclose(fp);
 	free(fileName);
 
 	free(tempResponse2);
-	//exit(1);
-
 }
 
 void createDir(char* pageName, char* save_dir){

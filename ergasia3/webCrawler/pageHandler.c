@@ -5,7 +5,7 @@
 #include "pageHandler.h"
 
 void getLinksIntoQueue(Queue* queue, FILE* fp){
-	printf("get Links into queue\n");
+	//printf("get Links into queue\n");
 	rewind(fp); /* for going to start of file. */
 
 	char *line = NULL;
@@ -23,7 +23,7 @@ void getLinksIntoQueue(Queue* queue, FILE* fp){
         	if(tag==NULL)
         		continue;
         	char* link = strstr(tag, "/");
-        	printf("link '%s'\n" , link);
+        	//printf("link '%s'\n" , link);
 
         	insertInQueue(queue, link);
 
@@ -33,6 +33,6 @@ void getLinksIntoQueue(Queue* queue, FILE* fp){
     }
     if(line)
     	free(line);
-    printQueue(queue);
+   // printQueue(queue);
 	
 }
