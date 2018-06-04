@@ -2,12 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <sys/timeb.h>        
 #include "errorHandler.h"
 #include "getPages.h"
 
 
 
 int main (int argc,char* argv[]){
+
+	struct timeb begin;
+	ftime(&begin);
 
 	if(argc!=12){
 		printf("Error! Wrong Number of Arguments.\n");
@@ -80,7 +84,7 @@ int main (int argc,char* argv[]){
 	printf("Printing input: save dir '%s', num_of_threads '%d', port '%d', command_port '%d' ", name_of_save_dir, num_of_threads, port, command_port);
 	printf("host_or_IP '%s', starting_URL '%s' (\"/site1/page1_8049.html\")\n", host_or_IP, starting_URL);
 
-	connectToServer(port, command_port, host_or_IP, starting_URL, name_of_save_dir);
+	connectToServer(port, command_port, host_or_IP, starting_URL, name_of_save_dir, &begin);
 
 	return 0;
 

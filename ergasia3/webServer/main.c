@@ -2,15 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-#include <sys/time.h>
+#include <sys/timeb.h>        
 #include "socketHandler.h"
 #include "errorHandler.h"
 
 
 int main (int argc,char* argv[]){
 
-	struct timeval begin;
-	gettimeofday(&begin, NULL);
+	struct timeb begin;
+	ftime(&begin);
 
 	if(argc!=9){
 		printf("Error! Wrong Number of Arguments.\n");

@@ -1,13 +1,13 @@
 #ifndef _SOCKET_HANDLER_H_
 #define _SOCKET_HANDLER_H_
-
+#include <sys/timeb.h>
 
 typedef struct Stats{
 	int pagesServed;
 	long int bytes;
 }Stats;
 
-void createSocket(int servingPort, int commandPort, char* rootDirectory, struct timeval* begin);
+void createSocket(int servingPort, int commandPort, char* rootDirectory, struct timeb* begin);
 int readFromSocket(int newSocket, char* rootDirectory, Stats* stats);
 char* getResponse(char* firstFline, int contentLength, char* content);
 char* handleRequest(char* req, char* rootDirectory, Stats* stats);
@@ -17,4 +17,5 @@ char* getResponseForBadRequest();
 
 void initializeStats(Stats* stats);
 
+char* timeToString(struct timeb* begin,  struct timeb* end);
 #endif

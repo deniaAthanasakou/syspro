@@ -16,12 +16,13 @@
 #include "errorHandler.h"
 #include "pageHandler.h"
 
+
 #include <assert.h>
 
 #define BUFFSIZE 4096
 
 
-void createSocket(int servingPort, int commandPort, char* rootDirectory, struct timeval* begin){
+void createSocket(int servingPort, int commandPort, char* rootDirectory, struct timeb* begin){
 
 	int my_socket, my_new_socket;
 	struct sockaddr_in server, client;
@@ -51,8 +52,8 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 		perror_exit("Listening");
 	}
 
-
-	int my_CommandSocket, my_new_CommandSocket;
+	//for command port
+	int my_CommandSocket, my_new_CommandSocket;			
 	struct sockaddr_in serverForCommand;
 	struct sockaddr *serverptrForCommand=(struct sockaddr *)&serverForCommand;
 
@@ -100,7 +101,6 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 			nfds=my_CommandSocket+1;
 		}
 		if(select(nfds, myFdSet, NULL, NULL, NULL)<0){
-			printf("error in select\n");
 			perror_exit("Select");
 		}	
 
@@ -114,22 +114,18 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 			if((commandLength=read(my_new_CommandSocket, command, 15)) > 0){
 				if(commandLength>=2){
 					command[commandLength-2]='\0';
-					printf("COMMAND '%s'\n", command);
-
 					if(!strcmp(command, "STATS")){
-						printf("in STATS\n");
-						struct timeval end;
-						gettimeofday(&end, NULL); 
+						struct timeb end;
+						ftime(&end); 
+						char* timeStr = timeToString(begin, &end);
+						
 
-						unsigned int t = (end.tv_usec - begin->tv_usec)/1000;	// /1000 to get milliseconds
-						printf("millisecs %d\n", t);
-
-						printf("served %d pages, %ld bytes\n", stats->pagesServed, stats->bytes);
-						initializeStats(stats);
+						printf("Sever up for %s, served %d pages, %ld bytes\n", timeStr, stats->pagesServed, stats->bytes);
+						//initializeStats(stats);
+						free(timeStr);
 
 					}
 					else if(!strcmp(command, "SHUTDOWN")){
-						printf("in SHUTDOWN\n"); 
 						//send signal to all threads to stop
 						break;
 					}
@@ -141,7 +137,7 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 		}
 
 		if(FD_ISSET(my_socket, myFdSet)){			//get request from crawler			/* accept connection */
-
+			initializeStats(stats);
 			/* accept connection */
 			if ((my_new_socket = accept(my_socket, clientptr, &clientlen))< 0){				//accepts connection with clientptr
 				perror_exit("Accepting connection");
@@ -171,13 +167,7 @@ int readFromSocket(int newSocket, char* rootDirectory, Stats* stats) {
 		if(read(newSocket, &requestLength, sizeof(int)) < 0){ 		//get length of request
 			perror_exit("read requestLength");
 		}
-		/*if((requestLength=read(newSocket, buffer, 20)) < 0){ 		//get length of request
-			perror_exit("read requestLength");
-		}
-		buffer[requestLength] = '\0';
-		printf("buffer  with length of request'%s'\n", buffer);
-		requestLength=atoi(buffer);
-*/
+
 		printf("requestLength '%d'\n", requestLength);
 		if(requestLength>=1024){
 			printf("Error! Request is too big.\n");
@@ -205,11 +195,6 @@ int readFromSocket(int newSocket, char* rootDirectory, Stats* stats) {
 			free(response);
 			perror_exit("write1");
 		}
-		/*sprintf(buffer, "%d", responseLength);
-		if (write(newSocket, buffer, strlen(buffer)) < 0){		//send length of response to crawler
-			free(response);
-			perror_exit("write1");
-		}*/
 
 		int charsW=0;			//chars written so far
 
@@ -223,8 +208,6 @@ int readFromSocket(int newSocket, char* rootDirectory, Stats* stats) {
 		int actualWritten=0;
 		//up till here it is correct
 		while(charsW<responseLength){
-			//printf("charsToWrite %d\n", charsToWrite);
-			//printf("charsW %d\n", charsW);
 			if ((actualWritten=write(newSocket, response+charsW, charsToWrite)) < 0){					//write content to buffer
 				free(response);
 				perror_exit("write2");
@@ -251,22 +234,15 @@ int readFromSocket(int newSocket, char* rootDirectory, Stats* stats) {
 }
 
 char* getResponse(char* firstFline, int contentLength, char* content){
-	//printf("content = %sOPs\n", content);
 	char date[100];
 	time_t now = time(0);
 	struct tm tm = *gmtime(&now);
 	strftime(date, sizeof date, "%a, %d %b %Y %H:%M:%S %Z", &tm);
-	//printf("Time is: [%s]\n", date);
 
 
 	char* response = malloc((strlen(firstFline)+strlen(content)+150)*sizeof(char));
-	//int length = strlen(firstFline)+strlen(content)+150;
 	sprintf(response, "%s\nDate: %s\nServer: myhttpd/1.0.0 (Ubuntu64)\nContent-­Length: %d\nContent-­Type: text/html\nConnection: Closed\n\n%s\n", firstFline, date, contentLength, content);
-	//strcpy(response, "Hello");
-	//printf("sizeof req %ld, %d\n",strlen(response), length);
-	//printf("str = %s", response);
-	//printf("response = %sOPP\n", response);
-	
+
 	return response;
 }
 
@@ -389,4 +365,65 @@ char* getResponseForBadRequest(){
 void initializeStats(Stats* stats){
 	stats->pagesServed=0;
 	stats->bytes=0;
+}
+
+char* timeToString(struct timeb* begin,  struct timeb* end){
+
+	//printf("begin %ld end %ld\n", begin->time, end->time );
+	//printf("begin %d end %d\n", begin->millitm, end->millitm );
+
+	long int secDifference = end->time-begin->time;
+	int millisecDifference = abs(end->millitm - begin->millitm);
+	int hr=0, min=0, sec=0;
+
+	if(secDifference>3600){
+		min = secDifference/60;
+		sec = secDifference%60;
+		hr = min/60;
+		min = min%60;
+	}
+	else{
+		min = secDifference/60;
+		sec = secDifference%60;
+	}
+
+	char* timeStr=malloc(20*sizeof(char));
+	timeStr[0]='\0';
+
+	if (hr<10)
+	{
+		sprintf(timeStr, "0%d:", hr);
+	}
+	else{
+		sprintf(timeStr, "%d:", hr);
+	}
+
+	if (min<10)
+	{
+		sprintf(timeStr + strlen(timeStr), "0%d:", min);
+	}
+	else{
+		sprintf(timeStr + strlen(timeStr), "%d:", min);
+	}
+
+	if (sec<10)
+	{
+		sprintf(timeStr + strlen(timeStr), "0%d.", sec);
+	}
+	else{
+		sprintf(timeStr + strlen(timeStr), "%d.", sec);
+	}
+
+	if (millisecDifference<10)
+	{
+		sprintf(timeStr + strlen(timeStr), "0%d", millisecDifference);
+	}
+	else{
+		sprintf(timeStr + strlen(timeStr), "%d", millisecDifference);
+	}
+
+	timeStr[strlen(timeStr)]='\0';
+
+	return timeStr;
+
 }

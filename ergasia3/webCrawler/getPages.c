@@ -15,7 +15,7 @@
 #include "getPages.h"
 #define BUFFSIZE 4096
 
-void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* startingURL, char* save_dir){
+void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* startingURL, char* save_dir, struct timeb* begin){
 
 	int sock, i;
 	char buffer[BUFFSIZE+1];
@@ -45,6 +45,9 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 	Queue* queue=createQueue();
 	insertInQueue(queue, startingURL);
 	QueueNode* tempNode = queue->firstNode;
+	Stats* stats = malloc(sizeof(Stats));
+	initializeStats(stats);
+
 
 	while(tempNode!=NULL) {
 
@@ -114,7 +117,7 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 		}
 
 		//printf("Received string: '%s'\n", response);
-		handleResponse(response, tempNode->pageName, save_dir, queue);
+		handleResponse(response, tempNode->pageName, save_dir, queue, stats);
 		free(response);		
 		tempNode= tempNode->next;
 		//break;
@@ -133,10 +136,99 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 	if (write(sock,"Connection Ended",endLength) < 0)				//write in socket to close connection
 		perror_exit("write");
 	printf("Connection Ended\n");
-
-
-	close(sock); /* Close socket and exit */
+	close(sock); /* Close socket*/
 	destroyQueue(queue);
+
+
+	//for command port
+	int my_CommandSocket, my_new_CommandSocket;			
+	struct sockaddr_in crawlerForCommand;
+	struct sockaddr *crawlerptrForCommand=(struct sockaddr *)&crawlerForCommand;
+
+
+	if ((my_CommandSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0){			//socket creation
+		perror_exit("Socket creation");
+	}
+
+	crawlerForCommand.sin_family = AF_INET; /* Internet domain */
+	crawlerForCommand.sin_addr.s_addr = htonl(INADDR_ANY);
+	crawlerForCommand.sin_port = htons(commandPort); /* The given port */
+
+
+	/* Bind socket to address */
+	if (bind(my_CommandSocket, crawlerptrForCommand, sizeof(crawlerForCommand)) < 0){
+		perror_exit("Binding");
+	}
+
+	/* Listen for connections */
+	if (listen(my_CommandSocket, 5) < 0){						//5 is default and represents queue_length
+		perror_exit("Listening");
+	}
+
+	struct sockaddr_in client;
+	socklen_t clientlen;
+	struct sockaddr *clientptr=(struct sockaddr *)&client;
+	clientlen = sizeof(client);
+
+
+	printf("Listening for connections to command port %d\n", commandPort);
+
+	//initialization of fd_set
+	fd_set* myFdSet= malloc(sizeof(fd_set));
+	
+	while(1){
+
+		FD_ZERO(myFdSet); /* clear all bits in fdset */
+		FD_SET(my_CommandSocket, myFdSet); /* turn on bit for fd my_CommandSocket */
+		int nfds=0;
+		if(sock>my_CommandSocket){
+			nfds=sock+1;
+		}
+		else{
+			nfds=my_CommandSocket+1;
+		}
+		if(select(nfds, myFdSet, NULL, NULL, NULL)<0){
+			perror_exit("Select");
+		}	
+
+		if(FD_ISSET(my_CommandSocket, myFdSet)){		//get command
+			/* accept connection */
+			if ((my_new_CommandSocket = accept(my_CommandSocket, clientptr, &clientlen))< 0){				//accepts connection with clientptr
+				perror_exit("Accepting connection with telnet");
+			}
+			char command[15];
+			int commandLength=0;
+			if((commandLength=read(my_new_CommandSocket, command, 15)) > 0){
+				if(commandLength>=2){
+					command[commandLength-2]='\0';
+					if(!strcmp(command, "STATS")){
+						struct timeb end;
+						ftime(&end); 
+						char* timeStr = timeToString(begin, &end);
+						
+
+						printf("Crawler up for %s, served %d pages, %ld bytes\n", timeStr, stats->pagesServed, stats->bytes);
+						//initializeStats(stats);
+						free(timeStr);
+
+					}
+					else if(!strcmp(command, "SHUTDOWN")){
+						//send signal to all threads to stop
+						break;
+					}
+					else if(!strcmp(command, "SEARCH")){
+						printf("This function has not been implemented :(\n");
+					}
+				}
+			}
+		}
+
+	}
+
+	close(my_CommandSocket); /* Close socket and exit */
+	free(myFdSet);
+	free(stats);
+	
 }
 
 
@@ -152,7 +244,7 @@ char* createGetRequest(char* url, char* host){
 	
 }
 
-void handleResponse(char* response, char* url, char* save_dir, Queue* queue){
+void handleResponse(char* response, char* url, char* save_dir, Queue* queue, Stats* stats){
 	//gets first line for OK
 	//gets line for content will start with <!DOCTYPE html>
 	//saves it in saveDir
@@ -180,30 +272,24 @@ void handleResponse(char* response, char* url, char* save_dir, Queue* queue){
 	//printf("response '%s'\n", response);
 	char* line = strtok (tempResponse,"\n");
 	int lineCounter=0;
+	int OKFlag=0;
 	while (line != NULL){
 
 
 		
-		/*if(lineCounter==0){
-			printf("LINE '%s'\n", line);
-			if(strcmp(line,"HTTP/1.1 200 OK")==0){
-				printf("ok\n");
-			}
-			else if(strcmp(line,"HTTP/1.1 404 Not Found")==0){
-				printf("Not Found\n");
-			}
-			else if(strcmp(line,"HTTP/1.1 403 Forbidden")==0){
-				printf("Forbidden\n");
-			}
-			else{
-				printf("line '%s'\n", line);
-				//free(fileName);
-				//perror_exit("what just happened\n");
+		if(lineCounter==0  && strcmp(line,"HTTP/1.1 200 OK")==0){
+			OKFlag=1;
+			stats->pagesServed++;
+		}
+		if(OKFlag==1){
+			char* str1=strstr(line, "Content-Length:");
+			char* str2=strstr(line, "Content-­Length:");	//uad
+			if(str1!=NULL || str2!=NULL){
+				char* bytesString=strstr(line, ":");
+				int bytes = atoi(bytesString+1);		//+1 to avoid :
+				stats->bytes+=bytes;
 			}
 		}
-*/
-
-
 
 	//	printf("line is '%s'\n",line );
 
@@ -255,10 +341,7 @@ void createDir(char* pageName, char* save_dir){
 	if(line)
 		free(line);
 
-
-
 }
-
 
 
 bool file_exists(const char * filename)
@@ -270,4 +353,71 @@ bool file_exists(const char * filename)
         return true;
     }
     return false;
+}
+
+
+void initializeStats(Stats* stats){
+	stats->pagesServed=0;
+	stats->bytes=0;
+}
+
+char* timeToString(struct timeb* begin,  struct timeb* end){
+
+	//printf("begin %ld end %ld\n", begin->time, end->time );
+	//printf("begin %d end %d\n", begin->millitm, end->millitm );
+
+	long int secDifference = end->time-begin->time;
+	int millisecDifference = abs(end->millitm - begin->millitm);
+	int hr=0, min=0, sec=0;
+
+	if(secDifference>3600){
+		min = secDifference/60;
+		sec = secDifference%60;
+		hr = min/60;
+		min = min%60;
+	}
+	else{
+		min = secDifference/60;
+		sec = secDifference%60;
+	}
+
+	char* timeStr=malloc(20*sizeof(char));
+	timeStr[0]='\0';
+
+	if (hr<10)
+	{
+		sprintf(timeStr, "0%d:", hr);
+	}
+	else{
+		sprintf(timeStr, "%d:", hr);
+	}
+
+	if (min<10)
+	{
+		sprintf(timeStr + strlen(timeStr), "0%d:", min);
+	}
+	else{
+		sprintf(timeStr + strlen(timeStr), "%d:", min);
+	}
+
+	if (sec<10)
+	{
+		sprintf(timeStr + strlen(timeStr), "0%d.", sec);
+	}
+	else{
+		sprintf(timeStr + strlen(timeStr), "%d.", sec);
+	}
+
+	if (millisecDifference<10)
+	{
+		sprintf(timeStr + strlen(timeStr), "0%d", millisecDifference);
+	}
+	else{
+		sprintf(timeStr + strlen(timeStr), "%d", millisecDifference);
+	}
+
+	timeStr[strlen(timeStr)]='\0';
+
+	return timeStr;
+
 }
