@@ -15,12 +15,12 @@ ResponseStr* getResponseStrOfPage(char* page, char* rootDirectory){
 
 	char* fileName=malloc((strlen(rootDirectory) + strlen(page) +1)*sizeof(char));
 	sprintf(fileName, "%s%s", rootDirectory,page );
-	printf("fileName = '%s'\n", fileName);
+	//printf("fileName = '%s'\n", fileName);
 
 	int fd = open(fileName, O_RDONLY, 0644);
 
 	if (fd==-1){
-		printf("errno=%d\n", errno);
+		//printf("errno=%d\n", errno);
 		if(errno == EACCES){// we do not have read permission
 			respStr->firstLine=malloc((strlen("HTTP/1.1 403 Forbidden")+1)*sizeof(char));
 			strcpy(respStr->firstLine, "HTTP/1.1 403 Forbidden");
@@ -46,7 +46,7 @@ ResponseStr* getResponseStrOfPage(char* page, char* rootDirectory){
 		fstat(fd, &buf);
 		int numBytes = buf.st_size;
 		char cont[numBytes];
-		printf("numBytes=%d\n", numBytes);
+		//printf("numBytes=%d\n", numBytes);
 		int contLength=0;
 		if((contLength=read(fd, cont, numBytes))<0){
 			respStr->content=malloc((strlen("<html>Error with file reading.</html>")+1)*sizeof(char));

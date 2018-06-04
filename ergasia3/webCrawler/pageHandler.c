@@ -33,6 +33,6 @@ void getLinksIntoQueue(Queue* queue, FILE* fp){
     }
     if(line)
     	free(line);
-   // printQueue(queue);
+  //  printQueue(queue);
 	
 }

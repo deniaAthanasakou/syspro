@@ -2,11 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <sys/time.h>
 #include "socketHandler.h"
 #include "errorHandler.h"
 
 
 int main (int argc,char* argv[]){
+
+	struct timeval begin;
+	gettimeofday(&begin, NULL);
 
 	if(argc!=9){
 		printf("Error! Wrong Number of Arguments.\n");
@@ -64,7 +68,7 @@ int main (int argc,char* argv[]){
 
 	printf("Printing input: root dir '%s', num_of_threads '%d', serving_port '%d', command_port '%d'\n", name_of_root_dir, num_of_threads, serving_port, command_port);
 	
-	createSocket(serving_port, command_port, name_of_root_dir);
+	createSocket(serving_port, command_port, name_of_root_dir, num_of_threads, &begin);
 
 	return 0;
 
