@@ -154,6 +154,8 @@ Connection: Keep-­Alive
 
 '
 will get responseLength 102279
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!harsToRead = 4096 , lengthOfBuffer = 4043
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!harsToRead = 4096 , lengthOfBuffer = 53
 fileName /home/denia/Desktop/save_dir/site2/page2_15240.html
 in handle Response
 PAGE CREATED
@@ -323,6 +325,8 @@ Connection: Keep-­Alive
 
 '
 will get responseLength 75966
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!harsToRead = 4096 , lengthOfBuffer = 4043
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!harsToRead = 4096 , lengthOfBuffer = 53
 fileName /home/denia/Desktop/save_dir/site6/page6_13055.html
 in handle Response
 PAGE CREATED
