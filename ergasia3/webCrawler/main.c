@@ -84,7 +84,7 @@ int main (int argc,char* argv[]){
 	printf("Printing input: save dir '%s', num_of_threads '%d', port '%d', command_port '%d' ", name_of_save_dir, num_of_threads, port, command_port);
 	printf("host_or_IP '%s', starting_URL '%s' (\"/site1/page1_8049.html\")\n", host_or_IP, starting_URL);
 
-	connectToServer(port, command_port, host_or_IP, starting_URL, name_of_save_dir, &begin);
+	connectToServer(port, command_port, host_or_IP, starting_URL, name_of_save_dir, num_of_threads, &begin);
 
 	return 0;
 

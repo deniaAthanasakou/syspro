@@ -1,5 +1,6 @@
 #ifndef _THREAD_H_
 #define _THREAD_H_
+#include "queue.h"
 
 #define POOL_SIZE 10
 
@@ -15,19 +16,24 @@ int start;
 int end;
 int count;			
 int numberOfThreads;
-pthread_mutex_t mtx;
+pthread_mutex_t mtxFd;
 pthread_cond_t cond_nonempty;
 pthread_cond_t cond_nonfull;
+pthread_cond_t cond_nonemptyQueue;
+pthread_mutex_t mtxQueue;
+Queue* queue;
 
 pthread_mutex_t mtxStats;
+char* save_dir;
 Stats* stats;
-char* rootDirectory;
+char* host_or_IP;
+struct sockaddr *serverptr;
 
 }ThreadPool;
 
 
 
-ThreadPool* createThreadPool(int numberOfThreads, char* rootDirectory, Stats* stats);
+ThreadPool* createThreadPool(int numberOfThread, char* save_dir, Stats* stats, char* host_or_IP, Queue* queue, char* startingUrl, struct sockaddr *serverptr);
 void *thread_f(void *argp);
 
 void destroyThreadPool(ThreadPool *pool);

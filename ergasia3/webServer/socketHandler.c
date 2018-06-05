@@ -15,6 +15,7 @@
 #include "socketHandler.h"
 #include "errorHandler.h"
 #include "pageHandler.h"
+#include <pthread.h>
 
 
 #include <assert.h>
@@ -22,7 +23,13 @@
 #define BUFFSIZE 4096
 
 
-void createSocket(int servingPort, int commandPort, char* rootDirectory, struct timeb* begin){
+void createSocket(int servingPort, int commandPort, char* rootDirectory, struct timeb* begin, int numThreads){
+
+	Stats* stats = malloc(sizeof(Stats));
+	initializeStats(stats);
+
+	//create thread pool
+	ThreadPool* pool = createThreadPool(numThreads, rootDirectory, stats);
 
 	int my_socket, my_new_socket;
 	struct sockaddr_in server, client;
@@ -84,8 +91,7 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 	//initialization of fd_set
 	fd_set* myFdSet= malloc(sizeof(fd_set));
 	clientlen = sizeof(client);
-	Stats* stats = malloc(sizeof(Stats));
-	initializeStats(stats);
+	
 
 
 	while (1) { 
@@ -126,7 +132,6 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 
 					}
 					else if(!strcmp(command, "SHUTDOWN")){
-						//send signal to all threads to stop
 						break;
 					}
 					else{
@@ -137,17 +142,28 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 		}
 
 		if(FD_ISSET(my_socket, myFdSet)){			//get request from crawler			/* accept connection */
-			initializeStats(stats);
+			//initializeStats(stats);
 			/* accept connection */
+
+			printf("beginning of while 1\n");
 			if ((my_new_socket = accept(my_socket, clientptr, &clientlen))< 0){				//accepts connection with clientptr
 				perror_exit("Accepting connection");
 			}
 
-			readFromSocket(my_new_socket, rootDirectory, stats);
+			insertFd(pool, my_new_socket);
+			pthread_cond_signal(&(pool->cond_nonempty));
+
+			/*if(readFromSocket(my_new_socket, rootDirectory, stats)==0){
+				printf("oupsss no more get requests\n");
+			}*/
+
 		}
 
 		
 	}
+
+	printFds(pool);
+
 	close(my_socket); /* parent closes socket to client */
 	//close(my_new_socket); /* parent closes socket to client */ //isws na mh xreiazetai
 	close(my_CommandSocket); /* parent closes socket to client */
@@ -155,79 +171,79 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 	free(myFdSet);
 	printf("Everything is ok.\n");
 	free(stats);
+	destroyThreadPool(pool);
 }
 
-int readFromSocket(int newSocket, char* rootDirectory, Stats* stats) {
+int readFromSocket(int newSocket, char* rootDirectory, ThreadPool* pool) {
 	char request[1024];
 	char buffer[BUFFSIZE+1];
 	
 
-	while(1){
-		int requestLength=0;
-		if(read(newSocket, &requestLength, sizeof(int)) < 0){ 		//get length of request
-			perror_exit("read requestLength");
-		}
+	int requestLength=0;
+	if(read(newSocket, &requestLength, sizeof(int)) < 0){ 		//get length of request
+		perror_exit("read requestLength");
+	}
 
-		printf("requestLength '%d'\n", requestLength);
-		if(requestLength>=1024){
-			printf("Error! Request is too big.\n");
-			exit(1);
-		}
+	//printf("requestLength '%d'\n", requestLength);
+	if(requestLength>=1024){
+		printf("Error! Request is too big.\n");
+		exit(1);
+	}
 
-		if(read(newSocket, request, requestLength) < 0) //get request
-			perror_exit("read request");
-		request[requestLength]='\0';
+	if(read(newSocket, request, requestLength) < 0) //get request
+		perror_exit("read request");
+	request[requestLength]='\0';
 
-		printf("req '%s'\n", request);
-		if(!strcmp(request, "Connection Ended")){						//to break while
-			printf("DONEEEE\n");
-			break;
-		}
+	printf("req '%s'\n", request);
+	if(!strcmp(request, "Connection Ended")){						//to break while
+		printf("DONEEEE\n");
+		//break;
+		printf("Closing connection.\n");
+		close(newSocket); /* Close socket */
+		return 0;
+	}
 
-		
-		char* response = handleRequest(request, rootDirectory, stats);
-		
-		//printf("content = %sOPK\n", response);
+	
+	char* response = handleRequest(request, rootDirectory, pool);
+	
+	//printf("content = %sOPK\n", response);
 
-		int responseLength = strlen(response);
-		printf("responseLength %d\n", responseLength);
-		if (write(newSocket, &responseLength, sizeof(int)) < 0){		//send length of response to crawler
+	int responseLength = strlen(response);
+	//printf("responseLength %d\n", responseLength);
+	if (write(newSocket, &responseLength, sizeof(int)) < 0){		//send length of response to crawler
+		free(response);
+		perror_exit("write1");
+	}
+
+	int charsW=0;			//chars written so far
+
+	int charsToWrite;		//number of chars to be written each time
+	if(responseLength<BUFFSIZE)
+		charsToWrite=responseLength;
+	else
+		charsToWrite=BUFFSIZE;
+
+	//printf("response is %s\n", response);
+	int actualWritten=0;
+	//up till here it is correct
+	while(charsW<responseLength){
+		if ((actualWritten=write(newSocket, response+charsW, charsToWrite)) < 0){					//write content to buffer
 			free(response);
-			perror_exit("write1");
+			perror_exit("write2");
 		}
+		//printf("charsToWrite = %d , actualWritten = %d\n", charsToWrite, actualWritten);
+		//assert(charsToWrite==actualWritten);
+		charsW+=actualWritten;
 
-		int charsW=0;			//chars written so far
 
-		int charsToWrite;		//number of chars to be written each time
-		if(responseLength<BUFFSIZE)
-			charsToWrite=responseLength;
+		if(responseLength-charsW<BUFFSIZE)
+			charsToWrite=responseLength-charsW;
 		else
 			charsToWrite=BUFFSIZE;
-
-		//printf("response is %s\n", response);
-		int actualWritten=0;
-		//up till here it is correct
-		while(charsW<responseLength){
-			if ((actualWritten=write(newSocket, response+charsW, charsToWrite)) < 0){					//write content to buffer
-				free(response);
-				perror_exit("write2");
-			}
-			printf("charsToWrite = %d , actualWritten = %d\n", charsToWrite, actualWritten);
-			assert(charsToWrite==actualWritten);
-			charsW+=actualWritten;
-
-
-			if(responseLength-charsW<BUFFSIZE)
-				charsToWrite=responseLength-charsW;
-			else
-				charsToWrite=BUFFSIZE;
-		}
-		assert(charsW==responseLength);
-		free(response);
-		
 	}
+	assert(charsW==responseLength);
+	free(response);
 	
-	printf("Closing connection.\n");
 	close(newSocket); /* Close socket */
 	return 1;
 
@@ -246,7 +262,7 @@ char* getResponse(char* firstFline, int contentLength, char* content){
 	return response;
 }
 
-char* handleRequest(char* req, char* rootDirectory, Stats* stats){	//will check for line with GET and line with Host
+char* handleRequest(char* req, char* rootDirectory, ThreadPool* pool){	//will check for line with GET and line with Host
 	char* response=NULL;
 
 	char* initialReq=malloc((strlen(req)+1)*sizeof(char));
@@ -278,13 +294,16 @@ char* handleRequest(char* req, char* rootDirectory, Stats* stats){	//will check 
 			response=getResponseForBadRequest();
 		}
 		else{			//check page
-			printf("page is '%s'\n", page);
+			//printf("page is '%s'\n", page);
 			ResponseStr* responseStr = getResponseStrOfPage(page, rootDirectory);
 
 
 			if(!strcmp(responseStr->firstLine, "HTTP/1.1 200 OK")){
-				stats->pagesServed++;
-				stats->bytes+=responseStr->contentLength;
+				printf("HTTP/1.1 200 OK\n");
+				pthread_mutex_lock(&(pool->mtxStats));
+				pool->stats->pagesServed++;
+				pool->stats->bytes+=responseStr->contentLength;
+				pthread_mutex_unlock(&(pool->mtxStats));
 			}
 
 

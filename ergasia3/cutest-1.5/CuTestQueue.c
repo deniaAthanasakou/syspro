@@ -45,6 +45,8 @@ void TestInsert(CuTest *tc){
 	CuAssertStrEquals(tc,"/site2/d",queue->lastNode->pageName);
 
 	//printQueue(queue);
+	//printf("full\n");
+	//printFullQueue(queue);
 
 	destroyQueue(queue);
 
@@ -58,18 +60,22 @@ void TestDelete(CuTest *tc){
 	insertInQueue(queue, "http://linux01.di.uoa:8080/site2/d");
 	insertInQueue(queue, "http://linux01.di.uoa:8080/site2/b");
 
-	deleteFromQueue(queue);
+	deleteFromQueue(queue, 0);
 	CuAssertIntEquals(tc,3,queue->size);
 	CuAssertStrEquals(tc,"/site2/b",queue->firstNode->pageName);
 	CuAssertStrEquals(tc,"/site2/c",queue->firstNode->next->pageName);
 	CuAssertStrEquals(tc,"/site2/d",queue->firstNode->next->next->pageName);
 	CuAssertStrEquals(tc,"/site2/d",queue->lastNode->pageName);
 
-	deleteFromQueue(queue);
+	deleteFromQueue(queue, 0);
 	CuAssertIntEquals(tc,2,queue->size);
 	CuAssertStrEquals(tc,"/site2/c",queue->firstNode->pageName);
 	CuAssertStrEquals(tc,"/site2/d",queue->firstNode->next->pageName);
 	CuAssertStrEquals(tc,"/site2/d",queue->lastNode->pageName);
+
+	printQueue(queue);
+	printf("full\n");
+	printFullQueue(queue);
 
 	destroyQueue(queue);
 }

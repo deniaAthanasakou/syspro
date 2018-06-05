@@ -5,27 +5,32 @@
 #include <unistd.h> /* read, write, close */
 #include <netdb.h> /* gethostbyaddr */
 #include <stdlib.h> 
-#include <string.h> 
+#include <string.h>
+#include <pthread.h> 
 
 #include <sys/stat.h>
-
 
 #include "errorHandler.h"
 #include "pageHandler.h"
 #include "getPages.h"
 #define BUFFSIZE 4096
 
-void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* startingURL, char* save_dir, struct timeb* begin){
+void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* startingURL, char* save_dir, int numThreads, struct timeb* begin){
+
+	Stats* stats = malloc(sizeof(Stats));
+	initializeStats(stats);
+	Queue* queue=createQueue();
+	
+
+	
+
 
 	int sock, i;
-	char buffer[BUFFSIZE+1];
 	struct sockaddr_in server;
 	struct sockaddr *serverptr = (struct sockaddr*)&server;
 	struct hostent *rem;
 	
-	/* Create socket */
-	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-		perror_exit("socket");
+	
 
 	/* Find server address */
 	if ((rem = gethostbyname(host_or_IP)) == NULL) {
@@ -36,109 +41,10 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 	memcpy(&server.sin_addr, rem->h_addr, rem->h_length);
 	server.sin_port = htons(servingPort); /* Server port */
 
-	/* Initiate connection */
-	if (connect(sock, serverptr, sizeof(server)) < 0)
-		perror_exit("connect");
-
-	printf("Connecting to %s port %d\n", host_or_IP, servingPort);
-
-	Queue* queue=createQueue();
-	insertInQueue(queue, startingURL);
-	QueueNode* tempNode = queue->firstNode;
-	Stats* stats = malloc(sizeof(Stats));
-	initializeStats(stats);
-
-
-	while(tempNode!=NULL) {
-
-		//create and send request
-		char* req = createGetRequest(tempNode->pageName, host_or_IP);
-
-		int requestLength=strlen(req)+1;
-		printf("will send requestLength '%d'\n", requestLength);
-		printf("req '%s'\n", req);
-
-		if (write(sock,&requestLength, sizeof(int)) < 0)				//write in socket request length
-			perror_exit("write requestLength");
-		
-		/*sprintf(buffer, "%d", requestLength);
-		if (write(sock, buffer, strlen(buffer)) < 0)				//write in socket request length
-			perror_exit("write requestLength");
-*/
-
-		if (write(sock,req, requestLength) < 0)							//write in socket
-			perror_exit("write");
-
-
-		free(req);
-
-		//get and handle response
-		
-		int lengthOfBuffer=0;
-		int responseLength = 0;
-		
-		if ((lengthOfBuffer = read(sock, &responseLength, sizeof(int))) < 0)					//read from socket header length of response
-			perror_exit("read");
-		/*if ((lengthOfBuffer = read(sock, buffer, 20)) < 0)					//read from socket header length of response
-			perror_exit("read");
-		buffer[lengthOfBuffer]='\0';
-
-		printf("buffer length %s\n", buffer);
-		responseLength = atoi(buffer);*/
-		printf("will get responseLength %d\n", responseLength);
-
-		//printf("will get responseLength %d\n", responseLength);
-
-		char* response=malloc((responseLength+1)*sizeof(char));
-		int charsRead=0;
-
-		int charsToRead;
-		if(responseLength<BUFFSIZE)
-			charsToRead=responseLength;
-		else
-			charsToRead=BUFFSIZE;
-
-		response[0]='\0';
-		while(charsRead<responseLength){
-
-			if ((lengthOfBuffer=read(sock, buffer, charsToRead)) < 0)					//read from socket response
-				perror_exit("read");
-			if(charsToRead!=lengthOfBuffer)
-				printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!harsToRead = %d , lengthOfBuffer = %d\n", charsToRead, lengthOfBuffer);
-			//assert(charsToRead==lengthOfBuffer);
-			buffer[lengthOfBuffer]='\0';
-			strcat(response, buffer);
-			charsRead+=lengthOfBuffer;
-
-			if(responseLength-charsRead<BUFFSIZE)
-				charsToRead=responseLength-charsRead;
-			else
-				charsToRead=BUFFSIZE;
-		}
-
-		//printf("Received string: '%s'\n", response);
-		handleResponse(response, tempNode->pageName, save_dir, queue, stats);
-		free(response);		
-		tempNode= tempNode->next;
-		//break;
-
-	} //queue is empty
-
-	int endLength = strlen("Connection Ended")+1;
-	//sprintf(buffer, "%d", endLength);
-	printf("will send endLength '%d'\n", endLength);
 	
-	if (write(sock,&endLength, sizeof(int)) < 0)				//write length in socket to close connection
-		perror_exit("write");
-	/*if (write(sock,buffer, strlen(buffer)) < 0)				//write length in socket to close connection
-		perror_exit("write");*/
-
-	if (write(sock,"Connection Ended",endLength) < 0)				//write in socket to close connection
-		perror_exit("write");
-	printf("Connection Ended\n");
-	close(sock); /* Close socket*/
-	destroyQueue(queue);
-
+	
+	
+	printf("Connecting to %s port %d\n", host_or_IP, servingPort);
 
 	//for command port
 	int my_CommandSocket, my_new_CommandSocket;			
@@ -175,18 +81,77 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 
 	//initialization of fd_set
 	fd_set* myFdSet= malloc(sizeof(fd_set));
+
 	
-	while(1){
+	//QueueNode* tempNode = queue->firstNode;
+
+	//int sendEndMessage=1;
+	int sendReq=1;
+
+	//create thread pool
+	ThreadPool* pool = createThreadPool(numThreads, save_dir, stats, host_or_IP, queue, startingURL, serverptr);
+
+
+	/*while(1) {
+		printf("in while\n");
+		/* Create socket */
+	/*	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+			perror_exit("socket");
+
+		insertFd(pool, sock);
+		pthread_cond_signal(&(pool->cond_nonempty));
+		//break;
+
+	}*/
+	//ending message
+	/* Create socket */
+	//if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	//	perror_exit("socket");
+
+	/* Initiate connection */
+//	if (connect(sock, serverptr, sizeof(server)) < 0)
+//		perror_exit("connect");
+
+//	readWriteInSocket(sock, save_dir, stats, NULL, host_or_IP, NULL, 1);	
+//	close(sock);
+
+
+	while(1){	//do select
+
+		/*if(sendReq){
+
+			/* Create socket */
+		/*	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+				perror_exit("socket");
+
+			insertFd(pool, sock);
+			pthread_cond_signal(&(pool->cond_nonempty));
+
+		}
+*/
+
+
+		/* Create socket */
+	/*	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+			perror_exit("socket");
+
+		/* Initiate connection */
+	/*	if (connect(sock, serverptr, sizeof(server)) < 0)
+			perror_exit("connect");
+*/
+
 
 		FD_ZERO(myFdSet); /* clear all bits in fdset */
 		FD_SET(my_CommandSocket, myFdSet); /* turn on bit for fd my_CommandSocket */
+	//	FD_SET(sock, myFdSet); /* turn on bit for fd my_CommandSocket */
 		int nfds=0;
-		if(sock>my_CommandSocket){
-			nfds=sock+1;
-		}
-		else{
+		//if(sock>my_CommandSocket){
+		//	nfds=sock+1;
+		//}
+		//else{
 			nfds=my_CommandSocket+1;
-		}
+		//}
+
 		if(select(nfds, myFdSet, NULL, NULL, NULL)<0){
 			perror_exit("Select");
 		}	
@@ -216,20 +181,125 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 						//send signal to all threads to stop
 						break;
 					}
-					else if(!strcmp(command, "SEARCH")){
+					else if(strstr(command, "SEARCH")){
 						printf("This function has not been implemented :(\n");
 					}
 				}
 			}
+			close(my_new_CommandSocket);
 		}
 
+/*
+		if(FD_ISSET(sock, myFdSet)){		//get command
+			if(tempNode!=NULL) {
+
+				readWriteInSocket(sock, save_dir, stats, tempNode, host_or_IP, queue, 0);	
+				tempNode = tempNode->next;
+
+			}
+			else if(tempNode == NULL && sendEndMessage==1){	
+
+				/* Create socket */
+			
+		/*		readWriteInSocket(sock, save_dir, stats, NULL, host_or_IP, queue, 1);	
+
+				sendEndMessage=0;
+			}
+		}
+
+		close(sock);
+*/	
 	}
 
+	printf("must destroyThreadPool\n");
+
+	
 	close(my_CommandSocket); /* Close socket and exit */
 	free(myFdSet);
 	free(stats);
+	destroyQueue(queue);
+	destroyThreadPool(pool);
 	
 }
+
+
+void readWriteInSocket(int sock, char* save_dir, Stats* stats, char* pageName, char* host_or_IP, ThreadPool* pool, int endFlag){
+	char buffer[BUFFSIZE+1];
+
+	if(endFlag){
+		int endLength = strlen("Connection Ended")+1;
+		printf("will send endLength '%d'\n", endLength);
+		
+		if (write(sock,&endLength, sizeof(int)) < 0)				//write length in socket to close connection
+			perror_exit("write");
+
+		if (write(sock,"Connection Ended",endLength) < 0)				//write in socket to close connection
+			perror_exit("write");
+		printf("Connection Ended\n");
+		return;
+	}
+
+	//create and send request
+	char* req = createGetRequest(pageName, host_or_IP);
+
+	int requestLength=strlen(req)+1;
+	printf("will send requestLength '%d'\n", requestLength);
+	printf("req '%s'\n", req);
+
+	if (write(sock,&requestLength, sizeof(int)) < 0)				//write in socket request length
+		perror_exit("write requestLength");
+
+	if (write(sock,req, requestLength) < 0)							//write in socket request
+		perror_exit("write");
+	free(req);
+
+
+
+	//get and handle response
+	int lengthOfBuffer=0;
+	int responseLength = 0;
+	
+	if ((lengthOfBuffer = read(sock, &responseLength, sizeof(int))) < 0)					//read from socket header length of response
+		perror_exit("read");
+
+	printf("will get responseLength %d\n", responseLength);
+
+	char* response=malloc((responseLength+1)*sizeof(char));
+	int charsRead=0;
+
+	int charsToRead;
+	if(responseLength<BUFFSIZE)
+		charsToRead=responseLength;
+	else
+		charsToRead=BUFFSIZE;
+
+	response[0]='\0';
+	while(charsRead<responseLength){
+
+		if ((lengthOfBuffer=read(sock, buffer, charsToRead)) < 0)					//read from socket response
+			perror_exit("read");
+		if(charsToRead!=lengthOfBuffer)
+			printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!harsToRead = %d , lengthOfBuffer = %d\n", charsToRead, lengthOfBuffer);
+		//assert(charsToRead==lengthOfBuffer);
+		buffer[lengthOfBuffer]='\0';
+		strcat(response, buffer);
+		charsRead+=lengthOfBuffer;
+
+		if(responseLength-charsRead<BUFFSIZE)
+			charsToRead=responseLength-charsRead;
+		else
+			charsToRead=BUFFSIZE;
+	}
+
+	//printf("Received string: '%s'\n", response);
+	handleResponse(response, pageName, save_dir, pool, stats);
+	free(response);		
+	//tempNode= tempNode->next;
+	free(pageName);
+	close(sock); /* Close socket*/
+
+}
+
 
 
 char* createGetRequest(char* url, char* host){
@@ -244,7 +314,7 @@ char* createGetRequest(char* url, char* host){
 	
 }
 
-void handleResponse(char* response, char* url, char* save_dir, Queue* queue, Stats* stats){
+void handleResponse(char* response, char* url, char* save_dir, ThreadPool* pool, Stats* stats){
 	//gets first line for OK
 	//gets line for content will start with <!DOCTYPE html>
 	//saves it in saveDir
@@ -279,7 +349,9 @@ void handleResponse(char* response, char* url, char* save_dir, Queue* queue, Sta
 		
 		if(lineCounter==0  && strcmp(line,"HTTP/1.1 200 OK")==0){
 			OKFlag=1;
+			pthread_mutex_lock(&(pool->mtxStats));
 			stats->pagesServed++;
+			pthread_mutex_unlock(&(pool->mtxStats));
 		}
 		if(OKFlag==1){
 			char* str1=strstr(line, "Content-Length:");
@@ -287,7 +359,9 @@ void handleResponse(char* response, char* url, char* save_dir, Queue* queue, Sta
 			if(str1!=NULL || str2!=NULL){
 				char* bytesString=strstr(line, ":");
 				int bytes = atoi(bytesString+1);		//+1 to avoid :
+				pthread_mutex_lock(&(pool->mtxStats));
 				stats->bytes+=bytes;
+				pthread_mutex_unlock(&(pool->mtxStats));
 			}
 		}
 
@@ -307,7 +381,7 @@ void handleResponse(char* response, char* url, char* save_dir, Queue* queue, Sta
 		lineCounter++;
 	}
 
-	getLinksIntoQueue(queue, fp);
+	getLinksIntoQueue(pool, fp);
 
 	fclose(fp);
 	free(fileName);

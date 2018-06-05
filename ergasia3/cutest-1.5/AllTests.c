@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "CuTest.h"
 #include "CuTestQueue.h"
+//#include "CuTestThread.h"
+
 
 CuSuite* CuGetSuite();
 CuSuite* CuStringGetSuite();
@@ -18,8 +20,14 @@ void RunAllTests(void)
 	CuSuiteAddSuite(suite, queueSuite);
 	free(queueSuite);
 	queueSuite=NULL;
-	
 
+	//thread	
+/*	CuSuite* threadSuite =  ThreadGetSuite();
+	CuSuiteAddSuite(suite, threadSuite);
+	free(threadSuite);
+	threadSuite=NULL;
+	
+*/
 	CuSuiteRun(suite);
 	CuSuiteSummary(suite, output);
 	CuSuiteDetails(suite, output);

@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h> 
+#include <pthread.h>
 
 #include "pageHandler.h"
 
-void getLinksIntoQueue(Queue* queue, FILE* fp){
+void getLinksIntoQueue(ThreadPool* pool, FILE* fp){
 	//printf("get Links into queue\n");
 	rewind(fp); /* for going to start of file. */
 
@@ -25,7 +26,10 @@ void getLinksIntoQueue(Queue* queue, FILE* fp){
         	char* link = strstr(tag, "/");
         	//printf("link '%s'\n" , link);
 
-        	insertInQueue(queue, link);
+            pthread_mutex_lock(&(pool->mtxQueue));
+            insertInQueue(pool->queue, link);
+            pthread_cond_signal(&(pool->cond_nonemptyQueue));
+            pthread_mutex_unlock(&(pool->mtxQueue));
 
         	free(linkLineCopyForFree);
 
