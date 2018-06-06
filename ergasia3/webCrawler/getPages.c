@@ -13,6 +13,7 @@
 #include "errorHandler.h"
 #include "pageHandler.h"
 #include "getPages.h"
+#include "search.h"
 #define BUFFSIZE 4096
 
 void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* startingURL, char* save_dir, int numThreads, struct timeb* begin){
@@ -98,9 +99,9 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 				destroyThreadPool(pool);
 				perror_exit("Accepting connection to command port");
 			}
-			char command[15];
+			char command[150];
 			int commandLength=0;
-			if((commandLength=read(my_new_CommandSocket, command, 15)) > 0){
+			if((commandLength=read(my_new_CommandSocket, command, 150)) > 0){
 				if(commandLength>=2){
 					command[commandLength-2]='\0';
 					if(!strcmp(command, "STATS")){
@@ -138,7 +139,13 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 						break;
 					}
 					else if(strstr(command, "SEARCH")){
-						printf("This function has not been implemented :(\n");
+						char* searchInstr = malloc((strlen(command)+1)*sizeof(char));
+						strcpy(searchInstr, command);
+						searchHandler(my_new_CommandSocket, searchInstr, save_dir);
+						if (write(my_new_CommandSocket,"This function has not been fully implemented :(\n", strlen("This function has not been fully implemented :(\n")) < 0)			
+							perror_exit("write");
+
+						free(searchInstr);
 					}
 				}
 			}
