@@ -31,6 +31,7 @@ ThreadPool* createThreadPool(int numberOfThreads, char* save_dir, Stats* stats, 
     pool->save_dir=save_dir;
     pool->host_or_IP=host_or_IP;
     pool->serverptr = serverptr;
+    pool->continueWorking = 1;
 
 
     pthread_mutex_init(&(pool->mtxFd), 0);
@@ -38,6 +39,10 @@ ThreadPool* createThreadPool(int numberOfThreads, char* save_dir, Stats* stats, 
     pthread_cond_init(&(pool->cond_nonfull), 0);
     pthread_mutex_init(&(pool->mtxQueue), 0);
     pthread_cond_init(&(pool->cond_nonemptyQueue), 0);
+    pthread_mutex_init(&(pool->mtxStats), 0);
+    pthread_mutex_init(&(pool->mtxContinueWorking), 0);
+    
+
 
 
     pthread_mutex_lock(&(pool->mtxQueue));
@@ -63,7 +68,7 @@ void *thread_f(void *argp){ /* Thread function */
     ThreadPool* pool = (ThreadPool*) argp;
     printf("I am the newly created thread %ld\n", pthread_self());
     printf("my save_dir is %s\n", pool->save_dir);
-    while(1){
+    while(pool->continueWorking){
 
         int fd=0;
          /* Create socket */
@@ -72,7 +77,7 @@ void *thread_f(void *argp){ /* Thread function */
 
         //int fd=getFdToThread(pool);
         printf("fd: %d\n", fd);
-        pthread_cond_signal(&(pool->cond_nonfull));
+        //pthread_cond_signal(&(pool->cond_nonfull));
 
         /* Initiate connection */
         if (connect(fd, pool->serverptr, sizeof(struct sockaddr_in)) < 0)
@@ -80,10 +85,12 @@ void *thread_f(void *argp){ /* Thread function */
 
 
         pthread_mutex_lock(&(pool->mtxQueue));
-        while (pool->queue->firstNode == NULL) {
+        while (pool->queue->firstNode == NULL && pool->continueWorking) {
             printf(">> Found Queue Empty \n");
             pthread_cond_wait(&(pool->cond_nonemptyQueue), &(pool->mtxQueue));
         }
+        if(!pool->continueWorking)
+             break;
         char* pageName = deleteFromQueue(pool->queue, 1);
         if(pageName == NULL){
             printf("Error! Null page name.\n");
@@ -96,45 +103,32 @@ void *thread_f(void *argp){ /* Thread function */
 
 
     }
+    pthread_exit(0);
 }
 
 
 void destroyThreadPool(ThreadPool *pool){
-    if(pool==NULL)
+    if(pool==NULL){
         return;
-
+    }
 
     //must wait for threads
      /* Join all worker thread */
-   for(int i = 0; i < pool->numberOfThreads; i++) {
-       // if(pthread_join(pool->threads[i], NULL) != 0) {
-    printf("in for\n");
-        if(pthread_cancel(pool->threads[i]) != 0) {
-            perror_exit("pthread_cancel");
-        }
-         printf("after if 1\n");
-
-    }
-    printf("after for1\n");
     for(int i = 0; i < pool->numberOfThreads; i++) {
-       // if(pthread_join(pool->threads[i], NULL) != 0) {
-        printf("in for\n");
-        if(pthread_kill(pool->threads[i], 0) != 0) {
-            perror_exit("pthread_kill");
+       if(pthread_kill(pool->threads[i], 0) != 0) {
+            perror_exit("pthread_join");
         }
-        printf("after if 2\n");
-
     }
-    printf("after for2\n");
     pthread_cond_destroy(&(pool->cond_nonempty));
     pthread_cond_destroy(&(pool->cond_nonfull));
     pthread_cond_destroy(&(pool->cond_nonemptyQueue));
     pthread_mutex_destroy(&(pool->mtxFd));
     pthread_mutex_destroy(&(pool->mtxQueue));
     pthread_mutex_destroy(&(pool->mtxStats));
+    pthread_mutex_destroy(&(pool->mtxContinueWorking));
 
 
-    
+    destroyQueue(pool->queue);
     free(pool->threads);
     free(pool);
 }

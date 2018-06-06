@@ -34,6 +34,8 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 
 	/* Find server address */
 	if ((rem = gethostbyname(host_or_IP)) == NULL) {
+		free(stats);
+		destroyQueue(queue);
 		herror("gethostbyname"); exit(1);
 	}
 
@@ -53,6 +55,8 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 
 
 	if ((my_CommandSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0){			//socket creation
+		free(stats);
+		destroyQueue(queue);
 		perror_exit("Socket creation");
 	}
 
@@ -118,47 +122,20 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 
 	while(1){	//do select
 
-		/*if(sendReq){
-
-			/* Create socket */
-		/*	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-				perror_exit("socket");
-
-			insertFd(pool, sock);
-			pthread_cond_signal(&(pool->cond_nonempty));
-
-		}
-*/
-
-
-		/* Create socket */
-	/*	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-			perror_exit("socket");
-
-		/* Initiate connection */
-	/*	if (connect(sock, serverptr, sizeof(server)) < 0)
-			perror_exit("connect");
-*/
-
-
 		FD_ZERO(myFdSet); /* clear all bits in fdset */
 		FD_SET(my_CommandSocket, myFdSet); /* turn on bit for fd my_CommandSocket */
-	//	FD_SET(sock, myFdSet); /* turn on bit for fd my_CommandSocket */
-		int nfds=0;
-		//if(sock>my_CommandSocket){
-		//	nfds=sock+1;
-		//}
-		//else{
-			nfds=my_CommandSocket+1;
-		//}
 
-		if(select(nfds, myFdSet, NULL, NULL, NULL)<0){
+		if(select(my_CommandSocket+1, myFdSet, NULL, NULL, NULL)<0){
 			perror_exit("Select");
 		}	
 
 		if(FD_ISSET(my_CommandSocket, myFdSet)){		//get command
 			/* accept connection */
 			if ((my_new_CommandSocket = accept(my_CommandSocket, clientptr, &clientlen))< 0){				//accepts connection with clientptr
+				free(myFdSet);
+				free(stats);
+				destroyQueue(queue);
+				destroyThreadPool(pool);
 				perror_exit("Accepting connection with telnet");
 			}
 			char command[15];
@@ -171,14 +148,35 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 						ftime(&end); 
 						char* timeStr = timeToString(begin, &end);
 						
+						char statsResults[100];
+						sprintf(statsResults, "Crawler up for %s, served %d pages, %ld bytes\n", timeStr, stats->pagesServed, stats->bytes);
 
-						printf("Crawler up for %s, served %d pages, %ld bytes\n", timeStr, stats->pagesServed, stats->bytes);
+						if (write(my_new_CommandSocket, statsResults, strlen(statsResults)) < 0){		//send length of response to crawler
+							perror_exit("write");
+						}
 						//initializeStats(stats);
 						free(timeStr);
 
 					}
 					else if(!strcmp(command, "SHUTDOWN")){
 						//send signal to all threads to stop
+
+						//ending message
+						/* Create socket */
+						if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+							perror_exit("socket");
+
+						/* Initiate connection */
+						if (connect(sock, serverptr, sizeof(server)) < 0)
+							perror_exit("connect");
+
+						readWriteInSocket(sock, save_dir, stats, NULL, host_or_IP, NULL, 1);	
+						close(sock);
+
+						pthread_mutex_lock(&(pool->mtxContinueWorking));
+						pool->continueWorking = 0;
+						pthread_mutex_unlock(&(pool->mtxContinueWorking));
+						pthread_cond_broadcast(&(pool->cond_nonemptyQueue));
 						break;
 					}
 					else if(strstr(command, "SEARCH")){
@@ -187,28 +185,7 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 				}
 			}
 			close(my_new_CommandSocket);
-		}
-
-/*
-		if(FD_ISSET(sock, myFdSet)){		//get command
-			if(tempNode!=NULL) {
-
-				readWriteInSocket(sock, save_dir, stats, tempNode, host_or_IP, queue, 0);	
-				tempNode = tempNode->next;
-
-			}
-			else if(tempNode == NULL && sendEndMessage==1){	
-
-				/* Create socket */
-			
-		/*		readWriteInSocket(sock, save_dir, stats, NULL, host_or_IP, queue, 1);	
-
-				sendEndMessage=0;
-			}
-		}
-
-		close(sock);
-*/	
+		}	
 	}
 
 	printf("must destroyThreadPool\n");
@@ -217,7 +194,7 @@ void connectToServer(int servingPort, int commandPort, char* host_or_IP, char* s
 	close(my_CommandSocket); /* Close socket and exit */
 	free(myFdSet);
 	free(stats);
-	destroyQueue(queue);
+	//destroyQueue(queue);
 	destroyThreadPool(pool);
 	
 }

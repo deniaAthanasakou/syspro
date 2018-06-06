@@ -22,6 +22,8 @@ pthread_cond_t cond_nonfull;
 pthread_cond_t cond_nonemptyQueue;
 pthread_mutex_t mtxQueue;
 Queue* queue;
+pthread_mutex_t mtxContinueWorking;
+int continueWorking;
 
 pthread_mutex_t mtxStats;
 char* save_dir;

@@ -51,8 +51,21 @@ void insertInQueue(Queue* queue, char* pageName){
 	 	}
 	 	queue->size++;
 
-	 	insertInFullQueue(queue, fixedPageName);
-	 	return;
+	 	//insertInFullQueue(queue, fixedPageName);
+	 	/*insert in full queue*/
+
+	 	if(queue->firstNodeFullQueue==NULL){
+	 		printf("in here\n");
+		 	queue->firstNodeFullQueue=malloc(sizeof(QueueNode));
+		 	initializeQueueNode(queue->firstNodeFullQueue, fixedPageName);
+		 	queue->lastNodeFullQueue=queue->firstNodeFullQueue;
+		 }
+		 else{
+		 	queue->lastNodeFullQueue->next=malloc(sizeof(QueueNode));
+		 	initializeQueueNode(queue->lastNodeFullQueue->next, fixedPageName);
+	 		queue->lastNodeFullQueue=queue->lastNodeFullQueue->next;
+		 }
+
 	 }
 
 }
@@ -111,19 +124,22 @@ void destroyQueueNode(QueueNode* node){
 }
 
 void destroyQueue(Queue* queue){
+	printf("in destr\n");
 	QueueNode* tempNode=queue->firstNode;
 	while(tempNode!=NULL){
 		deleteFromQueue(queue, 0);
 		tempNode=queue->firstNode;
 	}
-
+printf("after first\n");
 
 	QueueNode* tempNodeFromFull=queue->firstNodeFullQueue;
-	while(tempNode!=NULL){
+	printf("before while\n");
+	while(tempNodeFromFull!=NULL){
+		printf("node fullPageName = '%s'\n", tempNodeFromFull->pageName);
 		deleteFromFullQueue(queue);
-		tempNode=queue->firstNodeFullQueue;
+		tempNodeFromFull=queue->firstNodeFullQueue;
 	}
-
+	printf("after while\n");
 	free(queue);
 }
 
@@ -132,7 +148,7 @@ void deleteFromFullQueue(Queue* queue){
 		return;
 
 	QueueNode* tempNode=queue->firstNodeFullQueue;
-	queue->firstNode=queue->firstNode->next;
+	queue->firstNodeFullQueue=queue->firstNodeFullQueue->next;
 	destroyQueueNode(tempNode); 
 }
 
@@ -150,7 +166,6 @@ void insertInFullQueue(Queue* queue, char* pageName){
 	 	queue->lastNodeFullQueue->next=malloc(sizeof(QueueNode));
 	 	initializeQueueNode(queue->lastNodeFullQueue->next, pageName);
 	 	queue->lastNodeFullQueue=queue->lastNodeFullQueue->next;
-	 	return;
 	 }
 
 }

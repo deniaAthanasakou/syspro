@@ -126,7 +126,15 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 						char* timeStr = timeToString(begin, &end);
 						
 
-						printf("Sever up for %s, served %d pages, %ld bytes\n", timeStr, stats->pagesServed, stats->bytes);
+						//printf("Sever up for %s, served %d pages, %ld bytes\n", timeStr, stats->pagesServed, stats->bytes);
+						char statsResults[100];
+						sprintf(statsResults, "Server up for %s, served %d pages, %ld bytes\n", timeStr, stats->pagesServed, stats->bytes);
+
+						if (write(my_new_CommandSocket, statsResults, strlen(statsResults)) < 0){		//send length of response to crawler
+							perror_exit("write");
+						}
+
+
 						//initializeStats(stats);
 						free(timeStr);
 
@@ -139,6 +147,7 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 					}
 				}
 			}
+			close(my_new_CommandSocket); /* parent closes socket to client */
 		}
 
 		if(FD_ISSET(my_socket, myFdSet)){			//get request from crawler			/* accept connection */
@@ -167,7 +176,7 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 	close(my_socket); /* parent closes socket to client */
 	//close(my_new_socket); /* parent closes socket to client */ //isws na mh xreiazetai
 	close(my_CommandSocket); /* parent closes socket to client */
-	close(my_new_CommandSocket); /* parent closes socket to client */ //isws na mh xreiazetai
+	
 	free(myFdSet);
 	printf("Everything is ok.\n");
 	free(stats);
