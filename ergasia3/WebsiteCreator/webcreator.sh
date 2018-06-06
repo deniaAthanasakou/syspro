@@ -102,7 +102,3 @@ else
 fi	
 
 echo "# Done"
-: <<'END'		
-block comments
-END
-

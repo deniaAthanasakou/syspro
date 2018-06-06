@@ -51,11 +51,8 @@ void insertInQueue(Queue* queue, char* pageName){
 	 	}
 	 	queue->size++;
 
-	 	//insertInFullQueue(queue, fixedPageName);
 	 	/*insert in full queue*/
-
 	 	if(queue->firstNodeFullQueue==NULL){
-	 		printf("in here\n");
 		 	queue->firstNodeFullQueue=malloc(sizeof(QueueNode));
 		 	initializeQueueNode(queue->firstNodeFullQueue, fixedPageName);
 		 	queue->lastNodeFullQueue=queue->firstNodeFullQueue;
@@ -90,7 +87,6 @@ char* deleteFromQueue(Queue* queue, int returnPage){
 bool checkIfPageExists(Queue* queue, char* pageName){
 	QueueNode* tempNode=queue->firstNodeFullQueue;
 	while(tempNode!=NULL){
-		//printf("tempNode->pageName %s\n", tempNode->pageName);
 		if(!strcmp(tempNode->pageName, pageName)){
 			return true;
 		}
@@ -124,22 +120,17 @@ void destroyQueueNode(QueueNode* node){
 }
 
 void destroyQueue(Queue* queue){
-	printf("in destr\n");
 	QueueNode* tempNode=queue->firstNode;
 	while(tempNode!=NULL){
 		deleteFromQueue(queue, 0);
 		tempNode=queue->firstNode;
 	}
-printf("after first\n");
 
 	QueueNode* tempNodeFromFull=queue->firstNodeFullQueue;
-	printf("before while\n");
 	while(tempNodeFromFull!=NULL){
-		printf("node fullPageName = '%s'\n", tempNodeFromFull->pageName);
 		deleteFromFullQueue(queue);
 		tempNodeFromFull=queue->firstNodeFullQueue;
 	}
-	printf("after while\n");
 	free(queue);
 }
 
@@ -152,20 +143,3 @@ void deleteFromFullQueue(Queue* queue){
 	destroyQueueNode(tempNode); 
 }
 
-
-void insertInFullQueue(Queue* queue, char* pageName){
-
-	 if(queue->firstNodeFullQueue==NULL){
-	 	queue->firstNodeFullQueue=malloc(sizeof(QueueNode));
-	 	initializeQueueNode(queue->firstNodeFullQueue, pageName);
-	 	queue->lastNodeFullQueue=queue->firstNodeFullQueue;
-	 	return;
-	 }
-
-	 if(!checkIfPageExists(queue, pageName)){	//must insert page
-	 	queue->lastNodeFullQueue->next=malloc(sizeof(QueueNode));
-	 	initializeQueueNode(queue->lastNodeFullQueue->next, pageName);
-	 	queue->lastNodeFullQueue=queue->lastNodeFullQueue->next;
-	 }
-
-}

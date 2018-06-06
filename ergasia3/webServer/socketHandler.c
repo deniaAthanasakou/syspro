@@ -17,11 +17,7 @@
 #include "pageHandler.h"
 #include <pthread.h>
 
-
-#include <assert.h>
-
 #define BUFFSIZE 4096
-
 
 void createSocket(int servingPort, int commandPort, char* rootDirectory, struct timeb* begin, int numThreads){
 
@@ -48,14 +44,13 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 	server.sin_port = htons(servingPort); /* The given port */
 
 
-
 	/* Bind socket to address */
 	if (bind(my_socket, serverptr, sizeof(server)) < 0){
-		perror_exit("Binding");
+		perror_exit("Binding to serving port");
 	}
 
 	/* Listen for connections */
-	if (listen(my_socket, 5) < 0){						//5 is default and represents queue_length
+	if (listen(my_socket, 5) < 0){					
 		perror_exit("Listening");
 	}
 
@@ -76,11 +71,11 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 
 	/* Bind socket to address */
 	if (bind(my_CommandSocket, serverptrForCommand, sizeof(serverForCommand)) < 0){
-		perror_exit("Binding");
+		perror_exit("Binding to command port");
 	}
 
 	/* Listen for connections */
-	if (listen(my_CommandSocket, 5) < 0){						//5 is default and represents queue_length
+	if (listen(my_CommandSocket, 5) < 0){				
 		perror_exit("Listening");
 	}
 
@@ -113,7 +108,7 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 		if(FD_ISSET(my_CommandSocket, myFdSet)){		//get command
 			/* accept connection */
 			if ((my_new_CommandSocket = accept(my_CommandSocket, clientptr, &clientlen))< 0){				//accepts connection with clientptr
-				perror_exit("Accepting connection with telnet");
+				perror_exit("Accepting connection to command port");
 			}
 			char command[15];
 			int commandLength=0;
@@ -125,25 +120,18 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 						ftime(&end); 
 						char* timeStr = timeToString(begin, &end);
 						
-
-						//printf("Sever up for %s, served %d pages, %ld bytes\n", timeStr, stats->pagesServed, stats->bytes);
 						char statsResults[100];
 						sprintf(statsResults, "Server up for %s, served %d pages, %ld bytes\n", timeStr, stats->pagesServed, stats->bytes);
 
-						if (write(my_new_CommandSocket, statsResults, strlen(statsResults)) < 0){		//send length of response to crawler
+						if (write(my_new_CommandSocket, statsResults, strlen(statsResults)) < 0){	
 							perror_exit("write");
 						}
 
-
-						//initializeStats(stats);
 						free(timeStr);
 
 					}
 					else if(!strcmp(command, "SHUTDOWN")){
 						break;
-					}
-					else{
-						printf("ignore\n"); 
 					}
 				}
 			}
@@ -151,36 +139,23 @@ void createSocket(int servingPort, int commandPort, char* rootDirectory, struct 
 		}
 
 		if(FD_ISSET(my_socket, myFdSet)){			//get request from crawler			/* accept connection */
-			//initializeStats(stats);
-			/* accept connection */
 
-			printf("beginning of while 1\n");
 			if ((my_new_socket = accept(my_socket, clientptr, &clientlen))< 0){				//accepts connection with clientptr
 				perror_exit("Accepting connection");
 			}
 
 			insertFd(pool, my_new_socket);
 			pthread_cond_signal(&(pool->cond_nonempty));
-
-			/*if(readFromSocket(my_new_socket, rootDirectory, stats)==0){
-				printf("oupsss no more get requests\n");
-			}*/
-
-		}
-
-		
+		}	
 	}
 
-	printFds(pool);
-
 	close(my_socket); /* parent closes socket to client */
-	//close(my_new_socket); /* parent closes socket to client */ //isws na mh xreiazetai
 	close(my_CommandSocket); /* parent closes socket to client */
 	
 	free(myFdSet);
-	printf("Everything is ok.\n");
 	free(stats);
 	destroyThreadPool(pool);
+	printf("Closing server.\n");
 }
 
 int readFromSocket(int newSocket, char* rootDirectory, ThreadPool* pool) {
@@ -190,24 +165,20 @@ int readFromSocket(int newSocket, char* rootDirectory, ThreadPool* pool) {
 
 	int requestLength=0;
 	if(read(newSocket, &requestLength, sizeof(int)) < 0){ 		//get length of request
-		perror_exit("read requestLength");
+		perror_exit("read");
 	}
 
-	//printf("requestLength '%d'\n", requestLength);
 	if(requestLength>=1024){
 		printf("Error! Request is too big.\n");
 		exit(1);
 	}
 
 	if(read(newSocket, request, requestLength) < 0) //get request
-		perror_exit("read request");
+		perror_exit("read");
 	request[requestLength]='\0';
 
-	printf("req '%s'\n", request);
-	if(!strcmp(request, "Connection Ended")){						//to break while
-		printf("DONEEEE\n");
-		//break;
-		printf("Closing connection.\n");
+	if(!strcmp(request, "Connection Ended")){		
+		printf("Closing connection to crawler.\n");
 		close(newSocket); /* Close socket */
 		return 0;
 	}
@@ -215,13 +186,10 @@ int readFromSocket(int newSocket, char* rootDirectory, ThreadPool* pool) {
 	
 	char* response = handleRequest(request, rootDirectory, pool);
 	
-	//printf("content = %sOPK\n", response);
-
 	int responseLength = strlen(response);
-	//printf("responseLength %d\n", responseLength);
 	if (write(newSocket, &responseLength, sizeof(int)) < 0){		//send length of response to crawler
 		free(response);
-		perror_exit("write1");
+		perror_exit("write");
 	}
 
 	int charsW=0;			//chars written so far
@@ -232,25 +200,20 @@ int readFromSocket(int newSocket, char* rootDirectory, ThreadPool* pool) {
 	else
 		charsToWrite=BUFFSIZE;
 
-	//printf("response is %s\n", response);
 	int actualWritten=0;
-	//up till here it is correct
 	while(charsW<responseLength){
 		if ((actualWritten=write(newSocket, response+charsW, charsToWrite)) < 0){					//write content to buffer
 			free(response);
-			perror_exit("write2");
+			perror_exit("write");
 		}
-		//printf("charsToWrite = %d , actualWritten = %d\n", charsToWrite, actualWritten);
-		//assert(charsToWrite==actualWritten);
-		charsW+=actualWritten;
 
+		charsW+=actualWritten;
 
 		if(responseLength-charsW<BUFFSIZE)
 			charsToWrite=responseLength-charsW;
 		else
 			charsToWrite=BUFFSIZE;
 	}
-	assert(charsW==responseLength);
 	free(response);
 	
 	close(newSocket); /* Close socket */
@@ -276,19 +239,18 @@ char* handleRequest(char* req, char* rootDirectory, ThreadPool* pool){	//will ch
 
 	char* initialReq=malloc((strlen(req)+1)*sizeof(char));
 	strcpy(initialReq, req);
-
+	int hostFlag=1;		//no host was given
 	char* GETLine=NULL;
 	char* hostLine=NULL;
 
 	char* line = strtok (req,"\n");
 	while (line != NULL)
 	{	
-		//printf("line is '%s'\n",line );
-		if(strlen(line)>3 && line[0]=='G' && line[1]=='E' && line[2]=='T' && line[3]==' '){
+		if(strlen(line)>2 && line[0]=='G' && line[1]=='E' && line[2]=='T'){
 			GETLine=malloc((strlen(line)+1)*sizeof(char));
 			strcpy(GETLine, line);
 		}
-		if(strlen(line)>5 && line[0]=='H' && line[1]=='o' && line[2]=='s' && line[3]=='t' && line[4]==':' && line[5]==' '){
+		if(strlen(line)>4 && line[0]=='H' && line[1]=='o' && line[2]=='s' && line[3]=='t' && line[4]==':'){
 			hostLine=malloc((strlen(line)+1)*sizeof(char));
 			strcpy(hostLine, line);
 		}
@@ -303,12 +265,9 @@ char* handleRequest(char* req, char* rootDirectory, ThreadPool* pool){	//will ch
 			response=getResponseForBadRequest();
 		}
 		else{			//check page
-			//printf("page is '%s'\n", page);
 			ResponseStr* responseStr = getResponseStrOfPage(page, rootDirectory);
 
-
 			if(!strcmp(responseStr->firstLine, "HTTP/1.1 200 OK")){
-				printf("HTTP/1.1 200 OK\n");
 				pthread_mutex_lock(&(pool->mtxStats));
 				pool->stats->pagesServed++;
 				pool->stats->bytes+=responseStr->contentLength;
@@ -321,9 +280,7 @@ char* handleRequest(char* req, char* rootDirectory, ThreadPool* pool){	//will ch
 			free(responseStr->firstLine);
 			free(responseStr);
 			free(page);
-		}
-		
-		
+		}	
 	}
 	else{
 		response=getResponseForBadRequest();
@@ -331,8 +288,6 @@ char* handleRequest(char* req, char* rootDirectory, ThreadPool* pool){	//will ch
 
 	if(GETLine)
 			free(GETLine);
-	if(hostLine)
-			free(hostLine);
 			
 	free(initialReq);
 	return response;
@@ -343,43 +298,33 @@ char* checkGETLine(char* GETLine){
 	char* page=NULL;
 
 	char* word=strtok (GETLine," \t");
-	if (strcmp(word, "GET")!=0)
+	if (strcmp(word, "GET")!=0){
+		printf("was not GET\n");
 		return NULL;
+	}
 
 	word=strtok (NULL," \t");		//page
 	if(word==NULL){
+		printf("word NULL\n");
 		return NULL;
 	}
 	page=malloc((strlen(word)+1)*sizeof(char));
 	strcpy(page, word);
 
 	word=strtok (NULL," \t\n");
-	if (word==NULL || strcmp(word, "HTTP/1.1")!=0)
+	if (word==NULL || strcmp(word, "HTTP/1.1")!=0){
+		printf("NOT HTTP/1.1\n");
+		free(page);
 		return NULL;
+	}
 
 	word=strtok (NULL," \t\n");
 	if(word!=NULL){
+		printf("word was not NOT NULL\n");
+		free(page);
 		return NULL;
 	}
 	return page;
-}
-
-int checkHostLine(char* HostLine){
-
-	char* word=strtok (HostLine," \t");
-	if (strcmp(word, "Host:")!=0)
-		return 0;
-
-	word=strtok (NULL," \t");		//may need to change this
-	if(word==NULL || strcmp(word, "localhost")!=0){
-		return 0;
-	}
-
-	word=strtok (NULL," \t\n");
-	if(word!=NULL){
-		return 0;
-	}
-	return 1;
 }
 
 char* getResponseForBadRequest(){
@@ -396,9 +341,6 @@ void initializeStats(Stats* stats){
 }
 
 char* timeToString(struct timeb* begin,  struct timeb* end){
-
-	//printf("begin %ld end %ld\n", begin->time, end->time );
-	//printf("begin %d end %d\n", begin->millitm, end->millitm );
 
 	long int secDifference = end->time-begin->time;
 	int millisecDifference = abs(end->millitm - begin->millitm);
@@ -454,4 +396,18 @@ char* timeToString(struct timeb* begin,  struct timeb* end){
 
 	return timeStr;
 
+}
+
+
+int checkHostLine(char* HostLine){
+
+	char* word=strtok (HostLine," \t");
+	if (strcmp(word, "Host:")!=0)
+		return 0;
+
+	word=strtok (NULL," \t");		//may need to change this
+	if(word==NULL){
+		return 0;
+	}
+	return 1;
 }

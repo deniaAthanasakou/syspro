@@ -42,8 +42,6 @@ createLinks (){
 					fi	
 				done
 
-
-				#linkToBeInserted="./${pathOfOtherPage[5]}"
 				arrayOfLinks+=(${arrayOfFileNames[$position]})	#insert link into array
 
 
@@ -54,7 +52,6 @@ createLinks (){
 		else
 			#external Link
 			if [ "$externalLinks" -gt "0" ]; then
-				#linkToBeInserted="../${pathOfOtherPage[4]}/${pathOfOtherPage[5]}"
 				arrayOfLinks+=(${arrayOfFileNames[$position]})	#insert link into array
 				let externalLinks=externalLinks-1
 			fi	
@@ -62,7 +59,6 @@ createLinks (){
 	done	
 
 	if [ "$internalLinks" -gt "0" ]; then
-		#linkToBeInserted="./${pathOfFileForAppending[5]}"
 		arrayOfLinks+=($fileForAppending)	#must insert same page
 		let internalLinks=internalLinks-1
 	fi	

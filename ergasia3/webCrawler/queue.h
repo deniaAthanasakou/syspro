@@ -31,8 +31,6 @@ void printQueue(Queue* queue);
 void printFullQueue(Queue* queue);
 void destroyQueueNode(QueueNode* node);
 void destroyQueue(Queue* queue);
-
-void insertInFullQueue(Queue* queue, char* pageName);
 void deleteFromFullQueue(Queue* queue);
 
 

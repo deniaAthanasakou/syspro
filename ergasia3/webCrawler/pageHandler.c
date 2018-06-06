@@ -6,7 +6,6 @@
 #include "pageHandler.h"
 
 void getLinksIntoQueue(ThreadPool* pool, FILE* fp){
-	//printf("get Links into queue\n");
 	rewind(fp); /* for going to start of file. */
 
 	char *line = NULL;
@@ -24,7 +23,6 @@ void getLinksIntoQueue(ThreadPool* pool, FILE* fp){
         	if(tag==NULL)
         		continue;
         	char* link = strstr(tag, "/");
-        	//printf("link '%s'\n" , link);
 
             pthread_mutex_lock(&(pool->mtxQueue));
             insertInQueue(pool->queue, link);
@@ -36,7 +34,5 @@ void getLinksIntoQueue(ThreadPool* pool, FILE* fp){
         }
     }
     if(line)
-    	free(line);
-   // printQueue(queue);
-	
+    	free(line);	
 }

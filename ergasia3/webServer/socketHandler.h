@@ -9,10 +9,12 @@ int readFromSocket(int newSocket, char* rootDirectory, ThreadPool* pool);
 char* getResponse(char* firstFline, int contentLength, char* content);
 char* handleRequest(char* req, char* rootDirectory, ThreadPool* pool);
 char* checkGETLine(char* GETLine);
-int checkHostLine(char* HostLine);
 char* getResponseForBadRequest();
 
 void initializeStats(Stats* stats);
 
 char* timeToString(struct timeb* begin,  struct timeb* end);
+
+
+int checkHostLine(char* HostLine);
 #endif

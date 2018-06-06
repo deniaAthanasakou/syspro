@@ -15,14 +15,9 @@
 #include "errorHandler.h"
 #include "getPages.h"
 
-
-
 ThreadPool* createThreadPool(int numberOfThreads, char* save_dir, Stats* stats, char* host_or_IP, Queue* queue, char* startingUrl, struct sockaddr *serverptr){
 
     ThreadPool* pool = malloc(sizeof(ThreadPool));
-    pool->start = 0;
-    pool->end = -1;
-    pool->count = 0;
     pool->numberOfThreads=numberOfThreads;
     pool->threads = (pthread_t *)malloc(sizeof(pthread_t) * numberOfThreads);
     pool->queue=queue;
@@ -33,18 +28,11 @@ ThreadPool* createThreadPool(int numberOfThreads, char* save_dir, Stats* stats, 
     pool->serverptr = serverptr;
     pool->continueWorking = 1;
 
-
-    pthread_mutex_init(&(pool->mtxFd), 0);
-    pthread_cond_init(&(pool->cond_nonempty), 0);
-    pthread_cond_init(&(pool->cond_nonfull), 0);
     pthread_mutex_init(&(pool->mtxQueue), 0);
     pthread_cond_init(&(pool->cond_nonemptyQueue), 0);
     pthread_mutex_init(&(pool->mtxStats), 0);
     pthread_mutex_init(&(pool->mtxContinueWorking), 0);
     
-
-
-
     pthread_mutex_lock(&(pool->mtxQueue));
     insertInQueue(pool->queue, startingUrl);
     pthread_cond_signal(&(pool->cond_nonemptyQueue));
@@ -64,10 +52,7 @@ ThreadPool* createThreadPool(int numberOfThreads, char* save_dir, Stats* stats, 
 }
 
 void *thread_f(void *argp){ /* Thread function */
-    printf("in thread_f\n");
     ThreadPool* pool = (ThreadPool*) argp;
-    printf("I am the newly created thread %ld\n", pthread_self());
-    printf("my save_dir is %s\n", pool->save_dir);
     while(pool->continueWorking){
 
         int fd=0;
@@ -75,18 +60,13 @@ void *thread_f(void *argp){ /* Thread function */
         if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
             perror_exit("socket");
 
-        //int fd=getFdToThread(pool);
-        printf("fd: %d\n", fd);
-        //pthread_cond_signal(&(pool->cond_nonfull));
-
         /* Initiate connection */
         if (connect(fd, pool->serverptr, sizeof(struct sockaddr_in)) < 0)
-            perror_exit("connect");
+            perror_exit("connect to server");
 
 
         pthread_mutex_lock(&(pool->mtxQueue));
         while (pool->queue->firstNode == NULL && pool->continueWorking) {
-            printf(">> Found Queue Empty \n");
             pthread_cond_wait(&(pool->cond_nonemptyQueue), &(pool->mtxQueue));
         }
         if(!pool->continueWorking)
@@ -106,7 +86,6 @@ void *thread_f(void *argp){ /* Thread function */
     pthread_exit(0);
 }
 
-
 void destroyThreadPool(ThreadPool *pool){
     if(pool==NULL){
         return;
@@ -116,13 +95,10 @@ void destroyThreadPool(ThreadPool *pool){
      /* Join all worker thread */
     for(int i = 0; i < pool->numberOfThreads; i++) {
        if(pthread_kill(pool->threads[i], 0) != 0) {
-            perror_exit("pthread_join");
+            perror_exit("pthread_kill");
         }
     }
-    pthread_cond_destroy(&(pool->cond_nonempty));
-    pthread_cond_destroy(&(pool->cond_nonfull));
     pthread_cond_destroy(&(pool->cond_nonemptyQueue));
-    pthread_mutex_destroy(&(pool->mtxFd));
     pthread_mutex_destroy(&(pool->mtxQueue));
     pthread_mutex_destroy(&(pool->mtxStats));
     pthread_mutex_destroy(&(pool->mtxContinueWorking));
@@ -131,46 +107,4 @@ void destroyThreadPool(ThreadPool *pool){
     destroyQueue(pool->queue);
     free(pool->threads);
     free(pool);
-}
-
-
-void insertFd(ThreadPool* pool, int fd){
-
-    pthread_mutex_lock(&(pool->mtxFd));
-    while (pool->count >= POOL_SIZE) {
-        printf(">> Found Buffer Full \n");
-        pthread_cond_wait(&(pool->cond_nonfull), &(pool->mtxFd));
-    }
-    pool->end = (pool->end + 1) % POOL_SIZE;
-    pool->fds[pool->end] = fd;
-
-    pool->count++;
-    pthread_mutex_unlock(&(pool->mtxFd));    
-
-}
-
-void printFds(ThreadPool* pool){
-    printf("printing fds\n");
-    for(int i=0; i<pool->end; i++){
-        printf("fd = %d | ", pool->fds[i]);
-    }
-    printf("\n");
-}
-
-
-int getFdToThread(ThreadPool* pool){
-
-    int fd = 0;
-    pthread_mutex_lock(&(pool->mtxFd));
-    while (pool->count <= 0) {
-        printf(">> Found Buffer Empty \n");
-        pthread_cond_wait(&(pool->cond_nonempty), &(pool->mtxFd));
-    }
-    fd = pool->fds[pool->start];
-    pool->start = (pool->start + 1) % POOL_SIZE;
-    pool->count--;
-    pthread_mutex_unlock(&(pool->mtxFd));
-    return fd;
-
-
 }

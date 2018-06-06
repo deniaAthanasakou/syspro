@@ -6,8 +6,6 @@
 #include "errorHandler.h"
 #include "getPages.h"
 
-
-
 int main (int argc,char* argv[]){
 
 	struct timeb begin;
@@ -71,18 +69,9 @@ int main (int argc,char* argv[]){
 		exit(1);
 	}
 	if(port==command_port){
-		printf("Error! Different ports were required.\n");
+		printf("Error! Different ports are required.\n");
 		exit(1);
 	}
-
-	
-	
-
-
-
-
-	printf("Printing input: save dir '%s', num_of_threads '%d', port '%d', command_port '%d' ", name_of_save_dir, num_of_threads, port, command_port);
-	printf("host_or_IP '%s', starting_URL '%s' (\"/site1/page1_8049.html\")\n", host_or_IP, starting_URL);
 
 	connectToServer(port, command_port, host_or_IP, starting_URL, name_of_save_dir, num_of_threads, &begin);
 

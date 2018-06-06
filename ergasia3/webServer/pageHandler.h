@@ -9,5 +9,4 @@ typedef struct ResponseStr{
 
 ResponseStr* getResponseStrOfPage(char* page, char* rootDirectory);
 
-
 #endif
