@@ -310,7 +310,6 @@ char* checkGETLine(char* GETLine){
 
 	word=strtok (NULL," \t\n");
 	if (word==NULL || strcmp(word, "HTTP/1.1")!=0){
-		printf("NOT HTTP/1.1\n");
 		free(page);
 		return NULL;
 	}
