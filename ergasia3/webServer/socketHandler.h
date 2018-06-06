@@ -14,7 +14,4 @@ char* getResponseForBadRequest();
 void initializeStats(Stats* stats);
 
 char* timeToString(struct timeb* begin,  struct timeb* end);
-
-
-int checkHostLine(char* HostLine);
 #endif

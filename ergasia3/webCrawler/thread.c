@@ -78,7 +78,6 @@ void *thread_f(void *argp){ /* Thread function */
         }
         pthread_mutex_unlock(&(pool->mtxQueue));
 
-
         readWriteInSocket(fd, pool->save_dir, pool->stats, pageName, pool->host_or_IP, pool,0);
 
 

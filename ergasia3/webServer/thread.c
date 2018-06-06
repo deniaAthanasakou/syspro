@@ -47,6 +47,7 @@ void *thread_f(void *argp){ /* Thread function */
 		int fd=getFdToThread(pool);
 		pthread_cond_signal(&(pool->cond_nonfull));
 		if(readFromSocket(fd, pool->rootDirectory,pool)==0){
+            pthread_exit(0);
 		}
 	}
 }

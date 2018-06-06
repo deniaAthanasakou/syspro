@@ -239,9 +239,8 @@ char* handleRequest(char* req, char* rootDirectory, ThreadPool* pool){	//will ch
 
 	char* initialReq=malloc((strlen(req)+1)*sizeof(char));
 	strcpy(initialReq, req);
-	int hostFlag=1;		//no host was given
+	int hostFlag=0;		//no host was given
 	char* GETLine=NULL;
-	char* hostLine=NULL;
 
 	char* line = strtok (req,"\n");
 	while (line != NULL)
@@ -251,8 +250,7 @@ char* handleRequest(char* req, char* rootDirectory, ThreadPool* pool){	//will ch
 			strcpy(GETLine, line);
 		}
 		if(strlen(line)>4 && line[0]=='H' && line[1]=='o' && line[2]=='s' && line[3]=='t' && line[4]==':'){
-			hostLine=malloc((strlen(line)+1)*sizeof(char));
-			strcpy(hostLine, line);
+			hostFlag=1;
 		}
 
 		line = strtok (NULL, "\n");
@@ -260,8 +258,7 @@ char* handleRequest(char* req, char* rootDirectory, ThreadPool* pool){	//will ch
 	//check if request is valid
 	if(strlen(initialReq)>3 && initialReq[strlen(initialReq)-1]=='\n' && initialReq[strlen(initialReq)-2]=='\n'){ //if last line is empty
 		char* page=checkGETLine(GETLine);
-		if(page==NULL || checkHostLine(hostLine)==0){
-			printf("Wrong request\n");
+		if(page==NULL || hostFlag==0){
 			response=getResponseForBadRequest();
 		}
 		else{			//check page
@@ -396,18 +393,4 @@ char* timeToString(struct timeb* begin,  struct timeb* end){
 
 	return timeStr;
 
-}
-
-
-int checkHostLine(char* HostLine){
-
-	char* word=strtok (HostLine," \t");
-	if (strcmp(word, "Host:")!=0)
-		return 0;
-
-	word=strtok (NULL," \t");		//may need to change this
-	if(word==NULL){
-		return 0;
-	}
-	return 1;
 }

@@ -21,4 +21,34 @@
 	./webcreator.sh root_directory text_file w p 
 
 	->Web server
+Έχω δημιουργήσει μια main function η οποία παίρνει τα ορίσματα, βρίσκει το χρόνο που ξεκίνησε ο server και καλεί τη συνάρτηση createSocket() που βρίσκεται στο αρχείο socketHandler. 
+Η createSocket() δημιουργεί ένα thread pool και του δίνει τα ορίσματα που θα χρειάζονται τα threads. Στη συνέχεια συνδέεται με τα 2 ports τα οποία πρέπει να είναι διαφορετικά μεταξύ τους και μέσω μιας select κάνει accept στο socket που έχει κάποια πληροφορία. Αν συνδεθεί στο my_socket, τότε εισάγει το καινούριο fd στο thread pool (με τη βοήθεια mutex). Αλλιώς αν συνδεθεί στο my_CommandSocket, περιμένει τις εντολές STATS και SHUTDOWN και εκτυπώνει τα ζητούμενα στατιστικά ή σταματάει τα connections αντίστοιχα. Στο τέλος αυτής της συνάρτησης καταστρέφω τις δομές μου και καλώ τη destroyThreadPool η οποία κάνει cancel και pthread_join στα threads, για να τερματίσουν.
+Το κάθε thread, αφού πάρει κάποιο file descriptor, καλεί τη readFromSocket() η οποία λαμβάνει το μέγεθος του request και το ίδιο το request και στέλνει στο socket το μέγεθος του response και το response. Η αποστολή του response γίνεται σταδιακά σε μια επανάληψη.
 
+	->Web crawler
+Mια main συνάρτηση παίρνει τα ορίσματα από τον χρήστη, βρίσκει το χρόνο που ξεκίνησε ο crawler και καλεί τη συνάρτηση connectToServer() που βρίσκεται στο αρχείο getPages. Εκεί δημιουργείται το thread pool που θα έχει και την ουρά από τα links (δεν έχει στατικό μέγεθος) και σε μια while(1) περιμένει τις εντολές STATS, SHUTDOWN και SEARCH απο το command port (Η τελευταία δεν έχει υλοποιηθεί).
+Κάθε thread του pool δημιουργεί ένα socket, παίρνει κάποιο link από την ουρά (με τη βοήθεια mutex) και καλεί την readWriteInSocket().
+H readWriteInSocket() στέλνει για το στοιχείο της ουράς ένα το μέγεθος και το request, λαμβάνει το μέγεθος και το response και στη συνέχεια δημιουργεί το αρχείο (αν δεν υπάρχει) στο save directory. Κατόπιν τοποθετεί κάθε link του αρχείου στην ουρά.
+Με την εντολή SHUTDOWN, τα threads τερματίζουν.
+
+	Σχόλια:
+
+Queue: Η δομή αυτή περίλαμβάνει 2 αρχικούς κόμβους και 2 τελικούς. Το ένα ζευγάρι (firstNodeFullQueue - lastNodeFullQueue), χρησιμοποιείται για να μην εισαχθεί στην ουρά ξανά κάτι το οποίο είχε εισαχθεί παλιότερα και επομένως είχε γίνει requested από τον server.
+
+Crawler threads: Για κάποιο λόγο δεν μπορούσα να τερματίσω τη λειτουργία των threads στον crawler και γι' αυτό τα έκανα kill. Έτσι εξηγείται και το valgrind error το οποίο επηρεάζει και τον server. Αν, όμως, τεματίσει πρώτα ο server, δεν βγάζει valgrind errors.
+
+Stats: Για τον υπολογισμό του χρόνου χρησιμοποιήσα τη δομή timeb.
+
+Command port: Για τη σύνδεση στο command port, μέσω terminal, χρησιμοποίησα μια εντολή τύπου
+telnet localhost 2020
+
+Leaks: Απ' ότι είδα δεν υπήρχαν memory leaks.
+
+save_dir vs root_dir: Οι φάκελοι βγάινουν ίδιοι με τη διαφορά ότι σε κάποια αρχεία κάποιες φορές μπορεί να υπάρχει μια επιπλέον αλλαγή γραμμής.
+
+
+	Μεταγλώττιση/Εκτέλεση
+Για να μεταγλωττιστούν ο Web server και Web crawler πληκτρολογώ make.
+Για την εκτέλεσή τους χρησιμοποιώ αντίστοιχα
+./myhttpd -t 6 -d /.../root_directory -c 2020 -p 9090
+./mycrawler -h localhost -p 9090 -c 4040 -t 7 -d /.../save_dir .../siteΧ/pageΧ_Υ.html
